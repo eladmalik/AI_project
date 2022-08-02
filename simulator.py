@@ -1,11 +1,16 @@
+import os.path
+
 import pygame
+from utils import blit_rotate_center
 
 from parking_lot import ParkingLot
 
 PURE_WHITE = (255, 255, 255)
 GAY_GRAY = (92, 92, 92)
 REBEL_RED = (115, 5, 12)
-GENDERLESS_GREEN = (139, 214, 111)
+# GENDERLESS_GREEN = (139, 214, 111)
+
+PATH_AGENT_IMG = os.path.join("assets", "genderless_green.png")
 
 
 class Simulator:
@@ -21,12 +26,12 @@ class Simulator:
         self.draw_screen()
 
     def create_objects(self):
-        agent_rect = pygame.transform.rotate(pygame.Surface((self.parking_lot.car_agent.width,
-                                                             self.parking_lot.car_agent.height)),
-                                             self.parking_lot.car_agent.rotation)
-        agent_rect.fill(GENDERLESS_GREEN)
+        agent_img = pygame.image.load(PATH_AGENT_IMG)
+        agent_surface = pygame.transform.scale(agent_img,
+                                               (self.parking_lot.car_agent.width,
+                                                self.parking_lot.car_agent.height))
 
-        self.object_map[self.parking_lot.car_agent] = agent_rect
+        self.object_map[self.parking_lot.car_agent] = agent_surface
         for cell in self.parking_lot.parking_cells:
             rect = pygame.Surface((cell.width, cell.height))
             rect.fill(GAY_GRAY)
@@ -42,5 +47,10 @@ class Simulator:
             self.window.blit(self.object_map[cell], (cell.x, cell.y))
             if cell.is_occupied():
                 self.window.blit(self.object_map[cell.car], (cell.car.x, cell.car.y))
-        self.window.blit(self.object_map[self.parking_lot.car_agent], (self.parking_lot.car_agent.x,
-                                                                       self.parking_lot.car_agent.y))
+
+        blit_rotate_center(self.window, self.object_map[self.parking_lot.car_agent],
+                           (self.parking_lot.car_agent.x, self.parking_lot.car_agent.y),
+                           self.parking_lot.car_agent.rotation)
+
+        # self.window.blit(self.object_map[self.parking_lot.car_agent], (self.parking_lot.car_agent.x,
+        #                                                                self.parking_lot.car_agent.y))
