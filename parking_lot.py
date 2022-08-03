@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, List
 
 import pygame.sprite
 
@@ -7,11 +7,12 @@ from car import Car
 
 
 class ParkingLot:
-    def __init__(self, width: int, height: int, agent: Car, parking_cells: Iterable[ParkingCell]):
+    def __init__(self, width: int, height: int, agent: Car, parking_cells: List[ParkingCell]):
         self.width: int = width
         self.height: int = height
         self.car_agent: Car = agent
-        self.parking_cells: Iterable[ParkingCell] = parking_cells
+        self.parking_cells: List[ParkingCell] = parking_cells
+        self.stationary_cars = [cell.car for cell in self.parking_cells if cell.is_occupied()]
 
     def get_empty_parking_cells(self) -> Iterable[ParkingCell]:
         empty_cells = []

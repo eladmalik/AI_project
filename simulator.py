@@ -4,10 +4,7 @@ import pygame
 
 from parking_lot import ParkingLot
 
-PURE_WHITE = (255, 255, 255)
-GAY_GRAY = (92, 92, 92)
-REBEL_RED = (115, 5, 12)
-GENDERLESS_GREEN = (139, 214, 111)
+WHITE = (255, 255, 255)
 
 PATH_AGENT_IMG = os.path.join("assets", "genderless_green.png")
 PATH_PARKING_IMG = os.path.join("assets", "gay_gray.png")
@@ -21,14 +18,18 @@ class Simulator:
         self.width = self.parking_lot.width
         self.height = self.parking_lot.height
         self.window = pygame.display.set_mode((self.width, self.height))
-        self.sprites_group = pygame.sprite.Group()
-        self.sprites_group.add(self.parking_lot.get_all_sprites())
+        self.agent_group = pygame.sprite.Group(self.parking_lot.car_agent)
+        self.stationary_cars_group = pygame.sprite.Group(self.parking_lot.stationary_cars)
+        self.parking_cells_group = pygame.sprite.Group(self.parking_lot.parking_cells)
+
         pygame.display.set_caption("Car Parking Simulator")
         self.draw_screen()
 
     def draw_screen(self):
-        self.window.fill(PURE_WHITE)
-        self.sprites_group.draw(self.window)
+        self.window.fill(WHITE)
+        self.parking_cells_group.draw(self.window)
+        self.stationary_cars_group.draw(self.window)
+        self.agent_group.draw(self.window)
 
-    def move_agent(self, acceleration, steering, time):
-        self.parking_lot.car_agent.move(acceleration, steering, time)
+    def move_agent(self, movement, steering, time):
+        self.parking_lot.car_agent.update(time, movement, steering)
