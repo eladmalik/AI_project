@@ -6,7 +6,7 @@ from parking_lot import ParkingLot
 
 WHITE = (255, 255, 255)
 
-PATH_AGENT_IMG = os.path.join("assets", "genderless_green.png")
+PATH_AGENT_IMG = os.path.join("assets", "car.png")
 PATH_PARKING_IMG = os.path.join("assets", "gay_gray.png")
 PATH_CAR_IMG = os.path.join("assets", "rebel_red.png")
 
