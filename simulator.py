@@ -29,3 +29,6 @@ class Simulator:
     def draw_screen(self):
         self.window.fill(PURE_WHITE)
         self.sprites_group.draw(self.window)
+
+    def move_agent(self, acceleration, steering, time):
+        self.parking_lot.car_agent.move(acceleration, steering, time)
