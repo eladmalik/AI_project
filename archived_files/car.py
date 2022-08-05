@@ -6,7 +6,7 @@ import pygame
 from pygame.math import Vector2
 import math
 
-from CarSimSprite import CarSimSprite, get_angle
+from CarSimSprite import CarSimSprite
 
 
 class Acceleration(Enum):
@@ -27,6 +27,8 @@ FORWARD_ACCELERATION = 200
 BACKWARDS_ACCELERATION = 200
 
 BASE_VECTOR = Vector2(0, -1)
+
+get_angle = lambda x: x % 360
 
 
 class Car(CarSimSprite):

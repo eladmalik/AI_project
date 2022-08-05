@@ -7,6 +7,9 @@ from CarSimSprite import CarSimSprite
 
 
 class Movement(Enum):
+    """
+    Indicates the forward/backward movement of a car
+    """
     FORWARD = 1
     NEUTRAL = 0
     BACKWARD = -1
@@ -14,6 +17,9 @@ class Movement(Enum):
 
 
 class Steering(Enum):
+    """
+    Indicates the side which the steering wheel is rotated to
+    """
     LEFT = 1
     NEUTRAL = 0
     RIGHT = -1
@@ -52,6 +58,12 @@ class Car(CarSimSprite):
         self.steering = 0.0
 
     def update(self, dt: float, movement: Movement, steering: Steering):
+        """
+        updates the movement of the car
+        :param dt: the time interval which the car should move
+        :param movement: indicates the forward/backward movement of the car
+        :param steering: indicates to which side the car should steer
+        """
         if movement == Movement.FORWARD:
             if self.velocity.x < 0:
                 self.acceleration = self.brake_deceleration
