@@ -7,14 +7,15 @@ from parking_lot import ParkingLot
 from parking_cell import ParkingCell
 from car import Car, Movement, Steering
 
-FPS = 144
+FPS = 60
 
 if __name__ == '__main__':
-    car = Car(100, 100, 100, 50, 0, PATH_CAR_IMG)
-    cell1 = ParkingCell(100, 100, 200, 200, 0, PATH_PARKING_IMG, car)
-    cell2 = ParkingCell(300, 300, 200, 200, 0, PATH_PARKING_IMG)
+    car = Car(300, 150, 100, 50, 180, PATH_CAR_IMG)
+    cell1 = ParkingCell(300, 150, 300, 150, 0, PATH_PARKING_IMG, car)
+    cell2 = ParkingCell(300, 300, 300, 150, 0, PATH_PARKING_IMG)
+    cell3 = ParkingCell(500, 500, 300, 150, 30, PATH_PARKING_IMG, topleft=True)
     agent_car = Car(600, 500, 100, 50, 0, PATH_AGENT_IMG)
-    lot = ParkingLot(1000, 1000, agent_car, [cell1, cell2])
+    lot = ParkingLot(1000, 1000, agent_car, [cell1, cell2, cell3])
     sim = Simulator(lot)
     clock = pygame.time.Clock()
     while True:
@@ -43,6 +44,7 @@ if __name__ == '__main__':
             f" vel magnitude: "
             f"{sim.parking_lot.car_agent.velocity.magnitude():.2f},"
             f" acceleration: {sim.parking_lot.car_agent.acceleration:.2f}, "
-            f"collision: {results[Results.COLLISION]}, in free cell: {results[Results.AGENT_IN_UNOCCUPIED]}")
+            f"collision: {results[Results.COLLISION]}, % in free cell: "
+            f"{0.0 if len(results[Results.UNOCCUPIED_PERCENTAGE]) == 0 else max(results[Results.UNOCCUPIED_PERCENTAGE].values()):.2f}")
         sim.draw_screen()
         pygame.display.update()

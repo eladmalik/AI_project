@@ -6,7 +6,6 @@ from math import sin, radians, degrees, copysign
 from CarSimSprite import CarSimSprite
 
 
-
 class Movement(Enum):
     FORWARD = 1
     NEUTRAL = 0
@@ -35,8 +34,10 @@ class Car(CarSimSprite):
     The car's logic is based on this tutorial: http://rmgi.blog/pygame-2d-car-tutorial.html
     and its source code: https://github.com/maximryzhov/pygame-car-tutorial
     """
-    def __init__(self, x: float, y: float, width: float, height: float, rotation: float, img_path: str):
-        super().__init__(x, y, width, height, rotation, img_path)
+
+    def __init__(self, x: float, y: float, width: float, height: float, rotation: float, img_path: str,
+                 topleft: bool = False):
+        super().__init__(x, y, width, height, rotation, img_path, topleft)
         self.velocity = Vector2(0.0, 0.0)
         self.length = width
         self.max_acceleration = MAX_ACCELERATION
