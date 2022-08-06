@@ -2,25 +2,54 @@ import sys
 
 import pygame
 
-from simulator import Simulator, PATH_PARKING_IMG, PATH_AGENT_IMG, PATH_CAR_IMG, Results
+from simulator import Simulator, PATH_PARKING_IMG, PATH_AGENT_IMG, PATH_CAR_IMG, PATH_PARKING_SIDEWALK_IMG, \
+    Results, PATH_FLOOR_IMG, DrawingMethod
 from parking_lot import ParkingLot
 from parking_cell import ParkingCell
+from obstables import Sidewalk
 from car import Car, Movement, Steering
 
-FPS = 60
-DEBUG = False
+FPS = 144
+DEBUG = True
 
 if __name__ == '__main__':
     # initializing the parking lot
-    car = Car(300, 150, 100, 50, 180, PATH_CAR_IMG)
-    cell1 = ParkingCell(300, 150, 300, 150, 0, PATH_PARKING_IMG, car)
-    cell2 = ParkingCell(300, 300, 300, 150, 0, PATH_PARKING_IMG)
-    cell3 = ParkingCell(500, 500, 300, 150, 30, PATH_PARKING_IMG, topleft=True)
-    agent_car = Car(600, 500, 100, 50, 0, PATH_AGENT_IMG)
-    lot = ParkingLot(1000, 1000, agent_car, [cell1, cell2, cell3])
+    # car = Car(300, 150, 100, 50, 180, PATH_CAR_IMG)
+    # cell1 = ParkingCell(300, 150, 300, 150, 0, PATH_PARKING_IMG, car)
+    # cell2 = ParkingCell(300, 300, 300, 150, 0, PATH_PARKING_IMG)
+    # cell3 = ParkingCell(500, 500, 300, 150, 30, PATH_PARKING_IMG, topleft=True)
+    # agent_car = Car(600, 500, 100, 50, 0, PATH_AGENT_IMG)
+    # lot = ParkingLot(1000, 1000, agent_car, [cell1, cell2, cell3])
+
+    sidewalk_left = Sidewalk(900, 0, 100, 1000, 0, topleft=True)
+    sidewalk_right = Sidewalk(0, 0, 100, 1000, 0, topleft=True)
+    agent = Car(500, 500, 100, 50, 0, PATH_AGENT_IMG)
+    parking_cells = [
+        ParkingCell(100, 0, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(100, 130, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(100, 260, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(100, 390, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
+                                                                                              PATH_CAR_IMG),
+        ParkingCell(100, 520, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(100, 650, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+
+        ParkingCell(835, 0, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(835, 130, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(835, 260, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
+                                                                                               PATH_CAR_IMG),
+        ParkingCell(835, 390, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(835, 520, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
+                                                                                               PATH_CAR_IMG),
+        ParkingCell(835, 650, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+    ]
+    ParkingCell(800, 0, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True)
+    lot = ParkingLot(1000, 1000, agent, parking_cells, [sidewalk_left, sidewalk_right])
 
     # initializing the simulator
-    sim = Simulator(lot)
+    sim = Simulator(lot, drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT, full_refresh_rate=int(
+        FPS / 8),
+                    background_image=PATH_FLOOR_IMG)
+    # sim = Simulator(lot, drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)
     clock = pygame.time.Clock()
     while True:
         # The main loop of the simulator. every iteration of this loop equals to one frame in the simulator.
@@ -59,5 +88,4 @@ if __name__ == '__main__':
                 f"{0.0 if len(results[Results.UNOCCUPIED_PERCENTAGE]) == 0 else max(results[Results.UNOCCUPIED_PERCENTAGE].values()):.2f}")
 
         # updating the screen
-        sim.draw_screen()
-        pygame.display.update()
+        sim.update_screen()

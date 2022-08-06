@@ -54,6 +54,9 @@ class CarSimSprite(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = self.location
 
+        # used for efficient drawing
+        self.prev_rect = self.rect
+
         # the image template of the mask. this image represents the actual "hitbox" of the object. by
         # default, it's simply the image itself.
         self._mask_template = self.image_no_rotation
@@ -67,6 +70,9 @@ class CarSimSprite(pygame.sprite.Sprite):
 
     def get_topleft(self):
         return self.rect.topleft
+
+    def get_center(self):
+        return self.rect.center
 
     def set_mask_template(self, surface_no_rotation: pygame.Surface):
         """
@@ -96,6 +102,7 @@ class CarSimSprite(pygame.sprite.Sprite):
         :param new_angle: the new angle of the sprite, as described under "rotation" in the constructor's
         documentation.
         """
+        self.prev_rect = self.rect
         if isinstance(new_location, tuple):
             new_location = Vector2(new_location)
 
