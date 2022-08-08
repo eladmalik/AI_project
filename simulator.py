@@ -9,16 +9,12 @@ from parking_cell import ParkingCell
 from utils import mask_subset_percentage
 from parking_lot import ParkingLot
 
+from assets_paths import PATH_AGENT_IMG, PATH_PARKING_IMG, PATH_PARKING_SIDEWALK_IMG, PATH_CAR_IMG, \
+    PATH_ICON_IMG, PATH_FLOOR_IMG
+
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 FLOOR = (77, 76, 75)
-
-PATH_AGENT_IMG = os.path.join("assets", "green-car-top-view.png")
-PATH_PARKING_IMG = os.path.join("assets", "parking_left.png")
-PATH_PARKING_SIDEWALK_IMG = os.path.join("assets", "parking_sidewalk_down.png")
-PATH_CAR_IMG = os.path.join("assets", "orange-car-top-view.png")
-PATH_ICON_IMG = os.path.join("assets", "icon.png")
-PATH_FLOOR_IMG = os.path.join("assets", "floor.png")
 
 
 class Results(Enum):

@@ -2,25 +2,20 @@ import sys
 
 import pygame
 
-from simulator import Simulator, PATH_PARKING_IMG, PATH_AGENT_IMG, PATH_CAR_IMG, PATH_PARKING_SIDEWALK_IMG, \
-    Results, PATH_FLOOR_IMG, DrawingMethod
+import lot_generator
+from simulator import Simulator, Results, DrawingMethod
 from parking_lot import ParkingLot
 from parking_cell import ParkingCell
-from obstables import Sidewalk
+from obstacles import Sidewalk
 from car import Car, Movement, Steering
+from assets_paths import PATH_AGENT_IMG, PATH_PARKING_IMG, PATH_PARKING_SIDEWALK_IMG, PATH_CAR_IMG, \
+    PATH_ICON_IMG, PATH_FLOOR_IMG
 
 FPS = 144
 DEBUG = True
 
-if __name__ == '__main__':
-    # initializing the parking lot
-    # car = Car(300, 150, 100, 50, 180, PATH_CAR_IMG)
-    # cell1 = ParkingCell(300, 150, 300, 150, 0, PATH_PARKING_IMG, car)
-    # cell2 = ParkingCell(300, 300, 300, 150, 0, PATH_PARKING_IMG)
-    # cell3 = ParkingCell(500, 500, 300, 150, 30, PATH_PARKING_IMG, topleft=True)
-    # agent_car = Car(600, 500, 100, 50, 0, PATH_AGENT_IMG)
-    # lot = ParkingLot(1000, 1000, agent_car, [cell1, cell2, cell3])
 
+def get_example_lot():
     sidewalk_left = Sidewalk(900, 0, 100, 1000, 0, topleft=True)
     sidewalk_right = Sidewalk(0, 0, 100, 1000, 0, topleft=True)
     agent = Car(500, 500, 100, 50, 0, PATH_AGENT_IMG)
@@ -44,11 +39,21 @@ if __name__ == '__main__':
     ]
     ParkingCell(800, 0, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True)
     lot = ParkingLot(1000, 1000, agent, parking_cells, [sidewalk_left, sidewalk_right])
+    return lot
+
+
+if __name__ == '__main__':
+    # initializing the parking lot
+    # car = Car(300, 150, 100, 50, 180, PATH_CAR_IMG)
+    # cell1 = ParkingCell(300, 150, 300, 150, 0, PATH_PARKING_IMG, car)
+    # cell2 = ParkingCell(300, 300, 300, 150, 0, PATH_PARKING_IMG)
+    # cell3 = ParkingCell(500, 500, 300, 150, 30, PATH_PARKING_IMG, topleft=True)
+    # agent_car = Car(600, 500, 100, 50, 0, PATH_AGENT_IMG)
+    # lot = ParkingLot(1000, 1000, agent_car, [cell1, cell2, cell3])
+    lot = lot_generator.scenario1_parallel()
 
     # initializing the simulator
-    sim = Simulator(lot, drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT, full_refresh_rate=int(
-        FPS / 8),
-                    background_image=PATH_FLOOR_IMG)
+    sim = Simulator(lot, drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT, background_image=PATH_FLOOR_IMG)
     # sim = Simulator(lot, drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)
     clock = pygame.time.Clock()
     while True:

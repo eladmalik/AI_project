@@ -44,6 +44,8 @@ class CarSimSprite(pygame.sprite.Sprite):
         self.rotation = rotation
         self.location = Vector2(x, y)
         img = pygame.image.load(img_path)
+        self.width = width
+        self.height = height
 
         # the base surface of the sprite's image. used in order to calculate the rotated image
         self.image_no_rotation = pygame.transform.scale(img, (width, height))
@@ -82,6 +84,10 @@ class CarSimSprite(pygame.sprite.Sprite):
         """
         self._mask_template = surface_no_rotation
         self.mask = pygame.mask.from_surface(pygame.transform.rotate(self._mask_template, self.rotation))
+
+    def set_image(self, image_path):
+        self.image_no_rotation = pygame.transform.scale(image_path, (self.width, self.height))
+        self.image = pygame.transform.rotate(self.image_no_rotation, self.rotation)
 
     def get_base_dimensions(self):
         """
