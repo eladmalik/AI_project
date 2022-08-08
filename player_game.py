@@ -12,7 +12,7 @@ from assets_paths import PATH_AGENT_IMG, PATH_PARKING_IMG, PATH_PARKING_SIDEWALK
     PATH_ICON_IMG, PATH_FLOOR_IMG
 
 FPS = 144
-DEBUG = True
+DEBUG = False
 
 
 def get_example_lot():
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     # cell3 = ParkingCell(500, 500, 300, 150, 30, PATH_PARKING_IMG, topleft=True)
     # agent_car = Car(600, 500, 100, 50, 0, PATH_AGENT_IMG)
     # lot = ParkingLot(1000, 1000, agent_car, [cell1, cell2, cell3])
-    lot = lot_generator.scenario1_parallel()
+    lot = lot_generator.generate_lot()
 
     # initializing the simulator
     sim = Simulator(lot, drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT, background_image=PATH_FLOOR_IMG)
