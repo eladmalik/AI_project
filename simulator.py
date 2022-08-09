@@ -1,3 +1,4 @@
+import math
 import os.path
 import sys
 from enum import Enum
@@ -173,6 +174,11 @@ class Simulator:
                 self._draw_screen_no_obstacles()
         elif self._drawing_method == DrawingMethod.BACKGROUND_SNAPSHOT:
             self._draw_screen_snapshot()
+
+        # TEST
+        start, stop = self.agent.sensors[0]._create_sensor_line(self.agent)
+        pygame.draw.line(self.window, (255, 255, 255), start, stop)
+
         pygame.display.update()
         self.iteration_counter = (self.iteration_counter + 1) % sys.maxsize
 

@@ -19,10 +19,10 @@ class ParkingType(Enum):
 
 
 def create_vertical_parking_cells(screen_size, sidewalk_width, side, car_size: Tuple[float, float]) -> List[ParkingCell]:
-    height_scale = int(round(1.5 + 0.7 * random.random()))
-    width_scale = int(round(1.4 + 2.1 * random.random()))
-    width = car_size[1] * width_scale
-    height = car_size[0] * height_scale
+    height_scale = 1.5 + (0.7 * random.random())
+    width_scale = 1.4 + (2.1 * random.random())
+    width = round(car_size[1] * width_scale)
+    height = round(car_size[0] * height_scale)
     num_of_cells = int(math.floor(screen_size / width))
     start_pos = (0, 0)
     rotation = 0
@@ -52,10 +52,10 @@ def create_vertical_parking_cells(screen_size, sidewalk_width, side, car_size: T
 
 
 def create_parallel_parking_cells(screen_size, sidewalk_width, side, car_size: Tuple[float, float]) -> List[ParkingCell]:
-    width_scale = int(round(1.5 + 0.7 * random.random()))
-    height_scale = int(round(1.4 + 2.1 * random.random()))
-    width = car_size[0] * width_scale
-    height = car_size[1] * height_scale
+    width_scale = 1.5 + (0.7 * random.random())
+    height_scale = 1.4 + (2.1 * random.random())
+    width = round(car_size[0] * width_scale)
+    height = round(car_size[1] * height_scale)
     num_of_cells = int(math.floor(screen_size / width))
     start_pos = (0, 0)
     rotation = 0

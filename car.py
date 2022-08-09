@@ -4,6 +4,7 @@ from pygame.math import Vector2
 from math import sin, radians, degrees, copysign
 
 from CarSimSprite import CarSimSprite
+from proximity_sensor import ProximitySensor, SensorDirection
 
 
 class Movement(Enum):
@@ -33,6 +34,8 @@ FREE_DECELERATION = 15
 ACCELERATION_FACTOR = 60
 STEERING_FACTOR = 60
 
+MAX_SENSOR_DISTANCE = 80
+
 
 class Car(CarSimSprite):
     """
@@ -53,6 +56,7 @@ class Car(CarSimSprite):
         self.free_deceleration = FREE_DECELERATION
         self.acceleration_factor = ACCELERATION_FACTOR
         self.steering_factor = STEERING_FACTOR
+        self.sensors = [ProximitySensor(SensorDirection.FRONT, 0, MAX_SENSOR_DISTANCE)]
 
         self.acceleration = 0.0
         self.steering = 0.0

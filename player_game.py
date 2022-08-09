@@ -11,7 +11,7 @@ from car import Car, Movement, Steering
 from assets_paths import PATH_AGENT_IMG, PATH_PARKING_IMG, PATH_PARKING_SIDEWALK_IMG, PATH_CAR_IMG, \
     PATH_ICON_IMG, PATH_FLOOR_IMG
 
-FPS = 144
+FPS = 200
 DEBUG = False
 
 
@@ -53,7 +53,8 @@ if __name__ == '__main__':
     lot = lot_generator.generate_lot()
 
     # initializing the simulator
-    sim = Simulator(lot, drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT, background_image=PATH_FLOOR_IMG)
+    # sim = Simulator(lot, drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT, background_image=PATH_FLOOR_IMG)
+    sim = Simulator(lot, drawing_method=DrawingMethod.FULL)
     # sim = Simulator(lot, drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)
     clock = pygame.time.Clock()
     while True:
