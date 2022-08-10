@@ -34,7 +34,7 @@ FREE_DECELERATION = 15
 ACCELERATION_FACTOR = 60
 STEERING_FACTOR = 60
 
-MAX_SENSOR_DISTANCE = 80
+MAX_SENSOR_DISTANCE = 100
 
 
 class Car(CarSimSprite):
@@ -56,7 +56,14 @@ class Car(CarSimSprite):
         self.free_deceleration = FREE_DECELERATION
         self.acceleration_factor = ACCELERATION_FACTOR
         self.steering_factor = STEERING_FACTOR
-        self.sensors = [ProximitySensor(SensorDirection.FRONT, 0, MAX_SENSOR_DISTANCE)]
+        self.sensors = [ProximitySensor(self, SensorDirection.FRONT, 0, MAX_SENSOR_DISTANCE),
+                        ProximitySensor(self, SensorDirection.FRONT, 30, MAX_SENSOR_DISTANCE),
+                        ProximitySensor(self, SensorDirection.FRONT, -30, MAX_SENSOR_DISTANCE),
+                        ProximitySensor(self, SensorDirection.BACK, 0, MAX_SENSOR_DISTANCE),
+                        ProximitySensor(self, SensorDirection.BACK, 30, MAX_SENSOR_DISTANCE),
+                        ProximitySensor(self, SensorDirection.BACK, -30, MAX_SENSOR_DISTANCE),
+                        ProximitySensor(self, SensorDirection.LEFT, 0, MAX_SENSOR_DISTANCE),
+                        ProximitySensor(self, SensorDirection.RIGHT, 0, MAX_SENSOR_DISTANCE) ]
 
         self.acceleration = 0.0
         self.steering = 0.0

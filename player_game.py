@@ -11,7 +11,7 @@ from car import Car, Movement, Steering
 from assets_paths import PATH_AGENT_IMG, PATH_PARKING_IMG, PATH_PARKING_SIDEWALK_IMG, PATH_CAR_IMG, \
     PATH_ICON_IMG, PATH_FLOOR_IMG
 
-FPS = 200
+FPS = 60
 DEBUG = False
 
 
@@ -31,10 +31,10 @@ def get_example_lot():
         ParkingCell(835, 0, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
         ParkingCell(835, 130, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
         ParkingCell(835, 260, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
-                                                                                               PATH_CAR_IMG),
+                                                                                               PATH_CAR_IMG,rotation=50),
         ParkingCell(835, 390, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
         ParkingCell(835, 520, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
-                                                                                               PATH_CAR_IMG),
+                                                                                               PATH_CAR_IMG,rotation=70),
         ParkingCell(835, 650, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
     ]
     ParkingCell(800, 0, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True)
@@ -51,6 +51,7 @@ if __name__ == '__main__':
     # agent_car = Car(600, 500, 100, 50, 0, PATH_AGENT_IMG)
     # lot = ParkingLot(1000, 1000, agent_car, [cell1, cell2, cell3])
     lot = lot_generator.generate_lot()
+    # lot = get_example_lot()
 
     # initializing the simulator
     # sim = Simulator(lot, drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT, background_image=PATH_FLOOR_IMG)

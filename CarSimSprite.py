@@ -46,7 +46,6 @@ class CarSimSprite(pygame.sprite.Sprite):
         img = pygame.image.load(img_path)
         self.width = width
         self.height = height
-
         # the base surface of the sprite's image. used in order to calculate the rotated image
         self.image_no_rotation = pygame.transform.scale(img, (width, height))
         self.image = pygame.transform.rotate(self.image_no_rotation, self.rotation)

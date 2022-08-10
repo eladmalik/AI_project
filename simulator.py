@@ -175,9 +175,12 @@ class Simulator:
         elif self._drawing_method == DrawingMethod.BACKGROUND_SNAPSHOT:
             self._draw_screen_snapshot()
 
-        # TEST
-        start, stop = self.agent.sensors[0]._create_sensor_line(self.agent)
-        pygame.draw.line(self.window, (255, 255, 255), start, stop)
+        # TEST TODO: remove this for loop
+        for sensor in self.agent.sensors:
+            start, stop = sensor._create_sensor_line()
+            pygame.draw.line(self.window, (255, 255, 255), start, stop)
+            min_dot, _ = sensor.detect(self.obstacles_group)
+            pygame.draw.circle(self.window, (15, 245, 233), min_dot, 7)
 
         pygame.display.update()
         self.iteration_counter = (self.iteration_counter + 1) % sys.maxsize

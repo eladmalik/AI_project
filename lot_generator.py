@@ -10,7 +10,7 @@ from obstacles import Sidewalk
 from parking_cell import ParkingCell
 from parking_lot import ParkingLot
 from assets_paths import PATH_AGENT_IMG, PATH_PARKING_SIDEWALK_IMG, PATH_PARKING_SIDEWALK_TARGET_IMG, \
-    PATH_CAR_IMG
+    PATH_CAR_IMG, PATH_PARKING_IMG, PATH_PARKING_TARGET_IMG
 
 
 class ParkingType(Enum):
@@ -18,7 +18,8 @@ class ParkingType(Enum):
     VERTICAL = 1
 
 
-def create_vertical_parking_cells(screen_size, sidewalk_width, side, car_size: Tuple[float, float]) -> List[ParkingCell]:
+def create_vertical_parking_cells(screen_size, sidewalk_width, side, car_size: Tuple[float, float]) -> List[
+    ParkingCell]:
     height_scale = 1.5 + (0.7 * random.random())
     width_scale = 1.4 + (2.1 * random.random())
     width = round(car_size[1] * width_scale)
@@ -51,7 +52,8 @@ def create_vertical_parking_cells(screen_size, sidewalk_width, side, car_size: T
     return parking_cells
 
 
-def create_parallel_parking_cells(screen_size, sidewalk_width, side, car_size: Tuple[float, float]) -> List[ParkingCell]:
+def create_parallel_parking_cells(screen_size, sidewalk_width, side, car_size: Tuple[float, float]) -> List[
+    ParkingCell]:
     width_scale = 1.5 + (0.7 * random.random())
     height_scale = 1.4 + (2.1 * random.random())
     width = round(car_size[0] * width_scale)
@@ -120,8 +122,11 @@ def scenario1_parallel() -> ParkingLot:
     parking_cells[target_index].set_image(PATH_PARKING_SIDEWALK_TARGET_IMG)
     for i in range(len(parking_cells)):
         if i != target_index and random.choice([True, False]):
-            parking_cells[i].place_car(car_size[0], car_size[1], PATH_CAR_IMG, rotation=random.choice([
-                parking_cells[i].rotation, parking_cells[i].rotation + 180]))
+            rotation = random.choice([parking_cells[i].rotation, parking_cells[i].rotation + 180])
+            trash_parking = random.random()
+            if trash_parking > 0.75:
+                rotation += -20 + 40 * random.random()
+            parking_cells[i].place_car(car_size[0], car_size[1], PATH_CAR_IMG, rotation=rotation)
 
     agent_offset_x = random.randint(-screen_size // 15, screen_size // 15)
     agent_offset_y = random.randint(-screen_size // 15, screen_size // 15)
@@ -166,8 +171,11 @@ def scenario1_perpendicular() -> ParkingLot:
     parking_cells[target_index].set_image(PATH_PARKING_SIDEWALK_TARGET_IMG)
     for i in range(len(parking_cells)):
         if i != target_index and random.choice([True, False]):
-            parking_cells[i].place_car(car_size[0], car_size[1], PATH_CAR_IMG, rotation=random.choice([
-                parking_cells[i].rotation + 270, parking_cells[i].rotation + 90]))
+            rotation = random.choice([parking_cells[i].rotation + 270, parking_cells[i].rotation + 90])
+            trash_parking = random.random()
+            if trash_parking > 0.75:
+                rotation += -20 + 40 * random.random()
+            parking_cells[i].place_car(car_size[0], car_size[1], PATH_CAR_IMG, rotation=rotation)
 
     agent_offset_x = random.randint(-screen_size // 15, screen_size // 15)
     agent_offset_y = random.randint(-screen_size // 15, screen_size // 15)
