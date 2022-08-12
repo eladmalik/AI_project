@@ -5,7 +5,7 @@ import pygame
 
 
 class CarSimSprite(pygame.sprite.Sprite):
-    def __init__(self, x: float, y: float, width: float, height: float, rotation: float, img_path: str,
+    def __init__(self, x: float, y: float, width: float, height: float, rotation: float, img_path: str = None,
                  topleft: bool = False):
         """
         This class creates represents a sprite in the simulator
@@ -41,11 +41,14 @@ class CarSimSprite(pygame.sprite.Sprite):
         :param topleft: True if (x,y) states the top left corner of the sprite. False by default.
         """
         pygame.sprite.Sprite.__init__(self)
-        self.rotation = rotation
-        self.location = Vector2(x, y)
-        img = pygame.image.load(img_path)
-        self.width = width
-        self.height = height
+        self.rotation: float = rotation
+        self.location: Vector2 = Vector2(x, y)
+        if img_path is not None:
+            img = pygame.image.load(img_path)
+        else:
+            img = pygame.Surface((width, height))
+        self.width: float = width
+        self.height: float = height
         # the base surface of the sprite's image. used in order to calculate the rotated image
         self.image_no_rotation = pygame.transform.scale(img, (width, height))
         self.image = pygame.transform.rotate(self.image_no_rotation, self.rotation)
@@ -92,6 +95,13 @@ class CarSimSprite(pygame.sprite.Sprite):
         self.image_no_rotation = pygame.transform.scale(img, (self.width, self.height))
         self.image = pygame.transform.rotate(self.image_no_rotation, self.rotation)
 
+    # def set_current_surface(self, surface: pygame.Surface):
+    #     """
+    #     A function which changes current image - but not the base image of the sprite. used mainly for
+    #     copying the sprite object
+    #     """
+    #     self.image = surface
+
     def get_base_dimensions(self):
         """
         :return: the dimension of the sprite, assuming it's not rotated.
@@ -121,3 +131,16 @@ class CarSimSprite(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(pygame.transform.rotate(self._mask_template, self.rotation))
         self.rect = self.image.get_rect()
         self.rect.center = self.location
+
+    def copy(self):
+        new_copy = CarSimSprite(self.location.x, self.location.y, self.width, self.height, self.rotation)
+        new_copy.image_no_rotation = self.image_no_rotation
+        new_copy.image = self.image
+        new_copy._mask_template = self._mask_template
+        new_copy.mask = self.mask
+        new_copy.rect = self.rect
+        new_copy.prev_rect = self.prev_rect
+        return new_copy
+
+    def __copy__(self):
+        return self.copy()

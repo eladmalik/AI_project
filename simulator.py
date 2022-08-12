@@ -6,9 +6,11 @@ from typing import Dict, Union
 
 import pygame
 
+from CarSimSprite import CarSimSprite
 from parking_cell import ParkingCell
 from utils import mask_subset_percentage
 from parking_lot import ParkingLot
+from reward_analyzer import RewardAnalyzer, Results
 
 from assets_paths import PATH_AGENT_IMG, PATH_PARKING_IMG, PATH_PARKING_SIDEWALK_IMG, PATH_CAR_IMG, \
     PATH_ICON_IMG, PATH_FLOOR_IMG
@@ -16,16 +18,6 @@ from assets_paths import PATH_AGENT_IMG, PATH_PARKING_IMG, PATH_PARKING_SIDEWALK
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 FLOOR = (77, 76, 75)
-
-
-class Results(Enum):
-    """
-    keys of values returns by the move function of the simulator. use them in order to gather information
-    on the current state of the simulation.
-    """
-    COLLISION = 1
-    AGENT_IN_UNOCCUPIED = 2
-    UNOCCUPIED_PERCENTAGE = 3
 
 
 class DrawingMethod(Enum):
@@ -80,8 +72,14 @@ class Simulator:
         self.agent_group = pygame.sprite.Group(self.agent)
         self.stationary_cars_group = pygame.sprite.Group(self.parking_lot.stationary_cars)
         self.parking_cells_group = pygame.sprite.Group(self.parking_lot.parking_cells)
+        borders = [
+            CarSimSprite(-1, 0, 2, self.height, 0, topleft=True),
+            CarSimSprite(self.width, 0, 2, self.height, 0, topleft=True),
+            CarSimSprite(0, -1, self.width, 2, 0, topleft=True),
+            CarSimSprite(0, self.height, self.width, 2, 0, topleft=True)
+        ]
         self.obstacles_group = pygame.sprite.Group(self.parking_lot.stationary_cars,
-                                                   self.parking_lot.obstacles)
+                                                   self.parking_lot.obstacles, borders)
 
         self.background_img = None
         if background_image is not None:
@@ -205,7 +203,7 @@ class Simulator:
         """
         self.agent.update(time, movement, steering)
         return {Results.COLLISION: self.is_collision(),
-                Results.AGENT_IN_UNOCCUPIED: self.agent_in_unoccupied_cell(),
+                Results.PERCENTAGE_IN_TARGET: self.percentage_in_target_cell(),
                 Results.UNOCCUPIED_PERCENTAGE: self.get_agent_percentage_in_unoccupied_cells()}
 
     def is_collision(self):
@@ -230,16 +228,13 @@ class Simulator:
                 return True
         return False
 
-    def agent_in_unoccupied_cell(self) -> bool:
+    def percentage_in_target_cell(self) -> float:
         """
-        :return: True iff the agent is fully inside a free parking cell.
+        :return: True iff the agent is fully inside the target parking cell.
         """
-        for cell in self.parking_lot.free_parking_cells:
-            if self.agent.rect.colliderect(cell.rect):
-                collision_percentage = mask_subset_percentage(cell, self.agent)
-                if collision_percentage >= 1:
-                    return True
-        return False
+        if self.agent.rect.colliderect(self.parking_lot.target_park.rect):
+            return mask_subset_percentage(self.parking_lot.target_park, self.agent)
+        return 0.0
 
     def get_agent_percentage_in_unoccupied_cells(self) -> Dict[ParkingCell, float]:
         """

@@ -132,7 +132,7 @@ def scenario1_parallel() -> ParkingLot:
     agent_offset_y = random.randint(-screen_size // 15, screen_size // 15)
     agent = Car((screen_size // 2) + agent_offset_x, (screen_size // 2) + agent_offset_y, car_size[0],
                 car_size[1], random.random() * 360, PATH_AGENT_IMG)
-    return ParkingLot(screen_size, screen_size, agent, parking_cells, sidewalks)
+    return ParkingLot(screen_size, screen_size, agent, parking_cells, sidewalks, parking_cells[target_index])
 
 
 def scenario1_perpendicular() -> ParkingLot:
@@ -181,7 +181,7 @@ def scenario1_perpendicular() -> ParkingLot:
     agent_offset_y = random.randint(-screen_size // 15, screen_size // 15)
     agent = Car((screen_size // 2) + agent_offset_x, (screen_size // 2) + agent_offset_y, car_size[0],
                 car_size[1], random.random() * 360, PATH_AGENT_IMG)
-    return ParkingLot(screen_size, screen_size, agent, parking_cells, sidewalks)
+    return ParkingLot(screen_size, screen_size, agent, parking_cells, sidewalks, parking_cells[target_index])
 
 
 def generate_lot():
