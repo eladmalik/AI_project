@@ -7,6 +7,8 @@ from typing import Dict, Union
 import pygame
 
 from CarSimSprite import CarSimSprite
+from car import Car
+from feature_extractor import FeatureExtractor
 from parking_cell import ParkingCell
 from utils import mask_subset_percentage
 from parking_lot import ParkingLot
@@ -32,12 +34,15 @@ class Simulator:
     agent/player, outputs their outcome and offers the option to draw them to the screen.
     """
 
-    def __init__(self, lot: ParkingLot, background_image: Union[str, None] = None,
+    def __init__(self, lot: ParkingLot, reward_analyzer: RewardAnalyzer, feature_extractor: FeatureExtractor,
+                 background_image: Union[str, None] = None,
                  drawing_method=False,
                  full_refresh_rate: int = 30):
         """
         The constructor of the simulator
         :param lot: The parking lot
+
+        :param reward_analyzer: the analyzer responsible for calculating the reward for the current state
 
         :param background_image: setting this to an image's path will make the simulator to draw the image
         as a background. keeping it as None will make the simulator to draw the default background color.
@@ -62,24 +67,27 @@ class Simulator:
                but less nice-looking screen
         """
         pygame.init()
-        self.iteration_counter = 0
-        self.full_refresh_rate = full_refresh_rate
-        self.parking_lot = lot
-        self.width = self.parking_lot.width
-        self.height = self.parking_lot.height
-        self.window = pygame.display.set_mode((self.width, self.height))
-        self.agent = self.parking_lot.car_agent
-        self.agent_group = pygame.sprite.Group(self.agent)
-        self.stationary_cars_group = pygame.sprite.Group(self.parking_lot.stationary_cars)
-        self.parking_cells_group = pygame.sprite.Group(self.parking_lot.parking_cells)
+        self.iteration_counter: int = 0
+        self.full_refresh_rate: int = full_refresh_rate
+        self.parking_lot: ParkingLot = lot
+        self.width: float = self.parking_lot.width
+        self.height: float = self.parking_lot.height
+        self.window: pygame.Surface = pygame.display.set_mode((self.width, self.height))
+        self.agent: Car = self.parking_lot.car_agent
+        self.agent_group: pygame.sprite.Group = pygame.sprite.Group(self.agent)
+        self.stationary_cars_group: pygame.sprite.Group = pygame.sprite.Group(
+            self.parking_lot.stationary_cars)
+        self.parking_cells_group: pygame.sprite.Group = pygame.sprite.Group(self.parking_lot.parking_cells)
+        self.reward_analyzer: RewardAnalyzer = reward_analyzer
+        self.feature_extractor: FeatureExtractor = feature_extractor
         borders = [
             CarSimSprite(-1, 0, 2, self.height, 0, topleft=True),
             CarSimSprite(self.width, 0, 2, self.height, 0, topleft=True),
             CarSimSprite(0, -1, self.width, 2, 0, topleft=True),
             CarSimSprite(0, self.height, self.width, 2, 0, topleft=True)
         ]
-        self.obstacles_group = pygame.sprite.Group(self.parking_lot.stationary_cars,
-                                                   self.parking_lot.obstacles, borders)
+        self.obstacles_group: pygame.sprite.Group = pygame.sprite.Group(self.parking_lot.all_obstacles,
+                                                                        borders)
 
         self.background_img = None
         if background_image is not None:
@@ -173,15 +181,20 @@ class Simulator:
         elif self._drawing_method == DrawingMethod.BACKGROUND_SNAPSHOT:
             self._draw_screen_snapshot()
 
-        # TEST TODO: remove this for loop
-        for sensor in self.agent.sensors:
-            start, stop = sensor._create_sensor_line()
-            pygame.draw.line(self.window, (255, 255, 255), start, stop)
-            min_dot, _ = sensor.detect(self.obstacles_group)
-            pygame.draw.circle(self.window, (15, 245, 233), min_dot, 7)
+        # unmark this to display the sensors
+
+        # for direction in self.agent.sensors:
+        #     for sensor in self.agent.sensors[direction]:
+        #         start, stop = sensor._create_sensor_line()
+        #         pygame.draw.line(self.window, (255, 255, 255), start, stop)
+        #         min_dot, _ = sensor.detect(self.obstacles_group)
+        #         pygame.draw.circle(self.window, (15, 245, 233), min_dot, 7)
 
         pygame.display.update()
         self.iteration_counter = (self.iteration_counter + 1) % sys.maxsize
+
+    def get_state(self):
+        return self.feature_extractor.get_state(self.parking_lot)
 
     def move_agent(self, movement, steering, time):
         """
@@ -202,9 +215,10 @@ class Simulator:
 
         """
         self.agent.update(time, movement, steering)
-        return {Results.COLLISION: self.is_collision(),
-                Results.PERCENTAGE_IN_TARGET: self.percentage_in_target_cell(),
-                Results.UNOCCUPIED_PERCENTAGE: self.get_agent_percentage_in_unoccupied_cells()}
+        results = {Results.COLLISION: self.is_collision(),
+                   Results.PERCENTAGE_IN_TARGET: self.percentage_in_target_cell()}
+        reward = self.reward_analyzer.analyze(self.parking_lot, results)
+        return reward, results[Results.COLLISION]
 
     def is_collision(self):
         """

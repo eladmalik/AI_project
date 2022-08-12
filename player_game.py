@@ -3,6 +3,8 @@ import sys
 import pygame
 
 import lot_generator
+from feature_extractor import Extractor1
+from reward_analyzer import Analyzer1
 from simulator import Simulator, Results, DrawingMethod
 from parking_lot import ParkingLot
 from parking_cell import ParkingCell
@@ -12,7 +14,7 @@ from assets_paths import PATH_AGENT_IMG, PATH_PARKING_IMG, PATH_PARKING_SIDEWALK
     PATH_ICON_IMG, PATH_FLOOR_IMG
 
 FPS = 60
-DEBUG = False
+DEBUG = True
 
 
 def get_example_lot():
@@ -31,10 +33,12 @@ def get_example_lot():
         ParkingCell(835, 0, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
         ParkingCell(835, 130, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
         ParkingCell(835, 260, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
-                                                                                               PATH_CAR_IMG,rotation=50),
+                                                                                               PATH_CAR_IMG,
+                                                                                               rotation=50),
         ParkingCell(835, 390, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
         ParkingCell(835, 520, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
-                                                                                               PATH_CAR_IMG,rotation=70),
+                                                                                               PATH_CAR_IMG,
+                                                                                               rotation=70),
         ParkingCell(835, 650, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
     ]
     ParkingCell(800, 0, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True)
@@ -54,9 +58,8 @@ if __name__ == '__main__':
     # lot = get_example_lot()
 
     # initializing the simulator
-    # sim = Simulator(lot, drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT, background_image=PATH_FLOOR_IMG)
-    sim = Simulator(lot, drawing_method=DrawingMethod.FULL)
-    # sim = Simulator(lot, drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)
+    sim = Simulator(lot, Analyzer1(), Extractor1(), drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
+                    background_image=PATH_FLOOR_IMG)
     clock = pygame.time.Clock()
     while True:
         # The main loop of the simulator. every iteration of this loop equals to one frame in the simulator.
@@ -82,17 +85,19 @@ if __name__ == '__main__':
             steering = Steering.RIGHT
 
         # performing the input in the simulator
-        results = sim.move_agent(movement, steering, 1 / FPS)
+        reward, collision = sim.move_agent(movement, steering, 1 / FPS)
+        state = sim.get_state()
 
         # printing the results:
         if DEBUG:
-            print(
-                f"current loc: {sim.parking_lot.car_agent.location}, "
-                f" vel magnitude: "
-                f"{sim.parking_lot.car_agent.velocity.magnitude():.2f},"
-                f" acceleration: {sim.parking_lot.car_agent.acceleration:.2f}, "
-                f"collision: {results[Results.COLLISION]}, % in free cell: "
-                f"{0.0 if len(results[Results.UNOCCUPIED_PERCENTAGE]) == 0 else max(results[Results.UNOCCUPIED_PERCENTAGE].values()):.2f}")
+            # print(
+            # f"current loc: {sim.parking_lot.car_agent.location}, "
+            # f" vel magnitude: "
+            # f"{sim.parking_lot.car_agent.velocity.magnitude():.2f},"
+            # f" acceleration: {sim.parking_lot.car_agent.acceleration:.2f}, "
+            # f"collision: {results[Results.COLLISION]}, % in free cell: "
+            # f"{0.0 if len(results[Results.UNOCCUPIED_PERCENTAGE]) == 0 else max(results[Results.UNOCCUPIED_PERCENTAGE].values()):.2f}")
+            print(f"reward: {reward:.3f}, collision: {collision}")
 
         # updating the screen
         sim.update_screen()

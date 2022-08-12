@@ -24,6 +24,7 @@ class ParkingLot:
         self.obstacles: List[CarSimSprite] = obstacles  # excluding the stationary cars
         self.stationary_cars = [cell.car for cell in self.parking_cells if cell.is_occupied()]
         self.free_parking_cells = [cell for cell in self.parking_cells if not cell.is_occupied()]
+        self.all_obstacles: List[CarSimSprite] = self.obstacles + self.stationary_cars
 
     def get_all_sprites(self) -> Iterable[pygame.sprite.Sprite]:
         """

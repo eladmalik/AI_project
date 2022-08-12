@@ -54,7 +54,7 @@ class CarSimSprite(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.image_no_rotation, self.rotation)
 
         if topleft:
-            self.location = self.image.get_rect(topleft=self.location).center
+            self.location = Vector2(self.image.get_rect(topleft=self.location).center)
         self.rect = self.image.get_rect()
         self.rect.center = self.location
 
