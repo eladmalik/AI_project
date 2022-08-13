@@ -58,8 +58,9 @@ if __name__ == '__main__':
     # lot = get_example_lot()
 
     # initializing the simulator
-    sim = Simulator(lot, Analyzer1(), Extractor1(), drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
-                    background_image=PATH_FLOOR_IMG)
+    # sim = Simulator(lot, Analyzer1(), Extractor1(), drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
+    #                 background_image=PATH_FLOOR_IMG)
+    sim = Simulator(lot, Analyzer1(), Extractor1(), drawing_method=DrawingMethod.FULL)
     clock = pygame.time.Clock()
     while True:
         # The main loop of the simulator. every iteration of this loop equals to one frame in the simulator.
@@ -85,7 +86,7 @@ if __name__ == '__main__':
             steering = Steering.RIGHT
 
         # performing the input in the simulator
-        reward, collision = sim.move_agent(movement, steering, 1 / FPS)
+        reward, collision = sim.do_step(movement, steering, 1 / FPS)
         state = sim.get_state()
 
         # printing the results:

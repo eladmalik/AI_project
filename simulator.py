@@ -183,12 +183,12 @@ class Simulator:
 
         # unmark this to display the sensors
 
-        # for direction in self.agent.sensors:
-        #     for sensor in self.agent.sensors[direction]:
-        #         start, stop = sensor._create_sensor_line()
-        #         pygame.draw.line(self.window, (255, 255, 255), start, stop)
-        #         min_dot, _ = sensor.detect(self.obstacles_group)
-        #         pygame.draw.circle(self.window, (15, 245, 233), min_dot, 7)
+        for direction in self.agent.sensors:
+            for sensor in self.agent.sensors[direction]:
+                start, stop = sensor._create_sensor_line()
+                pygame.draw.line(self.window, (255, 255, 255), start, stop)
+                min_dot, _ = sensor.detect(self.obstacles_group)
+                pygame.draw.circle(self.window, (15, 245, 233), min_dot, 7)
 
         pygame.display.update()
         self.iteration_counter = (self.iteration_counter + 1) % sys.maxsize
@@ -196,7 +196,7 @@ class Simulator:
     def get_state(self):
         return self.feature_extractor.get_state(self.parking_lot)
 
-    def move_agent(self, movement, steering, time):
+    def do_step(self, movement, steering, time):
         """
         updates the movement of the car
         :param time: the time interval which the car should move
