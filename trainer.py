@@ -154,6 +154,7 @@ class AgentTrainer:
     def __init__(self, simulator: Simulator, model):
         self.n_games = 0
         self.epsilon = 0  # randomness
+        self.randomness_rate = float(conf_default["init_randomness_chance"])
         self.gamma = float(conf_default["gamma"])  # discount rate
         self.learning_rate = float(conf_default["learning_rate"])
         self.simulator = simulator
@@ -179,9 +180,9 @@ class AgentTrainer:
 
     def get_action(self, state):
         # random moves: tradeoff exploration / exploitation
-        self.epsilon = self.max_epsilon - self.n_games  # TODO: change
+        self.epsilon = self.max_epsilon - self.n_games
         final_move = [0] * NUM_OF_ACTIONS
-        if random.randint(0, self.max_epsilon * 4) < self.epsilon:
+        if random.randint(0, int(self.max_epsilon / self.randomness_rate)) < self.epsilon:
             move = random.randint(0, NUM_OF_ACTIONS - 1)
             final_move[move] = 1
         else:
