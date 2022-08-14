@@ -4,7 +4,7 @@ import pygame
 
 import lot_generator
 from feature_extractor import Extractor
-from reward_analyzer import Analyzer, AnalyzerStopOnTarget
+from reward_analyzer import Analyzer, AnalyzerStopOnTarget, AnalyzerDistanceCritical
 from simulator import Simulator, Results, DrawingMethod
 from parking_lot import ParkingLot
 from parking_cell import ParkingCell
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     # initializing the simulator
     # sim = Simulator(lot, Analyzer1(), Extractor1(), drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
     #                 background_image=PATH_FLOOR_IMG)
-    sim = Simulator(lot, AnalyzerStopOnTarget(),
+    sim = Simulator(lot, AnalyzerDistanceCritical(),
                     Extractor(),
                     draw_screen=True,
                     drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
