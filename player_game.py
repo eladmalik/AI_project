@@ -3,7 +3,7 @@ import sys
 import pygame
 
 import lot_generator
-from feature_extractor import Extractor
+from feature_extractor import Extractor, Extractor2
 from reward_analyzer import Analyzer, AnalyzerStopOnTarget, AnalyzerDistanceCritical
 from simulator import Simulator, Results, DrawingMethod
 from parking_lot import ParkingLot
@@ -15,8 +15,6 @@ from assets_paths import PATH_AGENT_IMG, PATH_PARKING_IMG, PATH_PARKING_SIDEWALK
 
 FPS = 60
 DEBUG = True
-
-
 
 if __name__ == '__main__':
     # initializing the parking lot
@@ -32,8 +30,8 @@ if __name__ == '__main__':
     # initializing the simulator
     # sim = Simulator(lot, Analyzer1(), Extractor1(), drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
     #                 background_image=PATH_FLOOR_IMG)
-    sim = Simulator(lot, AnalyzerDistanceCritical(),
-                    Extractor(),
+    sim = Simulator(lot, AnalyzerStopOnTarget(),
+                    Extractor2(),
                     draw_screen=True,
                     drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
                     background_image=PATH_FLOOR_IMG)

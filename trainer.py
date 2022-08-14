@@ -12,7 +12,7 @@ import lot_generator
 import utils
 from assets_paths import PATH_FLOOR_IMG
 from dqn_model import DQNAgent1, DQNAgent2
-from feature_extractor import Extractor
+from feature_extractor import Extractor, Extractor2
 from reward_analyzer import Analyzer, AnalyzerPenaltyOnStanding, AnalyzerStopOnTarget, \
     AnalyzerDistanceCritical
 from simulator import Simulator, DrawingMethod
@@ -36,7 +36,8 @@ Analyzers = {
 }
 
 Extractors = {
-    "Extractor": Extractor
+    "Extractor": Extractor,
+    "Extractor2": Extractor2
 }
 
 Model_Classes = {
