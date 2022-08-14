@@ -131,10 +131,10 @@ class AnalyzerStopOnTarget(RewardAnalyzer):
             return self.COLLISION_PENALTY, True
         distance_to_target = parking_lot.car_agent.location.distance_to(parking_lot.target_park.location)
 
-        if results[
-            Results.PERCENTAGE_IN_TARGET] <= 0 and parking_lot.car_agent.velocity.magnitude() <= \
-                self.ZERO_VELOCITY_EPSILON:
-            return self.STANDING_STILL_PENALTY, False
+        # if results[
+        #     Results.PERCENTAGE_IN_TARGET] <= 0 and parking_lot.car_agent.velocity.magnitude() <= \
+        #         self.ZERO_VELOCITY_EPSILON:
+        #     return self.STANDING_STILL_PENALTY, False
 
         # as the car in getting closer to the target, the reward increases
         distance_reward = self.MAX_DISTANCE_TO_TARGET_REWARD / (
