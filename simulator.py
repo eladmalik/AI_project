@@ -78,8 +78,7 @@ class Simulator:
         self.height: float = self.parking_lot.height
         self.draw_screen = draw_screen
         if self.draw_screen:
-            pygame.quit()
-            pygame.init()
+            pygame.display.quit()
             self.window: pygame.Surface = pygame.display.set_mode((self.width, self.height))
         else:
             self.window = pygame.Surface((self.width, self.height))
