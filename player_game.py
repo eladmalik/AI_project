@@ -11,7 +11,7 @@ from parking_cell import ParkingCell
 from obstacles import Sidewalk
 from car import Car, Movement, Steering
 from assets_paths import PATH_AGENT_IMG, PATH_PARKING_IMG, PATH_PARKING_SIDEWALK_IMG, PATH_CAR_IMG, \
-    PATH_ICON_IMG, PATH_FLOOR_IMG
+    PATH_ICON_IMG, PATH_FLOOR_IMG, PATH_PARKING_SIDEWALK_TARGET_IMG
 
 FPS = 60
 DEBUG = True
@@ -39,10 +39,10 @@ def get_example_lot():
         ParkingCell(835, 520, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
                                                                                                PATH_CAR_IMG,
                                                                                                rotation=70),
-        ParkingCell(835, 650, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(835, 650, 130, 65, 270, PATH_PARKING_SIDEWALK_TARGET_IMG, topleft=True),
     ]
     ParkingCell(800, 0, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True)
-    lot = ParkingLot(1000, 1000, agent, parking_cells, [sidewalk_left, sidewalk_right])
+    lot = ParkingLot(1000, 1000, agent, parking_cells, [sidewalk_left, sidewalk_right], parking_cells[-1])
     return lot
 
 
