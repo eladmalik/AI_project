@@ -25,8 +25,6 @@ NUM_OF_ACTIONS = 12
 config = configparser.ConfigParser()
 config.read("training_settings.ini")
 conf_default = config["DEFAULT"]
-conf_dqnagent1 = config["DQNAgent1"]
-conf_dqnagent2 = config["DQNAgent2"]
 conf_model_load = config["LoadModel"]
 
 Analyzers = {
@@ -43,17 +41,6 @@ Model_Classes = {
     "DQNAgent": DQNAgent1,
     "DQNAgent2": DQNAgent2
 }
-
-# Models = {
-#     "DQNAgent": DQNAgent1(Extractors[conf_default["extractor"]]().input_num,
-#                           int(conf_dqnagent1["hidden1"]),
-#                           NUM_OF_ACTIONS),
-#     "DQNAgent2": DQNAgent2(Extractors[conf_default["extractor"]]().input_num,
-#                            int(conf_dqnagent2["hidden1"]),
-#                            int(conf_dqnagent2["hidden2"]),
-#                            int(conf_dqnagent2["hidden3"]),
-#                            NUM_OF_ACTIONS)
-# }
 
 MOVEMENT_STEERING_TO_ACTION = {
     (Movement.NEUTRAL, Steering.NEUTRAL): [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -201,6 +188,8 @@ class AgentTrainer:
 
 def train():
     plot_rewards = []
+    plot_distance = []
+    plot_mean_distance = []
     time_difference = float(conf_default["time_difference"])
     draw_screen = bool(int(conf_default["draw_screen"]))
     total_score = 0
@@ -250,6 +239,9 @@ def train():
         if done:
             # train long memory, plot result
             print(f"Total real time: {agent_trainer.simulator.total_time}")
+            plot_distance.append(sim.agent.location.distance_to(sim.parking_lot.target_park.location))
+            plot_mean_distance.append(sum(plot_distance) / len(plot_distance))
+
             lot = lot_generator.generate_lot()
             sim = Simulator(lot, Analyzers[conf_default["analyzer"]](),
                             Extractors[conf_default["extractor"]](),
@@ -265,11 +257,11 @@ def train():
                 record = iteration_max_reward
             agent_trainer.model.save(folder, filename)
 
-            print('Game', agent_trainer.n_games, 'Score', iteration_max_reward, 'Record:', record)
+            print('Game', agent_trainer.n_games, 'Reward', iteration_max_reward, 'Record:', record)
 
             plot_rewards.append(iteration_max_reward)
             if agent_trainer.n_games % 50 == 0:
-                utils.plot(plot_rewards)
+                utils.plot(plot_distance, plot_mean_distance)
 
             iteration_max_reward = 0
 

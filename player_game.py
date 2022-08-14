@@ -4,7 +4,7 @@ import pygame
 
 import lot_generator
 from feature_extractor import Extractor
-from reward_analyzer import Analyzer
+from reward_analyzer import Analyzer, AnalyzerStopOnTarget
 from simulator import Simulator, Results, DrawingMethod
 from parking_lot import ParkingLot
 from parking_cell import ParkingCell
@@ -60,7 +60,11 @@ if __name__ == '__main__':
     # initializing the simulator
     # sim = Simulator(lot, Analyzer1(), Extractor1(), drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
     #                 background_image=PATH_FLOOR_IMG)
-    sim = Simulator(lot, Analyzer(), Extractor(), drawing_method=DrawingMethod.FULL)
+    sim = Simulator(lot, AnalyzerStopOnTarget(),
+                    Extractor(),
+                    draw_screen=True,
+                    drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
+                    background_image=PATH_FLOOR_IMG)
     clock = pygame.time.Clock()
     while True:
         # The main loop of the simulator. every iteration of this loop equals to one frame in the simulator.
@@ -98,7 +102,7 @@ if __name__ == '__main__':
             # f" acceleration: {sim.parking_lot.car_agent.acceleration:.2f}, "
             # f"collision: {results[Results.COLLISION]}, % in free cell: "
             # f"{0.0 if len(results[Results.UNOCCUPIED_PERCENTAGE]) == 0 else max(results[Results.UNOCCUPIED_PERCENTAGE].values()):.2f}")
-            print(f"reward: {reward:.3f}, collision: {collision}")
+            print(f"reward: {reward:.3f}, done: {collision}")
 
         # updating the screen
         sim.update_screen()

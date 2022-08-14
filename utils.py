@@ -27,15 +27,17 @@ def get_time():
     return now.strftime("%d-%m-%Y__%H-%M-%S")
 
 
-def plot(scores):
+def plot(distances, mean_distances):
     display.clear_output(wait=True)
     display.display(plt.gcf())
     plt.clf()
     plt.title('Training...')
     plt.xlabel('Number of Games')
     plt.ylabel('Score')
-    plt.plot(scores)
+    plt.plot(distances)
+    plt.plot(mean_distances)
     plt.ylim(ymin=0)
-    plt.text(len(scores)-1, scores[-1], str(scores[-1]))
+    plt.text(len(distances) - 1, distances[-1], "distance")
+    plt.text(len(mean_distances) - 1, mean_distances[-1], "avg distance")
     plt.show(block=False)
     plt.pause(.1)

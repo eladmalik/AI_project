@@ -117,14 +117,14 @@ class AnalyzerStopOnTarget(RewardAnalyzer):
     MAX_DISTANCE_TO_TARGET_REWARD = 100  # higher => more reward as the car is closer to the target
     DISTANCE_REWARD_FACTOR = 1  # lower => more reward for far distances
 
-    MAX_IN_TARGET_REWARD = 100  # higher => more reward as the car is more inside target
+    MAX_IN_TARGET_REWARD = 1000  # higher => more reward as the car is more inside target
     MAX_ANGLE_TO_TARGET_REWARD = 50  # higher => more reward as the car more aligned with the target
-    VELOCITY_PENALTY_FACTOR = 0.6  # higher => less reward as the car is faster while in the target
+    VELOCITY_PENALTY_FACTOR = 2  # higher => less reward as the car is faster while in the target
 
     COLLISION_PENALTY = -100  # lower => more penalty for the agent
 
     STANDING_STILL_PENALTY = -200
-    ZERO_VELOCITY_EPSILON = 0
+    ZERO_VELOCITY_EPSILON = 0.05
 
     def analyze(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> Tuple[float, bool]:
         if results[Results.COLLISION]:
