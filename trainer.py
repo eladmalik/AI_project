@@ -263,6 +263,9 @@ def train():
             if iteration_max_reward > record:
                 record = iteration_max_reward
             agent_trainer.model.save(folder, filename)
+            if agent_trainer.n_games % 1000 == 0:
+                agent_trainer.model.save(
+                    folder, filename[:filename.rfind(".")] + f"_iter_{agent_trainer.n_games}.pth")
 
             print('Game', agent_trainer.n_games, 'Reward', iteration_max_reward, 'Record:', record)
 
