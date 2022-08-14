@@ -104,7 +104,7 @@ class AgentTrainer:
         self.gamma = 0.9  # discount rate
         self.learning_rate = 0.01
         self.simulator = simulator
-        self.max_epsilon = 1000
+        self.max_epsilon = 5000
         self.memory = deque(maxlen=MAX_MEMORY)  # popleft()
         self.model = model
         self.trainer = QTrainer(self.model, lr=self.learning_rate, gamma=self.gamma)
@@ -128,7 +128,7 @@ class AgentTrainer:
         # random moves: tradeoff exploration / exploitation
         self.epsilon = self.max_epsilon - self.n_games  # TODO: change
         final_move = [0] * NUM_OF_ACTIONS
-        if random.randint(0, self.max_epsilon * 2) < self.epsilon:
+        if random.randint(0, self.max_epsilon * 4) < self.epsilon:
             move = random.randint(0, NUM_OF_ACTIONS - 1)
             final_move[move] = 1
         else:
@@ -151,7 +151,7 @@ def train():
     sim = Simulator(lot, Analyzer1(), Extractor1(), drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
                     background_image=PATH_FLOOR_IMG)
     agent_trainer = AgentTrainer(sim,
-                                 DQNAgent2(sim.feature_extractor.input_num, 500, 180, 40, NUM_OF_ACTIONS))
+                                 DQNAgent2(sim.feature_extractor.input_num, 128, 128, 128, NUM_OF_ACTIONS))
     while True:
         # get old state
         state_old = agent_trainer.simulator.get_state()
@@ -187,12 +187,13 @@ def train():
 
             if iteration_max_reward > record:
                 record = iteration_max_reward
-                agent_trainer.model.save()
+            agent_trainer.model.save()
 
             print('Game', agent_trainer.n_games, 'Score', iteration_max_reward, 'Record:', record)
 
             plot_rewards.append(iteration_max_reward)
-            utils.plot(plot_rewards)
+            if agent_trainer.n_games % 50 == 0:
+                utils.plot(plot_rewards)
 
             iteration_max_reward = 0
 
