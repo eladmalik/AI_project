@@ -13,7 +13,8 @@ import utils
 from assets_paths import PATH_FLOOR_IMG
 from dqn_model import DQNAgent1, DQNAgent2
 from feature_extractor import Extractor
-from reward_analyzer import Analyzer, AnalyzerPenaltyOnStanding, AnalyzerStopOnTarget
+from reward_analyzer import Analyzer, AnalyzerPenaltyOnStanding, AnalyzerStopOnTarget, \
+    AnalyzerDistanceCritical
 from simulator import Simulator, DrawingMethod
 from car import Movement, Steering
 
@@ -30,7 +31,8 @@ conf_model_load = config["LoadModel"]
 Analyzers = {
     "Analyzer": Analyzer,
     "AnalyzerPenaltyOnStanding": AnalyzerPenaltyOnStanding,
-    "AnalyzerStopOnTarget": AnalyzerStopOnTarget
+    "AnalyzerStopOnTarget": AnalyzerStopOnTarget,
+    "AnalyzerDistanceCritical": AnalyzerDistanceCritical
 }
 
 Extractors = {
