@@ -237,3 +237,32 @@ def generate_lot():
                                           pygame.sprite.collide_mask):
             lot = scenario1_perpendicular()
     return lot
+
+
+def example1():
+    sidewalk_left = Sidewalk(900, 0, 100, 1000, 0, topleft=True)
+    sidewalk_right = Sidewalk(0, 0, 100, 1000, 0, topleft=True)
+    agent = Car(500, 500, 100, 50, 0, PATH_AGENT_IMG)
+    parking_cells = [
+        ParkingCell(100, 0, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(100, 130, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(100, 260, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(100, 390, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
+                                                                                              PATH_CAR_IMG),
+        ParkingCell(100, 520, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(100, 650, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+
+        ParkingCell(835, 0, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(835, 130, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(835, 260, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
+                                                                                               PATH_CAR_IMG,
+                                                                                               rotation=50),
+        ParkingCell(835, 390, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(835, 520, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
+                                                                                               PATH_CAR_IMG,
+                                                                                               rotation=70),
+        ParkingCell(835, 650, 130, 65, 270, PATH_PARKING_SIDEWALK_TARGET_IMG, topleft=True),
+    ]
+    ParkingCell(800, 0, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True)
+    lot = ParkingLot(1000, 1000, agent, parking_cells, [sidewalk_left, sidewalk_right], parking_cells[-1])
+    return lot

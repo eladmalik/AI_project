@@ -44,6 +44,11 @@ Model_Classes = {
     "DQNAgent2": DQNAgent2
 }
 
+Lot_Generators = {
+    "random": lot_generator.generate_lot,
+    "example1": lot_generator.example1
+}
+
 MOVEMENT_STEERING_TO_ACTION = {
     (Movement.NEUTRAL, Steering.NEUTRAL): [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     (Movement.NEUTRAL, Steering.LEFT): [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -197,7 +202,7 @@ def train():
     total_score = 0
     record = 0
     iteration_max_reward = 0
-    lot = lot_generator.generate_lot()
+    lot = Lot_Generators[conf_default["lot_generation"]]()
     sim = Simulator(lot, Analyzers[conf_default["analyzer"]](), Extractors[conf_default["extractor"]](),
                     draw_screen=draw_screen,
                     max_iteration_time_sec=int(conf_default["max_iteration_time_sec"]),
@@ -244,7 +249,7 @@ def train():
             plot_distance.append(sim.agent.location.distance_to(sim.parking_lot.target_park.location))
             plot_mean_distance.append(sum(plot_distance) / len(plot_distance))
 
-            lot = lot_generator.generate_lot()
+            lot = Lot_Generators[conf_default["lot_generation"]]()
             sim = Simulator(lot, Analyzers[conf_default["analyzer"]](),
                             Extractors[conf_default["extractor"]](),
                             draw_screen=draw_screen,
