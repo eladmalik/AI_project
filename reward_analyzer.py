@@ -33,11 +33,11 @@ class Analyzer1(RewardAnalyzer):
     # keep every argument greater than 0
 
     MAX_DISTANCE_TO_TARGET_REWARD = 100  # higher => more reward as the car is closer to the target
-    DISTANCE_REWARD_FACTOR = 0.1  # lower => more reward for far distances
+    DISTANCE_REWARD_FACTOR = 1  # lower => more reward for far distances
 
     MAX_IN_TARGET_REWARD = 100  # higher => more reward as the car is more inside target
     MAX_ANGLE_TO_TARGET_REWARD = 50  # higher => more reward as the car more aligned with the target
-    VELOCITY_PENALTY_FACTOR = 0.3  # higher => less reward as the car is faster while in the target
+    VELOCITY_PENALTY_FACTOR = 0.6  # higher => less reward as the car is faster while in the target
 
     COLLISION_PENALTY = -100  # lower => more penalty for the agent
 

@@ -1,13 +1,15 @@
 from collections import deque
 import random
 
+import pygame.event
 import torch
 from torch import nn
 import torch.optim as optim
 
 import lot_generator
+import utils
 from assets_paths import PATH_FLOOR_IMG
-from dqn_model import DQNAgent
+from dqn_model import DQNAgent, DQNAgent2
 from feature_extractor import Extractor1
 from reward_analyzer import Analyzer1
 from simulator import Simulator, DrawingMethod
@@ -15,6 +17,8 @@ from car import Movement, Steering
 
 MAX_MEMORY = 100000
 BATCH_SIZE = 1000
+
+NUM_OF_ACTIONS = 12
 
 MOVEMENT_STEERING_TO_ACTION = {
     (Movement.NEUTRAL, Steering.NEUTRAL): [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -93,16 +97,16 @@ class QTrainer:
 
 
 class AgentTrainer:
-    NUM_OF_ACTIONS = 12
 
-    def __init__(self, simulator: Simulator):
+    def __init__(self, simulator: Simulator, model):
         self.n_games = 0
         self.epsilon = 0  # randomness
         self.gamma = 0.9  # discount rate
-        self.learning_rate = 0.001
+        self.learning_rate = 0.01
         self.simulator = simulator
+        self.max_epsilon = 1000
         self.memory = deque(maxlen=MAX_MEMORY)  # popleft()
-        self.model = DQNAgent(simulator.feature_extractor.input_num, 256, self.NUM_OF_ACTIONS)
+        self.model = model
         self.trainer = QTrainer(self.model, lr=self.learning_rate, gamma=self.gamma)
 
     def remember(self, state, action, reward, next_state, done):
@@ -122,10 +126,10 @@ class AgentTrainer:
 
     def get_action(self, state):
         # random moves: tradeoff exploration / exploitation
-        self.epsilon = 80 - self.n_games  # TODO: change
-        final_move = [0] * self.NUM_OF_ACTIONS
-        if random.randint(0, 200) < self.epsilon:
-            move = random.randint(0, self.NUM_OF_ACTIONS - 1)
+        self.epsilon = self.max_epsilon - self.n_games  # TODO: change
+        final_move = [0] * NUM_OF_ACTIONS
+        if random.randint(0, self.max_epsilon * 2) < self.epsilon:
+            move = random.randint(0, NUM_OF_ACTIONS - 1)
             final_move[move] = 1
         else:
             state0 = torch.tensor(state, dtype=torch.float)
@@ -137,15 +141,17 @@ class AgentTrainer:
 
 
 def train():
-    plot_scores = []
-    plot_mean_scores = []
+    plot_rewards = []
     time_difference = 0.1
+    draw_screen = True
     total_score = 0
     record = 0
+    iteration_max_reward = 0
     lot = lot_generator.generate_lot()
     sim = Simulator(lot, Analyzer1(), Extractor1(), drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
                     background_image=PATH_FLOOR_IMG)
-    agent_trainer = AgentTrainer(sim)
+    agent_trainer = AgentTrainer(sim,
+                                 DQNAgent2(sim.feature_extractor.input_num, 500, 180, 40, NUM_OF_ACTIONS))
     while True:
         # get old state
         state_old = agent_trainer.simulator.get_state()
@@ -154,8 +160,13 @@ def train():
         final_move = agent_trainer.get_action(state_old)
 
         # perform move and get new state
-        final_movement, final_steering = MOVEMENT_STEERING_TO_ACTION[final_move]
+        final_movement, final_steering = ACTION_TO_MOVEMENT_STEERING[final_move]
         reward, done = agent_trainer.simulator.do_step(final_movement, final_steering, time_difference)
+        if draw_screen:
+            pygame.event.pump()
+            agent_trainer.simulator.update_screen()
+        if reward > iteration_max_reward:
+            iteration_max_reward = reward
         state_new = agent_trainer.simulator.get_state()
 
         # train short memory
@@ -166,6 +177,7 @@ def train():
 
         if done:
             # train long memory, plot result
+            print(f"Total real time: {agent_trainer.simulator.total_time}")
             lot = lot_generator.generate_lot()
             sim = Simulator(lot, Analyzer1(), Extractor1(), drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
                             background_image=PATH_FLOOR_IMG)
@@ -173,17 +185,16 @@ def train():
             agent_trainer.n_games += 1
             agent_trainer.train_long_memory()
 
-            # if score > record:
-            #     record = score
-            #     agent.model.save()
+            if iteration_max_reward > record:
+                record = iteration_max_reward
+                agent_trainer.model.save()
 
-            # print('Game', agent.n_games, 'Score', score, 'Record:', record)
-            #
-            # plot_scores.append(score)
-            # total_score += score
-            # mean_score = total_score / agent.n_games
-            # plot_mean_scores.append(mean_score)
-            # plot(plot_scores, plot_mean_scores)
+            print('Game', agent_trainer.n_games, 'Score', iteration_max_reward, 'Record:', record)
+
+            plot_rewards.append(iteration_max_reward)
+            utils.plot(plot_rewards)
+
+            iteration_max_reward = 0
 
 
 if __name__ == '__main__':

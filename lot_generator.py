@@ -18,7 +18,8 @@ class ParkingType(Enum):
     VERTICAL = 1
 
 
-def create_vertical_parking_cells(screen_size, sidewalk_width, side, car_size: Tuple[float, float]) -> List[
+def create_vertical_parking_cells_old(screen_size, sidewalk_width, side, car_size: Tuple[float, float]) -> \
+        List[
     ParkingCell]:
     height_scale = 1.5 + (0.7 * random.random())
     width_scale = 1.4 + (2.1 * random.random())
@@ -28,7 +29,7 @@ def create_vertical_parking_cells(screen_size, sidewalk_width, side, car_size: T
     start_pos = (0, 0)
     rotation = 0
     max_offset = int(round((screen_size - (width * num_of_cells))))
-    offset = random.randint(0, max_offset - 1)
+    offset = random.randint(0, max_offset) if max_offset > 0 else 0
     if side == 0:
         start_pos = (sidewalk_width, offset)
         rotation = 90
@@ -51,6 +52,40 @@ def create_vertical_parking_cells(screen_size, sidewalk_width, side, car_size: T
             current_position[0] += width
     return parking_cells
 
+def create_vertical_parking_cells(screen_size, sidewalk_width, side, car_size: Tuple[float, float]) -> List[
+    ParkingCell]:
+    width_scale = 1.5 + (0.7 * random.random())
+    height_scale = 1.4 + (2.1 * random.random())
+    width = round(car_size[0] * width_scale)
+    height = round(car_size[1] * height_scale)
+    num_of_cells = int(math.floor(screen_size / height))
+    start_pos = (0, 0)
+    rotation = 0
+    max_offset = int(round((screen_size - (height * num_of_cells))))
+    offset = random.randint(0, max_offset) if max_offset > 0 else 0
+    if side == 0:
+        start_pos = (sidewalk_width, offset)
+        rotation = 180
+    elif side == 1:
+        start_pos = (offset, sidewalk_width)
+        rotation = 90
+    elif side == 2:
+        start_pos = (screen_size - (sidewalk_width + width), offset)
+        rotation = 0
+    elif side == 3:
+        start_pos = (offset, screen_size - (sidewalk_width + width))
+        rotation = 270
+    parking_cells = []
+    current_position = [start_pos[0], start_pos[1]]
+    for i in range(num_of_cells):
+        parking_cells.append(ParkingCell(current_position[0], current_position[1], width, height, rotation,
+                                         PATH_PARKING_IMG, topleft=True))
+        if side % 2 == 0:
+            current_position[1] += height
+        else:
+            current_position[0] += height
+    return parking_cells
+
 
 def create_parallel_parking_cells(screen_size, sidewalk_width, side, car_size: Tuple[float, float]) -> List[
     ParkingCell]:
@@ -62,7 +97,7 @@ def create_parallel_parking_cells(screen_size, sidewalk_width, side, car_size: T
     start_pos = (0, 0)
     rotation = 0
     max_offset = int(round((screen_size - (width * num_of_cells))))
-    offset = random.randint(0, max_offset - 1)
+    offset = random.randint(0, max_offset) if max_offset > 0 else 0
     if side == 0:
         start_pos = (sidewalk_width, offset)
         rotation = 90
@@ -168,10 +203,10 @@ def scenario1_perpendicular() -> ParkingLot:
 
     # choosing parking target
     target_index = random.randint(0, len(parking_cells) - 1)
-    parking_cells[target_index].set_image(PATH_PARKING_SIDEWALK_TARGET_IMG)
+    parking_cells[target_index].set_image(PATH_PARKING_TARGET_IMG)
     for i in range(len(parking_cells)):
         if i != target_index and random.choice([True, False]):
-            rotation = random.choice([parking_cells[i].rotation + 270, parking_cells[i].rotation + 90])
+            rotation = random.choice([parking_cells[i].rotation, parking_cells[i].rotation + 180])
             trash_parking = random.random()
             if trash_parking > 0.75:
                 rotation += -20 + 40 * random.random()

@@ -1,4 +1,10 @@
+from datetime import datetime
+
 from CarSimSprite import CarSimSprite
+import matplotlib.pyplot as plt
+from IPython import display
+
+plt.ion()
 
 
 def mask_subset_percentage(big_sprite: CarSimSprite, small_sprite: CarSimSprite):
@@ -11,3 +17,25 @@ def mask_subset_percentage(big_sprite: CarSimSprite, small_sprite: CarSimSprite)
     bits_small_mask = small_sprite.mask.count()  # the amount of pixels which the mask holds
     offset = (big_sprite.rect.x - small_sprite.rect.x), (big_sprite.rect.y - small_sprite.rect.y)
     return small_sprite.mask.overlap_area(big_sprite.mask, offset) / bits_small_mask
+
+
+def get_time():
+    """
+    :return: the current time
+    """
+    now = datetime.now()
+    return now.strftime("%d-%m-%Y__%H-%M-%S")
+
+
+def plot(scores):
+    display.clear_output(wait=True)
+    display.display(plt.gcf())
+    plt.clf()
+    plt.title('Training...')
+    plt.xlabel('Number of Games')
+    plt.ylabel('Score')
+    plt.plot(scores)
+    plt.ylim(ymin=0)
+    plt.text(len(scores)-1, scores[-1], str(scores[-1]))
+    plt.show(block=False)
+    plt.pause(.1)

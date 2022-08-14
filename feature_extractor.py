@@ -24,7 +24,7 @@ class Extractor1(FeatureExtractor):
     FEATURES = [
         "Relative X to target",
         "Relative Y to target",
-        "Relative Rotation to target (normalized with Cos)"
+        "Relative Rotation to target (normalized with Cos)",
         "Velocity X",
         "Velocity Y",
         "Acceleration",
