@@ -268,7 +268,7 @@ def train():
                 agent_trainer.model.save(
                     folder, filename[:filename.rfind(".")] + f"_iter_{agent_trainer.n_games}.pth")
 
-            print('Game', agent_trainer.n_games, 'Reward', iteration_max_reward, 'Record:', record)
+            print('Game', agent_trainer.n_games, 'Reward', reward, 'Record:', record)
 
             plot_rewards.append(iteration_max_reward)
             if agent_trainer.n_games % 50 == 0:
