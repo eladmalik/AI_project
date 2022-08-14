@@ -20,7 +20,7 @@ class ParkingType(Enum):
 
 def create_vertical_parking_cells_old(screen_size, sidewalk_width, side, car_size: Tuple[float, float]) -> \
         List[
-    ParkingCell]:
+            ParkingCell]:
     height_scale = 1.5 + (0.7 * random.random())
     width_scale = 1.4 + (2.1 * random.random())
     width = round(car_size[1] * width_scale)
@@ -51,6 +51,7 @@ def create_vertical_parking_cells_old(screen_size, sidewalk_width, side, car_siz
         else:
             current_position[0] += width
     return parking_cells
+
 
 def create_vertical_parking_cells(screen_size, sidewalk_width, side, car_size: Tuple[float, float]) -> List[
     ParkingCell]:
@@ -242,7 +243,9 @@ def generate_lot():
 def example1():
     sidewalk_left = Sidewalk(900, 0, 100, 1000, 0, topleft=True)
     sidewalk_right = Sidewalk(0, 0, 100, 1000, 0, topleft=True)
-    agent = Car(500, 500, 100, 50, 0, PATH_AGENT_IMG)
+    offset_x = -30 + 60 * random.random()
+    offset_y = -30 + 60 * random.random()
+    agent = Car(500 + offset_x, 500 + offset_y, 100, 50, random.random() * 360, PATH_AGENT_IMG)
     parking_cells = [
         ParkingCell(100, 0, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
         ParkingCell(100, 130, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
