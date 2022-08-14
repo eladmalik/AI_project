@@ -34,7 +34,10 @@ class Simulator:
     agent/player, outputs their outcome and offers the option to draw them to the screen.
     """
 
-    def __init__(self, lot: ParkingLot, reward_analyzer: RewardAnalyzer, feature_extractor: FeatureExtractor,
+    def __init__(self, lot: ParkingLot, reward_analyzer: RewardAnalyzer,
+                 feature_extractor: FeatureExtractor,
+                 max_iteration_time_sec: int = 2000,
+                 draw_screen: bool = True,
                  background_image: Union[str, None] = None,
                  drawing_method=False,
                  full_refresh_rate: int = 30):
@@ -66,16 +69,21 @@ class Simulator:
                once every this number of iterations. higher values means more efficient drawing,
                but less nice-looking screen
         """
-        pygame.quit()
-        pygame.init()
         self.iteration_counter: int = 0
         self.total_time = 0
-        self.max_simulator_time = 2000  # (in seconds)
+        self.max_simulator_time = max_iteration_time_sec  # (in seconds)
         self.full_refresh_rate: int = full_refresh_rate
         self.parking_lot: ParkingLot = lot
         self.width: float = self.parking_lot.width
         self.height: float = self.parking_lot.height
-        self.window: pygame.Surface = pygame.display.set_mode((self.width, self.height))
+        self.draw_screen = draw_screen
+        if self.draw_screen:
+            pygame.quit()
+            pygame.init()
+            self.window: pygame.Surface = pygame.display.set_mode((self.width, self.height))
+        else:
+            self.window = pygame.Surface((self.width, self.height))
+
         self.agent: Car = self.parking_lot.car_agent
         self.agent_group: pygame.sprite.Group = pygame.sprite.Group(self.agent)
         self.stationary_cars_group: pygame.sprite.Group = pygame.sprite.Group(
@@ -91,13 +99,12 @@ class Simulator:
                                                          (lot.width, lot.height))
         self.bg_snapshot = self._create_background_snapshot()
 
-        pygame.display.set_caption("Car Parking Simulator")
-        pygame.display.set_icon(pygame.image.load(PATH_ICON_IMG))
-
         self._drawing_method = drawing_method
-
-        self._draw_screen_full()
-        pygame.display.update()
+        if self.draw_screen:
+            pygame.display.set_icon(pygame.image.load(PATH_ICON_IMG))
+            pygame.display.set_caption("Car Parking Simulator")
+            self._draw_screen_full()
+            pygame.display.update()
 
     def _create_background_snapshot(self):
         """
@@ -214,11 +221,10 @@ class Simulator:
         self.total_time += time
         results = {Results.COLLISION: self.is_collision(),
                    Results.PERCENTAGE_IN_TARGET: self.percentage_in_target_cell()}
-        reward = self.reward_analyzer.analyze(self.parking_lot, results)
-        collision = results[Results.COLLISION]
+        reward, done = self.reward_analyzer.analyze(self.parking_lot, results)
         if self.total_time >= self.max_simulator_time:
-            collision = True
-        return reward, collision
+            done = True
+        return reward, done
 
     def is_collision(self):
         """

@@ -1,3 +1,4 @@
+import os
 from collections import deque
 import random
 
@@ -5,13 +6,14 @@ import pygame.event
 import torch
 from torch import nn
 import torch.optim as optim
+import configparser
 
 import lot_generator
 import utils
 from assets_paths import PATH_FLOOR_IMG
-from dqn_model import DQNAgent, DQNAgent2
-from feature_extractor import Extractor1
-from reward_analyzer import Analyzer1
+from dqn_model import DQNAgent1, DQNAgent2
+from feature_extractor import Extractor
+from reward_analyzer import Analyzer, AnalyzerPenaltyOnStanding, AnalyzerStopOnTarget
 from simulator import Simulator, DrawingMethod
 from car import Movement, Steering
 
@@ -19,6 +21,39 @@ MAX_MEMORY = 100000
 BATCH_SIZE = 1000
 
 NUM_OF_ACTIONS = 12
+
+config = configparser.ConfigParser()
+config.read("training_settings.ini")
+conf_default = config["DEFAULT"]
+conf_dqnagent1 = config["DQNAgent1"]
+conf_dqnagent2 = config["DQNAgent2"]
+conf_model_load = config["LoadModel"]
+
+Analyzers = {
+    "Analyzer": Analyzer,
+    "AnalyzerPenaltyOnStanding": AnalyzerPenaltyOnStanding,
+    "AnalyzerStopOnTarget": AnalyzerStopOnTarget
+}
+
+Extractors = {
+    "Extractor": Extractor
+}
+
+Model_Classes = {
+    "DQNAgent": DQNAgent1,
+    "DQNAgent2": DQNAgent2
+}
+
+# Models = {
+#     "DQNAgent": DQNAgent1(Extractors[conf_default["extractor"]]().input_num,
+#                           int(conf_dqnagent1["hidden1"]),
+#                           NUM_OF_ACTIONS),
+#     "DQNAgent2": DQNAgent2(Extractors[conf_default["extractor"]]().input_num,
+#                            int(conf_dqnagent2["hidden1"]),
+#                            int(conf_dqnagent2["hidden2"]),
+#                            int(conf_dqnagent2["hidden3"]),
+#                            NUM_OF_ACTIONS)
+# }
 
 MOVEMENT_STEERING_TO_ACTION = {
     (Movement.NEUTRAL, Steering.NEUTRAL): [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -50,6 +85,30 @@ ACTION_TO_MOVEMENT_STEERING = {
     (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0): (Movement.BRAKE, Steering.LEFT),
     (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1): (Movement.BRAKE, Steering.RIGHT)
 }
+
+
+def load_model():
+    loaded_config = configparser.ConfigParser()
+    loaded_config.read(os.path.join(conf_model_load["model_folder_path"], "training_settings.ini"))
+    config._sections[conf_default["model"]] = loaded_config._sections[conf_default["model"]]
+
+    kwargs = dict(config._sections[conf_default["model"]])
+    kwargs["input_size"] = Extractors[conf_default["extractor"]]().input_num
+    kwargs["output_size"] = NUM_OF_ACTIONS
+    model = Model_Classes[conf_default["model"]](**kwargs)
+    model.load_state_dict(torch.load(os.path.join
+                                     (conf_model_load["model_folder_path"],
+                                      conf_model_load["model_filename"])))
+    model.eval()
+    return model
+
+
+def get_agent_output_folder():
+    filename = f'{conf_default["model"]}_{utils.get_time()}.pth'
+    folder = f'./model/{filename}'
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    return folder, filename
 
 
 class QTrainer:
@@ -101,10 +160,10 @@ class AgentTrainer:
     def __init__(self, simulator: Simulator, model):
         self.n_games = 0
         self.epsilon = 0  # randomness
-        self.gamma = 0.9  # discount rate
-        self.learning_rate = 0.01
+        self.gamma = float(conf_default["gamma"])  # discount rate
+        self.learning_rate = float(conf_default["learning_rate"])
         self.simulator = simulator
-        self.max_epsilon = 5000
+        self.max_epsilon = int(conf_default["max_epsilon"])
         self.memory = deque(maxlen=MAX_MEMORY)  # popleft()
         self.model = model
         self.trainer = QTrainer(self.model, lr=self.learning_rate, gamma=self.gamma)
@@ -142,16 +201,29 @@ class AgentTrainer:
 
 def train():
     plot_rewards = []
-    time_difference = 0.1
-    draw_screen = True
+    time_difference = float(conf_default["time_difference"])
+    draw_screen = bool(int(conf_default["draw_screen"]))
     total_score = 0
     record = 0
     iteration_max_reward = 0
     lot = lot_generator.generate_lot()
-    sim = Simulator(lot, Analyzer1(), Extractor1(), drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
+    sim = Simulator(lot, Analyzers[conf_default["analyzer"]](), Extractors[conf_default["extractor"]](),
+                    draw_screen=draw_screen,
+                    max_iteration_time_sec=int(conf_default["max_iteration_time_sec"]),
+                    drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
                     background_image=PATH_FLOOR_IMG)
-    agent_trainer = AgentTrainer(sim,
-                                 DQNAgent2(sim.feature_extractor.input_num, 128, 128, 128, NUM_OF_ACTIONS))
+    folder, filename = get_agent_output_folder()
+    if bool(int(conf_model_load["load"])):
+        model = load_model()
+    else:
+        with open(os.path.join(folder, "training_settings.ini"), "w") as configfile:
+            config.write(configfile)
+        kwargs = dict(config._sections[conf_default["model"]])
+        kwargs["input_size"] = Extractors[conf_default["extractor"]]().input_num
+        kwargs["output_size"] = NUM_OF_ACTIONS
+        model = Model_Classes[conf_default["model"]](**kwargs)
+
+    agent_trainer = AgentTrainer(sim, model)
     while True:
         # get old state
         state_old = agent_trainer.simulator.get_state()
@@ -179,7 +251,11 @@ def train():
             # train long memory, plot result
             print(f"Total real time: {agent_trainer.simulator.total_time}")
             lot = lot_generator.generate_lot()
-            sim = Simulator(lot, Analyzer1(), Extractor1(), drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
+            sim = Simulator(lot, Analyzers[conf_default["analyzer"]](),
+                            Extractors[conf_default["extractor"]](),
+                            draw_screen=draw_screen,
+                            max_iteration_time_sec=int(conf_default["max_iteration_time_sec"]),
+                            drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
                             background_image=PATH_FLOOR_IMG)
             agent_trainer.simulator = sim
             agent_trainer.n_games += 1
@@ -187,7 +263,7 @@ def train():
 
             if iteration_max_reward > record:
                 record = iteration_max_reward
-            agent_trainer.model.save()
+            agent_trainer.model.save(folder, filename)
 
             print('Game', agent_trainer.n_games, 'Score', iteration_max_reward, 'Record:', record)
 

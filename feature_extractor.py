@@ -19,7 +19,7 @@ class FeatureExtractor(ABC):
         ...
 
 
-class Extractor1(FeatureExtractor):
+class Extractor(FeatureExtractor):
     ID = 0
     FEATURES = [
         "Relative X to target",
