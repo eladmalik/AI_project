@@ -53,7 +53,8 @@ Model_Classes = {
 
 Lot_Generators = {
     "random": lot_generator.generate_lot,
-    "example1": lot_generator.example1
+    "example1": lot_generator.example1,
+    "only_target": lot_generator.generate_only_target
 }
 
 MOVEMENT_STEERING_TO_ACTION = {
