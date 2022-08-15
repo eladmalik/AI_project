@@ -14,7 +14,8 @@ from assets_paths import PATH_FLOOR_IMG
 from dqn_model import DQNAgent1, DQNAgent2
 from feature_extractor import Extractor, Extractor2
 from reward_analyzer import Analyzer, AnalyzerPenaltyOnStanding, AnalyzerStopOnTarget, \
-    AnalyzerDistanceCritical, AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision
+    AnalyzerDistanceCritical, AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision, \
+    AnalyzerNoCollisionNoDistanceReward
 from simulator import Simulator, DrawingMethod
 from car import Movement, Steering
 
@@ -34,7 +35,8 @@ Analyzers = {
     "AnalyzerStopOnTarget": AnalyzerStopOnTarget,
     "AnalyzerDistanceCritical": AnalyzerDistanceCritical,
     "AnalyzerCollisionReduceNearTarget": AnalyzerCollisionReduceNearTarget,
-    "AnalyzerNoCollision": AnalyzerNoCollision
+    "AnalyzerNoCollision": AnalyzerNoCollision,
+    "AnalyzerNoCollisionNoDistanceReward": AnalyzerNoCollisionNoDistanceReward
 }
 
 Extractors = {
