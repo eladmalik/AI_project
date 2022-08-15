@@ -287,7 +287,7 @@ class AnalyzerNoCollision(RewardAnalyzer):
         if results[Results.PERCENTAGE_IN_TARGET] >= 1 and parking_lot.car_agent.velocity.magnitude() == 0:
             return distance_reward + in_target_reward + angle_to_target_reward, True
 
-        return distance_reward + in_target_reward + angle_to_target_reward, False
+        return distance_reward + in_target_reward + angle_to_target_reward, results[Results.COLLISION]
 
 class AnalyzerNoCollisionNoDistanceReward(RewardAnalyzer):
     ID = 6
