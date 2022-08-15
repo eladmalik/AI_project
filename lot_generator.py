@@ -269,3 +269,32 @@ def example1():
     ParkingCell(800, 0, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True)
     lot = ParkingLot(1000, 1000, agent, parking_cells, [sidewalk_left, sidewalk_right], parking_cells[-1])
     return lot
+
+
+def _get_random_place_inside_board(width, height, board_size):
+    board_rect = pygame.Rect(0, 0, board_size, board_size)
+    rotation = random.random() * 360
+    surface = pygame.transform.rotate(pygame.Surface((width, height)), rotation)
+    x, y = random.randint(width, board_size - width), random.randint(height, board_size - height)
+    rect = surface.get_rect(center=(x, y))
+    while not board_rect.contains(rect):
+        rotation = random.random() * 360
+        surface = pygame.transform.rotate(pygame.Surface((width, height)), rotation)
+        x, y = random.randint(width, board_size - width), random.randint(height, board_size - height)
+        rect = surface.get_rect(center=(x, y))
+    return x, y, rotation
+
+
+def generate_only_target():
+    car_size = (100, 50)
+    screen_size = random.randint(700, 1200)
+    parking_scale = 1.6
+    parking_width = car_size[0] * parking_scale
+    parking_height = car_size[1] * parking_scale
+    parking_x, parking_y, parking_rotation = _get_random_place_inside_board(parking_width, parking_height,
+                                                                            screen_size)
+    parking_cell = ParkingCell(parking_x, parking_y, parking_width, parking_height, parking_rotation,
+                               PATH_PARKING_TARGET_IMG)
+    car_x, car_y, car_rotation = _get_random_place_inside_board(car_size[0], car_size[1], screen_size)
+    agent = Car(car_x, car_y, car_size[0], car_size[1], car_rotation, PATH_AGENT_IMG)
+    return ParkingLot(screen_size, screen_size, agent, [parking_cell], [], parking_cell)

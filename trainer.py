@@ -12,7 +12,7 @@ import lot_generator
 import utils
 from assets_paths import PATH_FLOOR_IMG
 from dqn_model import DQNAgent1, DQNAgent2
-from feature_extractor import Extractor, Extractor2, Extractor2NoSensors
+from feature_extractor import Extractor, Extractor2, Extractor2NoSensors, Extractor3
 from reward_analyzer import Analyzer, AnalyzerPenaltyOnStanding, AnalyzerStopOnTarget, \
     AnalyzerDistanceCritical, AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision, \
     AnalyzerNoCollisionNoDistanceReward
@@ -42,7 +42,8 @@ Analyzers = {
 Extractors = {
     "Extractor": Extractor,
     "Extractor2": Extractor2,
-    "Extractor2NoSensors": Extractor2NoSensors
+    "Extractor2NoSensors": Extractor2NoSensors,
+    "Extractor3": Extractor3
 }
 
 Model_Classes = {

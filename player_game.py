@@ -25,7 +25,7 @@ if __name__ == '__main__':
     # cell3 = ParkingCell(500, 500, 300, 150, 30, PATH_PARKING_IMG, topleft=True)
     # agent_car = Car(600, 500, 100, 50, 0, PATH_AGENT_IMG)
     # lot = ParkingLot(1000, 1000, agent_car, [cell1, cell2, cell3])
-    lot = lot_generator.generate_lot()
+    lot = lot_generator.generate_only_target()
     # lot = get_example_lot()
 
     # initializing the simulator
