@@ -250,3 +250,41 @@ class AnalyzerCollisionReduceNearTarget(RewardAnalyzer):
             return distance_reward + in_target_reward + angle_to_target_reward, True
 
         return distance_reward + in_target_reward + angle_to_target_reward, False
+
+class AnalyzerNoCollision(RewardAnalyzer):
+    ID = 5
+    # keep every argument greater than 0
+
+    MAX_DISTANCE_TO_TARGET_REWARD = 100  # higher => more reward as the car is closer to the target
+    DISTANCE_REWARD_FACTOR = 0.05  # lower => more reward for far distances
+
+    MAX_IN_TARGET_REWARD = 1000  # higher => more reward as the car is more inside target
+    MAX_ANGLE_TO_TARGET_REWARD = 50  # higher => more reward as the car more aligned with the target
+    VELOCITY_PENALTY_FACTOR = 2  # higher => less reward as the car is faster while in the target
+
+    COLLISION_PENALTY = -100  # lower => more penalty for the agent
+    COLLISION_PENALTY_FACTOR = 0.003  # lower => less penalty for far collisions from target
+
+    def analyze(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> Tuple[float, bool]:
+        distance_to_target = parking_lot.car_agent.location.distance_to(parking_lot.target_park.location)
+
+        # as the car in getting closer to the target, the reward increases
+        distance_reward = self.MAX_DISTANCE_TO_TARGET_REWARD / (
+                (self.DISTANCE_REWARD_FACTOR * distance_to_target) + 1)
+
+        # as the car in inside the target, the reward increases
+        in_target_reward = self.MAX_IN_TARGET_REWARD * results[Results.PERCENTAGE_IN_TARGET]
+
+        # penalty for speeding in the target cell
+        in_target_reward = in_target_reward * (1 / ((
+                                                            self.VELOCITY_PENALTY_FACTOR * parking_lot.car_agent.velocity.magnitude()) + 1))
+
+        angle_to_target_reward = 0
+        if results[Results.PERCENTAGE_IN_TARGET] > 0:
+            angle_to_target_reward = self.MAX_ANGLE_TO_TARGET_REWARD * abs(math.cos(abs(math.radians(
+                parking_lot.car_agent.rotation) - math.radians(parking_lot.target_park.rotation))))
+
+        if results[Results.PERCENTAGE_IN_TARGET] >= 1 and parking_lot.car_agent.velocity.magnitude() == 0:
+            return distance_reward + in_target_reward + angle_to_target_reward, True
+
+        return distance_reward + in_target_reward + angle_to_target_reward, False
