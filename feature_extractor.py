@@ -162,7 +162,7 @@ class Extractor3(FeatureExtractor):
         "Relative X to target",
         "Relative Y to target",
         "Distance to target",
-        "Absolute Rotation (normalized with Cos)"
+        "Absolute Rotation (normalized with Cos)",
         "Relative Rotation to target's rotation (normalized with Cos)",
         "Angle to Target (normalized with Cos)",
         "Velocity X",
