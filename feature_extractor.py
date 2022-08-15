@@ -70,7 +70,7 @@ class Extractor2(FeatureExtractor):
         "Relative X to target",
         "Relative Y to target",
         "Distance to target",
-        "Relative Rotation to target's location (normalized with Cos)",
+        "Relative Rotation to target's rotation (normalized with Cos)",
         "Angle to Target (normalized with Cos)",
         "Velocity X",
         "Velocity Y",
