@@ -211,9 +211,7 @@ def train():
     time_difference = float(conf_default["time_difference"])
     draw_screen = bool(int(conf_default["draw_screen"]))
     resize_screen = bool(int(conf_default["resize_screen"]))
-    total_score = 0
-    record = 0
-    iteration_max_reward = 0
+    iteration_total_reward = 0
     sim = Simulator(Lot_Generators[conf_default["lot_generation"]],
                     Analyzers[conf_default["analyzer"]],
                     Extractors[conf_default["extractor"]],
@@ -247,8 +245,7 @@ def train():
         if draw_screen:
             pygame.event.pump()
             agent_trainer.simulator.update_screen()
-        if reward > iteration_max_reward:
-            iteration_max_reward = reward
+        iteration_total_reward += reward
 
         # train short memory
         agent_trainer.train_short_memory(state_old, final_move, reward, state_new, done)
@@ -266,20 +263,18 @@ def train():
             agent_trainer.n_games += 1
             agent_trainer.train_long_memory()
 
-            if iteration_max_reward > record:
-                record = iteration_max_reward
             agent_trainer.model.save(folder, filename)
             if agent_trainer.n_games % 1000 == 0:
                 agent_trainer.model.save(
                     folder, filename[:filename.rfind(".")] + f"_iter_{agent_trainer.n_games}.pth")
 
-            print('Game', agent_trainer.n_games, 'Reward', reward, 'Record:', record)
+            print('Game', agent_trainer.n_games, 'Reward', iteration_total_reward)
 
-            plot_rewards.append(iteration_max_reward)
+            plot_rewards.append(iteration_total_reward)
             if agent_trainer.n_games % 50 == 0:
                 utils.plot(plot_distance, plot_mean_distance)
 
-            iteration_max_reward = 0
+            iteration_total_reward = 0
 
 
 if __name__ == '__main__':
