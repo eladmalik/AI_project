@@ -53,6 +53,7 @@ Model_Classes = {
 
 Lot_Generators = {
     "random": lot_generator.generate_lot,
+    "example0": lot_generator.example0,
     "example1": lot_generator.example1,
     "only_target": lot_generator.generate_only_target
 }
@@ -208,15 +209,17 @@ def train():
     plot_mean_distance = []
     time_difference = float(conf_default["time_difference"])
     draw_screen = bool(int(conf_default["draw_screen"]))
+    resize_screen = bool(int(conf_default["resize_screen"]))
     total_score = 0
     record = 0
     iteration_max_reward = 0
-    lot = Lot_Generators[conf_default["lot_generation"]]()
-    sim = Simulator(lot, Analyzers[conf_default["analyzer"]](), Extractors[conf_default["extractor"]](),
+    sim = Simulator(Lot_Generators[conf_default["lot_generation"]],
+                    Analyzers[conf_default["analyzer"]](),
+                    Extractors[conf_default["extractor"]](),
                     draw_screen=draw_screen,
+                    resize_screen=resize_screen,
                     max_iteration_time_sec=int(conf_default["max_iteration_time_sec"]),
-                    drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
-                    background_image=FLOOR_IMG)
+                    drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)
     folder, filename = get_agent_output_folder()
     if bool(int(conf_model_load["load"])):
         model = load_model()
@@ -258,14 +261,7 @@ def train():
             plot_distance.append(sim.agent.location.distance_to(sim.parking_lot.target_park.location))
             plot_mean_distance.append(sum(plot_distance) / len(plot_distance))
 
-            lot = Lot_Generators[conf_default["lot_generation"]]()
-            sim = Simulator(lot, Analyzers[conf_default["analyzer"]](),
-                            Extractors[conf_default["extractor"]](),
-                            draw_screen=draw_screen,
-                            max_iteration_time_sec=int(conf_default["max_iteration_time_sec"]),
-                            drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
-                            background_image=FLOOR_IMG)
-            agent_trainer.simulator = sim
+            sim.reset()
             agent_trainer.n_games += 1
             agent_trainer.train_long_memory()
 

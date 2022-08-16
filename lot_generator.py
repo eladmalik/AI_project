@@ -1,6 +1,6 @@
 from enum import Enum
 import random
-from typing import Tuple, List
+from typing import Tuple, List, Callable
 import math
 
 import pygame.sprite
@@ -11,6 +11,8 @@ from parking_cell import ParkingCell
 from parking_lot import ParkingLot
 from assets_images import AGENT_IMG, PARKING_SIDEWALK_IMG, PARKING_SIDEWALK_TARGET_IMG, \
     CAR_IMG, PARKING_IMG, PARKING_TARGET_IMG
+
+LotGenerator = Callable[[], ParkingLot]
 
 
 class ParkingType(Enum):
@@ -220,7 +222,7 @@ def scenario1_perpendicular() -> ParkingLot:
     return ParkingLot(screen_size, screen_size, agent, parking_cells, sidewalks, parking_cells[target_index])
 
 
-def generate_lot():
+def generate_lot() -> ParkingLot:
     parking_type = random.choice([park_type for park_type in ParkingType])
     lot = None
     if parking_type == ParkingType.PARALLEL:
@@ -240,7 +242,14 @@ def generate_lot():
     return lot
 
 
-def example1():
+def example0() -> ParkingLot:
+    screen_size = 1000
+    parking_cell = ParkingCell(600, 300, 150, 75, 0, PARKING_TARGET_IMG, topleft=True)
+    agent = Car(200, 700, 100, 50, 90, AGENT_IMG)
+    return ParkingLot(screen_size, screen_size, agent, [parking_cell], [], parking_cell)
+
+
+def example1() -> ParkingLot:
     sidewalk_left = Sidewalk(900, 0, 100, 1000, 0, topleft=True)
     sidewalk_right = Sidewalk(0, 0, 100, 1000, 0, topleft=True)
     offset_x = -30 + 60 * random.random()
@@ -285,7 +294,7 @@ def _get_random_place_inside_board(width, height, board_size):
     return x, y, rotation
 
 
-def generate_only_target():
+def generate_only_target() -> ParkingLot:
     car_size = (100, 50)
     screen_size = random.randint(700, 1200)
     parking_scale = 1.6

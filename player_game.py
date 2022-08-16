@@ -25,15 +25,16 @@ if __name__ == '__main__':
     # cell3 = ParkingCell(500, 500, 300, 150, 30, PATH_PARKING_IMG, topleft=True)
     # agent_car = Car(600, 500, 100, 50, 0, PATH_AGENT_IMG)
     # lot = ParkingLot(1000, 1000, agent_car, [cell1, cell2, cell3])
-    lot = lot_generator.generate_only_target()
+    lot = lot_generator.generate_lot()
     # lot = get_example_lot()
 
     # initializing the simulator
     # sim = Simulator(lot, Analyzer1(), Extractor1(), drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
     #                 background_image=PATH_FLOOR_IMG)
-    sim = Simulator(lot, AnalyzerNoCollision(),
+    sim = Simulator(lot_generator.generate_lot, AnalyzerCollisionReduceNearTarget(),
                     Extractor2(),
                     draw_screen=True,
+                    resize_screen=True,
                     drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
                     background_image=FLOOR_IMG)
     clock = pygame.time.Clock()
@@ -61,8 +62,9 @@ if __name__ == '__main__':
             steering = Steering.RIGHT
 
         # performing the input in the simulator
-        reward, collision = sim.do_step(movement, steering, 1 / FPS)
-        state = sim.get_state()
+        reward, done = sim.do_step(movement, steering, 1 / FPS)
+        if done:
+            sim.reset()
 
         # printing the results:
         if DEBUG:
@@ -73,7 +75,7 @@ if __name__ == '__main__':
             # f" acceleration: {sim.parking_lot.car_agent.acceleration:.2f}, "
             # f"collision: {results[Results.COLLISION]}, % in free cell: "
             # f"{0.0 if len(results[Results.UNOCCUPIED_PERCENTAGE]) == 0 else max(results[Results.UNOCCUPIED_PERCENTAGE].values()):.2f}")
-            print(f"reward: {reward:.3f}, done: {collision}")
+            print(f"reward: {reward:.3f}, done: {done}")
 
         # updating the screen
         sim.update_screen()
