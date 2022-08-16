@@ -15,7 +15,7 @@ from dqn_model import DQNAgent1, DQNAgent2
 from feature_extractor import Extractor, Extractor2, Extractor2NoSensors, Extractor3
 from reward_analyzer import Analyzer, AnalyzerPenaltyOnStanding, AnalyzerStopOnTarget, \
     AnalyzerDistanceCritical, AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision, \
-    AnalyzerNoCollisionNoDistanceReward
+    AnalyzerNoCollisionNoDistanceReward, AnalyzerAccumulating
 from simulator import Simulator, DrawingMethod
 from car import Movement, Steering
 
@@ -36,7 +36,8 @@ Analyzers = {
     "AnalyzerDistanceCritical": AnalyzerDistanceCritical,
     "AnalyzerCollisionReduceNearTarget": AnalyzerCollisionReduceNearTarget,
     "AnalyzerNoCollision": AnalyzerNoCollision,
-    "AnalyzerNoCollisionNoDistanceReward": AnalyzerNoCollisionNoDistanceReward
+    "AnalyzerNoCollisionNoDistanceReward": AnalyzerNoCollisionNoDistanceReward,
+    "AnalyzerAccumulating": AnalyzerAccumulating
 }
 
 Extractors = {
@@ -214,8 +215,8 @@ def train():
     record = 0
     iteration_max_reward = 0
     sim = Simulator(Lot_Generators[conf_default["lot_generation"]],
-                    Analyzers[conf_default["analyzer"]](),
-                    Extractors[conf_default["extractor"]](),
+                    Analyzers[conf_default["analyzer"]],
+                    Extractors[conf_default["extractor"]],
                     draw_screen=draw_screen,
                     resize_screen=resize_screen,
                     max_iteration_time_sec=int(conf_default["max_iteration_time_sec"]),
@@ -241,13 +242,13 @@ def train():
 
         # perform move and get new state
         final_movement, final_steering = ACTION_TO_MOVEMENT_STEERING[final_move]
-        reward, done = agent_trainer.simulator.do_step(final_movement, final_steering, time_difference)
+        state_new, reward, done = agent_trainer.simulator.do_step(final_movement, final_steering,
+                                                                  time_difference)
         if draw_screen:
             pygame.event.pump()
             agent_trainer.simulator.update_screen()
         if reward > iteration_max_reward:
             iteration_max_reward = reward
-        state_new = agent_trainer.simulator.get_state()
 
         # train short memory
         agent_trainer.train_short_memory(state_old, final_move, reward, state_new, done)

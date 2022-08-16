@@ -1,6 +1,6 @@
 import sys
 from enum import Enum
-from typing import Dict, Union
+from typing import Dict, Union, Callable
 
 import pygame
 
@@ -34,8 +34,8 @@ class Simulator:
     agent/player, outputs their outcome and offers the option to draw them to the screen.
     """
 
-    def __init__(self, lot_generator: LotGenerator, reward_analyzer: RewardAnalyzer,
-                 feature_extractor: FeatureExtractor,
+    def __init__(self, lot_generator: LotGenerator, reward_analyzer: Callable[[], RewardAnalyzer],
+                 feature_extractor: Callable[[], FeatureExtractor],
                  max_iteration_time_sec: int = 2000,
                  draw_screen: bool = True,
                  resize_screen: bool = True,
@@ -75,8 +75,8 @@ class Simulator:
         self.lot_generator = lot_generator
         self.draw_screen = draw_screen
         self.resize_screen = resize_screen
-        self.reward_analyzer: RewardAnalyzer = reward_analyzer
-        self.feature_extractor: FeatureExtractor = feature_extractor
+        self.reward_analyzer_class: Callable[[], RewardAnalyzer] = reward_analyzer
+        self.feature_extractor_class: Callable[[], FeatureExtractor] = feature_extractor
         self._org_background_image = background_image
         self._drawing_method = drawing_method
 
@@ -91,6 +91,8 @@ class Simulator:
             self.parking_lot.stationary_cars)
         self.parking_cells_group: pygame.sprite.Group = pygame.sprite.Group(self.parking_lot.parking_cells)
         self.obstacles_group: pygame.sprite.Group = pygame.sprite.Group(self.parking_lot.all_obstacles)
+        self.reward_analyzer = self.reward_analyzer_class()
+        self.feature_extractor = self.feature_extractor_class()
 
         self.background_img = None
         if self._org_background_image is not None:
@@ -213,6 +215,8 @@ class Simulator:
             self.parking_lot.stationary_cars)
         self.parking_cells_group: pygame.sprite.Group = pygame.sprite.Group(self.parking_lot.parking_cells)
         self.obstacles_group: pygame.sprite.Group = pygame.sprite.Group(self.parking_lot.all_obstacles)
+        self.reward_analyzer = self.reward_analyzer_class()
+        self.feature_extractor = self.feature_extractor_class()
         self.background_img = None
         if self._org_background_image is not None:
             self.background_img = pygame.transform.scale(self._org_background_image,
@@ -264,7 +268,8 @@ class Simulator:
         reward, done = self.reward_analyzer.analyze(self.parking_lot, results)
         if self.total_time >= self.max_simulator_time:
             done = True
-        return reward, done
+        new_state = self.get_state()
+        return new_state, reward, done
 
     def is_collision(self):
         """

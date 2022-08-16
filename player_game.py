@@ -3,9 +3,9 @@ import sys
 import pygame
 
 import lot_generator
-from feature_extractor import Extractor, Extractor2
+from feature_extractor import Extractor, Extractor2, Extractor3
 from reward_analyzer import Analyzer, AnalyzerStopOnTarget, AnalyzerDistanceCritical, \
-    AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision
+    AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision, AnalyzerAccumulating
 from simulator import Simulator, DrawingMethod
 from car import Car, Movement, Steering
 
@@ -14,12 +14,13 @@ DEBUG = True
 
 if __name__ == '__main__':
     # initializing the parking lot
-    sim = Simulator(lot_generator.generate_lot, AnalyzerCollisionReduceNearTarget(),
-                    Extractor2(),
+    sim = Simulator(lot_generator.generate_lot, AnalyzerAccumulating,
+                    Extractor3,
                     draw_screen=True,
-                    resize_screen=False,
+                    resize_screen=True,
                     drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)
     clock = pygame.time.Clock()
+    total_reward = 0
     while True:
         # The main loop of the simulator. every iteration of this loop equals to one frame in the simulator.
         clock.tick(FPS)
@@ -44,13 +45,18 @@ if __name__ == '__main__':
             steering = Steering.RIGHT
 
         # performing the input in the simulator
-        reward, done = sim.do_step(movement, steering, 1 / FPS)
+        _, reward, done = sim.do_step(movement, steering, 1 / FPS)
+        total_reward += reward
         if done:
-            sim.reset()
+            pygame.quit()
+            print(f"total reward: {total_reward}")
+            exit()
+            # sim.reset()
+            total_reward = 0
 
         # printing the results:
         if DEBUG:
-            print(f"reward: {reward:.3f}, done: {done}")
+            print(f"reward: {total_reward:.3f}, done: {done}")
 
         # updating the screen
         sim.update_screen()
