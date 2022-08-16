@@ -1,5 +1,3 @@
-import os.path
-
 import pygame
 
 from assets_images import SIDEWALK_IMG

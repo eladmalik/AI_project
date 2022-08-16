@@ -1,12 +1,9 @@
-import math
-import os.path
 import sys
 from enum import Enum
 from typing import Dict, Union
 
 import pygame
 
-from CarSimSprite import CarSimSprite
 from car import Car
 from feature_extractor import FeatureExtractor
 from parking_cell import ParkingCell
@@ -14,8 +11,7 @@ from utils import mask_subset_percentage
 from parking_lot import ParkingLot
 from reward_analyzer import RewardAnalyzer, Results
 
-from assets_images import AGENT_IMG, PARKING_IMG, PARKING_SIDEWALK_IMG, CAR_IMG, \
-    ICON_IMG, FLOOR_IMG
+from assets_images import ICON_IMG, FLOOR_IMG
 
 from lot_generator import LotGenerator
 

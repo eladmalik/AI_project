@@ -1,7 +1,6 @@
 from enum import Enum
 import math
 from typing import Tuple, Iterable
-import numpy as np
 import pygame
 
 from CarSimSprite import CarSimSprite
