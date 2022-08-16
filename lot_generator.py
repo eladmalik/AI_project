@@ -9,8 +9,8 @@ from car import Car
 from obstacles import Sidewalk
 from parking_cell import ParkingCell
 from parking_lot import ParkingLot
-from assets_paths import PATH_AGENT_IMG, PATH_PARKING_SIDEWALK_IMG, PATH_PARKING_SIDEWALK_TARGET_IMG, \
-    PATH_CAR_IMG, PATH_PARKING_IMG, PATH_PARKING_TARGET_IMG
+from assets_images import AGENT_IMG, PARKING_SIDEWALK_IMG, PARKING_SIDEWALK_TARGET_IMG, \
+    CAR_IMG, PARKING_IMG, PARKING_TARGET_IMG
 
 
 class ParkingType(Enum):
@@ -45,7 +45,7 @@ def create_vertical_parking_cells_old(screen_size, sidewalk_width, side, car_siz
     current_position = [start_pos[0], start_pos[1]]
     for i in range(num_of_cells):
         parking_cells.append(ParkingCell(current_position[0], current_position[1], width, height, rotation,
-                                         PATH_PARKING_SIDEWALK_IMG, topleft=True))
+                                         PARKING_SIDEWALK_IMG, topleft=True))
         if side % 2 == 0:
             current_position[1] += width
         else:
@@ -80,7 +80,7 @@ def create_vertical_parking_cells(screen_size, sidewalk_width, side, car_size: T
     current_position = [start_pos[0], start_pos[1]]
     for i in range(num_of_cells):
         parking_cells.append(ParkingCell(current_position[0], current_position[1], width, height, rotation,
-                                         PATH_PARKING_IMG, topleft=True))
+                                         PARKING_IMG, topleft=True))
         if side % 2 == 0:
             current_position[1] += height
         else:
@@ -114,7 +114,7 @@ def create_parallel_parking_cells(screen_size, sidewalk_width, side, car_size: T
     current_position = [start_pos[0], start_pos[1]]
     for i in range(num_of_cells):
         parking_cells.append(ParkingCell(current_position[0], current_position[1], width, height, rotation,
-                                         PATH_PARKING_SIDEWALK_IMG, topleft=True))
+                                         PARKING_SIDEWALK_IMG, topleft=True))
         if side % 2 == 0:
             current_position[1] += width
         else:
@@ -155,19 +155,19 @@ def scenario1_parallel() -> ParkingLot:
 
     # choosing parking target
     target_index = random.randint(0, len(parking_cells) - 1)
-    parking_cells[target_index].set_image(PATH_PARKING_SIDEWALK_TARGET_IMG)
+    parking_cells[target_index].set_image(PARKING_SIDEWALK_TARGET_IMG)
     for i in range(len(parking_cells)):
         if i != target_index and random.choice([True, False]):
             rotation = random.choice([parking_cells[i].rotation, parking_cells[i].rotation + 180])
             trash_parking = random.random()
             if trash_parking > 0.75:
                 rotation += -20 + 40 * random.random()
-            parking_cells[i].place_car(car_size[0], car_size[1], PATH_CAR_IMG, rotation=rotation)
+            parking_cells[i].place_car(car_size[0], car_size[1], CAR_IMG, rotation=rotation)
 
     agent_offset_x = random.randint(-screen_size // 15, screen_size // 15)
     agent_offset_y = random.randint(-screen_size // 15, screen_size // 15)
     agent = Car((screen_size // 2) + agent_offset_x, (screen_size // 2) + agent_offset_y, car_size[0],
-                car_size[1], random.random() * 360, PATH_AGENT_IMG)
+                car_size[1], random.random() * 360, AGENT_IMG)
     return ParkingLot(screen_size, screen_size, agent, parking_cells, sidewalks, parking_cells[target_index])
 
 
@@ -204,19 +204,19 @@ def scenario1_perpendicular() -> ParkingLot:
 
     # choosing parking target
     target_index = random.randint(0, len(parking_cells) - 1)
-    parking_cells[target_index].set_image(PATH_PARKING_TARGET_IMG)
+    parking_cells[target_index].set_image(PARKING_TARGET_IMG)
     for i in range(len(parking_cells)):
         if i != target_index and random.choice([True, False]):
             rotation = random.choice([parking_cells[i].rotation, parking_cells[i].rotation + 180])
             trash_parking = random.random()
             if trash_parking > 0.75:
                 rotation += -20 + 40 * random.random()
-            parking_cells[i].place_car(car_size[0], car_size[1], PATH_CAR_IMG, rotation=rotation)
+            parking_cells[i].place_car(car_size[0], car_size[1], CAR_IMG, rotation=rotation)
 
     agent_offset_x = random.randint(-screen_size // 15, screen_size // 15)
     agent_offset_y = random.randint(-screen_size // 15, screen_size // 15)
     agent = Car((screen_size // 2) + agent_offset_x, (screen_size // 2) + agent_offset_y, car_size[0],
-                car_size[1], random.random() * 360, PATH_AGENT_IMG)
+                car_size[1], random.random() * 360, AGENT_IMG)
     return ParkingLot(screen_size, screen_size, agent, parking_cells, sidewalks, parking_cells[target_index])
 
 
@@ -245,28 +245,28 @@ def example1():
     sidewalk_right = Sidewalk(0, 0, 100, 1000, 0, topleft=True)
     offset_x = -30 + 60 * random.random()
     offset_y = -30 + 60 * random.random()
-    agent = Car(500 + offset_x, 500 + offset_y, 100, 50, random.random() * 360, PATH_AGENT_IMG)
+    agent = Car(500 + offset_x, 500 + offset_y, 100, 50, random.random() * 360, AGENT_IMG)
     parking_cells = [
-        ParkingCell(100, 0, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
-        ParkingCell(100, 130, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
-        ParkingCell(100, 260, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
-        ParkingCell(100, 390, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
-                                                                                              PATH_CAR_IMG),
-        ParkingCell(100, 520, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
-        ParkingCell(100, 650, 130, 65, 90, PATH_PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(100, 0, 130, 65, 90, PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(100, 130, 130, 65, 90, PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(100, 260, 130, 65, 90, PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(100, 390, 130, 65, 90, PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
+                                                                                         CAR_IMG),
+        ParkingCell(100, 520, 130, 65, 90, PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(100, 650, 130, 65, 90, PARKING_SIDEWALK_IMG, topleft=True),
 
-        ParkingCell(835, 0, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
-        ParkingCell(835, 130, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
-        ParkingCell(835, 260, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
-                                                                                               PATH_CAR_IMG,
-                                                                                               rotation=50),
-        ParkingCell(835, 390, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True),
-        ParkingCell(835, 520, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
-                                                                                               PATH_CAR_IMG,
-                                                                                               rotation=70),
-        ParkingCell(835, 650, 130, 65, 270, PATH_PARKING_SIDEWALK_TARGET_IMG, topleft=True),
+        ParkingCell(835, 0, 130, 65, 270, PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(835, 130, 130, 65, 270, PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(835, 260, 130, 65, 270, PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
+                                                                                          CAR_IMG,
+                                                                                          rotation=50),
+        ParkingCell(835, 390, 130, 65, 270, PARKING_SIDEWALK_IMG, topleft=True),
+        ParkingCell(835, 520, 130, 65, 270, PARKING_SIDEWALK_IMG, topleft=True).place_car(100, 50,
+                                                                                          CAR_IMG,
+                                                                                          rotation=70),
+        ParkingCell(835, 650, 130, 65, 270, PARKING_SIDEWALK_TARGET_IMG, topleft=True),
     ]
-    ParkingCell(800, 0, 130, 65, 270, PATH_PARKING_SIDEWALK_IMG, topleft=True)
+    ParkingCell(800, 0, 130, 65, 270, PARKING_SIDEWALK_IMG, topleft=True)
     lot = ParkingLot(1000, 1000, agent, parking_cells, [sidewalk_left, sidewalk_right], parking_cells[-1])
     return lot
 
@@ -294,7 +294,7 @@ def generate_only_target():
     parking_x, parking_y, parking_rotation = _get_random_place_inside_board(parking_width, parking_height,
                                                                             screen_size)
     parking_cell = ParkingCell(parking_x, parking_y, parking_width, parking_height, parking_rotation,
-                               PATH_PARKING_TARGET_IMG)
+                               PARKING_TARGET_IMG)
     car_x, car_y, car_rotation = _get_random_place_inside_board(car_size[0], car_size[1], screen_size)
-    agent = Car(car_x, car_y, car_size[0], car_size[1], car_rotation, PATH_AGENT_IMG)
+    agent = Car(car_x, car_y, car_size[0], car_size[1], car_rotation, AGENT_IMG)
     return ParkingLot(screen_size, screen_size, agent, [parking_cell], [], parking_cell)

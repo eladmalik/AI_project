@@ -14,8 +14,8 @@ from utils import mask_subset_percentage
 from parking_lot import ParkingLot
 from reward_analyzer import RewardAnalyzer, Results
 
-from assets_paths import PATH_AGENT_IMG, PATH_PARKING_IMG, PATH_PARKING_SIDEWALK_IMG, PATH_CAR_IMG, \
-    PATH_ICON_IMG, PATH_FLOOR_IMG
+from assets_images import AGENT_IMG, PARKING_IMG, PARKING_SIDEWALK_IMG, CAR_IMG, \
+    ICON_IMG, FLOOR_IMG
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -38,7 +38,7 @@ class Simulator:
                  feature_extractor: FeatureExtractor,
                  max_iteration_time_sec: int = 2000,
                  draw_screen: bool = True,
-                 background_image: Union[str, None] = None,
+                 background_image: Union[pygame.Surface, None] = None,
                  drawing_method=False,
                  full_refresh_rate: int = 30):
         """
@@ -94,13 +94,12 @@ class Simulator:
 
         self.background_img = None
         if background_image is not None:
-            self.background_img = pygame.transform.scale(pygame.image.load(background_image),
-                                                         (lot.width, lot.height))
+            self.background_img = pygame.transform.scale(background_image, (lot.width, lot.height))
         self.bg_snapshot = self._create_background_snapshot()
 
         self._drawing_method = drawing_method
         if self.draw_screen:
-            pygame.display.set_icon(pygame.image.load(PATH_ICON_IMG))
+            pygame.display.set_icon(ICON_IMG)
             pygame.display.set_caption("Car Parking Simulator")
             self._draw_screen_full()
             pygame.display.update()

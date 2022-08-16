@@ -1,5 +1,6 @@
 from enum import Enum
 
+import pygame
 from pygame.math import Vector2
 from math import sin, radians, degrees, copysign
 
@@ -34,7 +35,7 @@ FREE_DECELERATION = 15
 ACCELERATION_FACTOR = 60
 STEERING_FACTOR = 60
 
-MAX_SENSOR_DISTANCE = 400
+MAX_SENSOR_DISTANCE = 1000
 
 
 class Car(CarSimSprite):
@@ -44,9 +45,10 @@ class Car(CarSimSprite):
     and its source code: https://github.com/maximryzhov/pygame-car-tutorial
     """
 
-    def __init__(self, x: float, y: float, width: float, height: float, rotation: float, img_path: str,
+    def __init__(self, x: float, y: float, width: float, height: float, rotation: float,
+                 surface: pygame.Surface,
                  topleft: bool = False):
-        super().__init__(x, y, width, height, rotation, img_path, topleft)
+        super().__init__(x, y, width, height, rotation, surface, topleft)
         self.velocity = Vector2(0.0, 0.0)
         self.length = width
         self.max_acceleration = MAX_ACCELERATION

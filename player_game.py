@@ -11,8 +11,8 @@ from parking_lot import ParkingLot
 from parking_cell import ParkingCell
 from obstacles import Sidewalk
 from car import Car, Movement, Steering
-from assets_paths import PATH_AGENT_IMG, PATH_PARKING_IMG, PATH_PARKING_SIDEWALK_IMG, PATH_CAR_IMG, \
-    PATH_ICON_IMG, PATH_FLOOR_IMG, PATH_PARKING_SIDEWALK_TARGET_IMG
+from assets_images import AGENT_IMG, PARKING_IMG, PARKING_SIDEWALK_IMG, CAR_IMG, \
+    ICON_IMG, FLOOR_IMG, PARKING_SIDEWALK_TARGET_IMG
 
 FPS = 60
 DEBUG = True
@@ -35,7 +35,7 @@ if __name__ == '__main__':
                     Extractor2(),
                     draw_screen=True,
                     drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
-                    background_image=PATH_FLOOR_IMG)
+                    background_image=FLOOR_IMG)
     clock = pygame.time.Clock()
     while True:
         # The main loop of the simulator. every iteration of this loop equals to one frame in the simulator.

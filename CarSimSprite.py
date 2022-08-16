@@ -5,7 +5,8 @@ import pygame
 
 
 class CarSimSprite(pygame.sprite.Sprite):
-    def __init__(self, x: float, y: float, width: float, height: float, rotation: float, img_path: str = None,
+    def __init__(self, x: float, y: float, width: float, height: float, rotation: float,
+                 surface: pygame.Surface = None,
                  topleft: bool = False):
         """
         This class creates represents a sprite in the simulator
@@ -43,8 +44,8 @@ class CarSimSprite(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.rotation: float = rotation
         self.location: Vector2 = Vector2(x, y)
-        if img_path is not None:
-            img = pygame.image.load(img_path)
+        if surface is not None:
+            img = surface
         else:
             img = pygame.Surface((width, height))
         self.width: float = width
@@ -87,20 +88,13 @@ class CarSimSprite(pygame.sprite.Sprite):
         self._mask_template = surface_no_rotation
         self.mask = pygame.mask.from_surface(pygame.transform.rotate(self._mask_template, self.rotation))
 
-    def set_image(self, image_path: str):
+    def set_image(self, surface: pygame.Surface):
         """
         A function which changes the image source of the sprite
         """
-        img = pygame.image.load(image_path)
+        img = surface
         self.image_no_rotation = pygame.transform.scale(img, (self.width, self.height))
         self.image = pygame.transform.rotate(self.image_no_rotation, self.rotation)
-
-    # def set_current_surface(self, surface: pygame.Surface):
-    #     """
-    #     A function which changes current image - but not the base image of the sprite. used mainly for
-    #     copying the sprite object
-    #     """
-    #     self.image = surface
 
     def get_base_dimensions(self):
         """

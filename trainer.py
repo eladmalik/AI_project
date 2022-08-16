@@ -10,7 +10,7 @@ import configparser
 
 import lot_generator
 import utils
-from assets_paths import PATH_FLOOR_IMG
+from assets_images import FLOOR_IMG
 from dqn_model import DQNAgent1, DQNAgent2
 from feature_extractor import Extractor, Extractor2, Extractor2NoSensors, Extractor3
 from reward_analyzer import Analyzer, AnalyzerPenaltyOnStanding, AnalyzerStopOnTarget, \
@@ -216,7 +216,7 @@ def train():
                     draw_screen=draw_screen,
                     max_iteration_time_sec=int(conf_default["max_iteration_time_sec"]),
                     drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
-                    background_image=PATH_FLOOR_IMG)
+                    background_image=FLOOR_IMG)
     folder, filename = get_agent_output_folder()
     if bool(int(conf_model_load["load"])):
         model = load_model()
@@ -264,7 +264,7 @@ def train():
                             draw_screen=draw_screen,
                             max_iteration_time_sec=int(conf_default["max_iteration_time_sec"]),
                             drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
-                            background_image=PATH_FLOOR_IMG)
+                            background_image=FLOOR_IMG)
             agent_trainer.simulator = sim
             agent_trainer.n_games += 1
             agent_trainer.train_long_memory()
