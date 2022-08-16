@@ -27,13 +27,12 @@ class DQNAgent1(DQNAgent):
         output_size = int(output_size)
 
         self.time_created = utils.get_time()
-        self.linear1 = nn.Linear(input_size, hidden_size1)
-        self.linear2 = nn.Linear(hidden_size1, output_size)
+        self.network = nn.Sequential(nn.Linear(input_size, hidden_size1),
+                                     nn.ReLU(),
+                                     nn.Linear(hidden_size1, output_size))
 
     def forward(self, x):
-        x = F.relu(self.linear1(x))
-        x = self.linear2(x)
-        return x
+        return self.network(x)
 
     def save(self, folder='./model/', file_name=f'dqn.pth'):
         file_name = os.path.join(folder, file_name)
@@ -50,15 +49,13 @@ class DQNAgent2(DQNAgent):
         output_size = int(output_size)
 
         self.time_created = utils.get_time()
-        self.linear1 = nn.Linear(input_size, hidden_size1)
-        self.linear2 = nn.Linear(hidden_size1, hidden_size2)
-        self.linear3 = nn.Linear(hidden_size2, hidden_size3)
-        self.linear4 = nn.Linear(hidden_size3, output_size)
+        self.network = nn.Sequential(nn.Linear(input_size, hidden_size1),
+                                     nn.ReLU(),
+                                     nn.Linear(hidden_size1, hidden_size2),
+                                     nn.ReLU(),
+                                     nn.Linear(hidden_size2, hidden_size3),
+                                     nn.ReLU(),
+                                     nn.Linear(hidden_size3, output_size))
 
     def forward(self, x):
-        x = F.relu(self.linear1(x))
-        x = F.relu(self.linear2(x))
-        x = F.relu(self.linear3(x))
-        x = self.linear4(x)
-        return x
-
+        return self.network(x)
