@@ -12,10 +12,11 @@ import lot_generator
 import utils
 from assets_images import FLOOR_IMG
 from dqn_model import DQNAgent1, DQNAgent2, DQNAgent3
-from feature_extractor import Extractor, Extractor2, Extractor2NoSensors, Extractor3
+from feature_extractor import Extractor, Extractor2, Extractor2NoSensors, Extractor3, Extractor4
 from reward_analyzer import Analyzer, AnalyzerPenaltyOnStanding, AnalyzerStopOnTarget, \
     AnalyzerDistanceCritical, AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision, \
-    AnalyzerNoCollisionNoDistanceReward, AnalyzerAccumulating, AnalyzerAccumulating2, AnalyzerAccumulating3
+    AnalyzerNoCollisionNoDistanceReward, AnalyzerAccumulating, AnalyzerAccumulating2, AnalyzerAccumulating3, \
+    AnalyzerAccumulating4
 from simulator import Simulator, DrawingMethod
 from car import Movement, Steering
 
@@ -39,14 +40,16 @@ Analyzers = {
     "AnalyzerNoCollisionNoDistanceReward": AnalyzerNoCollisionNoDistanceReward,
     "AnalyzerAccumulating": AnalyzerAccumulating,
     "AnalyzerAccumulating2": AnalyzerAccumulating2,
-    "AnalyzerAccumulating3": AnalyzerAccumulating3
+    "AnalyzerAccumulating3": AnalyzerAccumulating3,
+    "AnalyzerAccumulating4": AnalyzerAccumulating4
 }
 
 Extractors = {
     "Extractor": Extractor,
     "Extractor2": Extractor2,
     "Extractor2NoSensors": Extractor2NoSensors,
-    "Extractor3": Extractor3
+    "Extractor3": Extractor3,
+    "Extractor4": Extractor4
 }
 
 Model_Classes = {
