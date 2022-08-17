@@ -27,11 +27,12 @@ class ProximitySensor:
         sensor_angle = self.car.rotation + self.angle
         if self.direction == SensorDirection.RIGHT:
             start_pos = self.car.location + pygame.Vector2((self.car.height / 2 * math.sin(math.radians(
-                sensor_angle))),
+                self.car.rotation))),
                                                            (self.car.height / 2 * math.cos(
-                                                               math.radians(sensor_angle))))
-            stop_pos = start_pos + pygame.Vector2((self.max_distance * math.sin(math.radians(sensor_angle))),
-                                                  (self.max_distance * math.cos(math.radians(sensor_angle))))
+                                                               math.radians(self.car.rotation))))
+            stop_pos = start_pos + pygame.Vector2(
+                (self.max_distance * math.sin(math.radians(self.car.rotation))),
+                (self.max_distance * math.cos(math.radians(self.car.rotation))))
 
         if self.direction == SensorDirection.LEFT:
             start_pos = self.car.location + pygame.Vector2(

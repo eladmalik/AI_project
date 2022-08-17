@@ -443,7 +443,7 @@ class AnalyzerAccumulating3(RewardAnalyzer):
 
 class AnalyzerAccumulating4(RewardAnalyzer):
     ID = 9
-    COLLISION_PENALTY = -10
+    COLLISION_PENALTY = -100
     COLLISION_PENALTY_FACTOR = 0.003
 
     IN_PARKING_REWARD = 1000
@@ -485,3 +485,58 @@ class AnalyzerAccumulating4(RewardAnalyzer):
             return reward, True
         self.last_distance = current_distance
         return reward, False
+
+
+class AnalyzerAccumulating5(RewardAnalyzer):
+    ID = 10
+    COLLISION_PENALTY = -100
+    COLLISION_PENALTY_FACTOR = 0.003
+
+    IN_PARKING_REWARD = 1000
+    PARKED_REWARD = 2000
+
+    def __init__(self):
+        self.distances = [d for d in range(1200, 0, -2)]
+        self.rewards = [2 for x in self.distances]
+        self.in_parking = False
+        self.init = False
+        self.last_distance = float("inf")
+        self.outside_circle = 0
+
+    def analyze(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> Tuple[float, bool]:
+        current_distance = parking_lot.car_agent.location.distance_to(parking_lot.target_park.location)
+        if not self.init:
+            self.init = True
+            self.last_distance = current_distance
+            while current_distance < self.distances[self.outside_circle]:
+                self.outside_circle += 1
+        if results[Results.COLLISION]:
+            return (math.erf(self.COLLISION_PENALTY_FACTOR * current_distance) *
+                    self.COLLISION_PENALTY) / 1200, \
+                   True
+
+        if results[Results.PERCENTAGE_IN_TARGET] < 1 and parking_lot.car_agent.velocity.magnitude() <= 0:
+            return -0.001 * (current_distance / 1200), False
+        reward = 0
+
+        if current_distance < self.last_distance:
+            while self.outside_circle < len(self.distances) and \
+                    current_distance < self.distances[self.outside_circle]:
+                parking_vec = parking_lot.target_park.front - parking_lot.target_park.location
+                car_vec = parking_lot.target_park.location - parking_lot.car_agent.front
+                angle = car_vec.angle_to(parking_vec)
+
+                reward += self.rewards[self.outside_circle] * abs(math.cos(math.radians(angle)))
+                self.outside_circle += 1
+        elif current_distance > self.last_distance:
+            while self.outside_circle > 0 and current_distance > self.distances[self.outside_circle - 1]:
+                reward -= self.rewards[self.outside_circle - 1]
+                self.outside_circle -= 1
+        if results[Results.PERCENTAGE_IN_TARGET] >= 1 and not self.in_parking:
+            self.in_parking = True
+            reward += self.IN_PARKING_REWARD
+        if results[Results.PERCENTAGE_IN_TARGET] >= 1 and parking_lot.car_agent.velocity.magnitude() <= 0:
+            reward += self.PARKED_REWARD
+            return reward / 1200, True
+        self.last_distance = current_distance
+        return reward / 1200, False

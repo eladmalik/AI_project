@@ -1,3 +1,4 @@
+import math
 from typing import Tuple, Union
 from pygame.math import Vector2
 
@@ -67,6 +68,23 @@ class CarSimSprite(pygame.sprite.Sprite):
         self._mask_template = self.image_no_rotation
         self.mask = pygame.mask.from_surface(pygame.transform.rotate(self._mask_template, self.rotation))
 
+        self.front = self.location + pygame.Vector2(
+            (self.width / 2 * math.cos(math.radians(self.rotation))),
+            (self.width / 2 * math.sin(math.radians(self.rotation + 180))))
+
+        self.back = self.location + pygame.Vector2(
+            (self.width / 2 * math.cos(math.radians(self.rotation +
+                                                    180))),
+            (self.width / 2 * math.sin(math.radians(self.rotation))))
+
+        self.left = self.location + pygame.Vector2(
+            (self.height / 2 * math.sin(math.radians(self.rotation + 180))),
+            (self.height / 2 * math.cos(math.radians(self.rotation + 180))))
+
+        self.right = self.location + pygame.Vector2(
+            (self.height / 2 * math.sin(math.radians(self.rotation))),
+            (self.height / 2 * math.cos(math.radians(self.rotation))))
+
     def get_x(self):
         return self.location.x
 
@@ -125,6 +143,23 @@ class CarSimSprite(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(pygame.transform.rotate(self._mask_template, self.rotation))
         self.rect = self.image.get_rect()
         self.rect.center = self.location
+
+        self.front = self.location + pygame.Vector2(
+            (self.width / 2 * math.cos(math.radians(self.rotation))),
+            (self.width / 2 * math.sin(math.radians(self.rotation + 180))))
+
+        self.back = self.location + pygame.Vector2(
+            (self.width / 2 * math.cos(math.radians(self.rotation +
+                                                    180))),
+            (self.width / 2 * math.sin(math.radians(self.rotation))))
+
+        self.left = self.location + pygame.Vector2(
+            (self.height / 2 * math.sin(math.radians(self.rotation + 180))),
+            (self.height / 2 * math.cos(math.radians(self.rotation + 180))))
+
+        self.right = self.location + pygame.Vector2(
+            (self.height / 2 * math.sin(math.radians(self.rotation))),
+            (self.height / 2 * math.cos(math.radians(self.rotation))))
 
     def copy(self):
         new_copy = CarSimSprite(self.location.x, self.location.y, self.width, self.height, self.rotation)

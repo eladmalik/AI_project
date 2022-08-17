@@ -281,7 +281,7 @@ def train():
 
             plot_rewards.append(iteration_total_reward)
             if agent_trainer.n_games % 50 == 0:
-                utils.plot(plot_distance, plot_mean_distance)
+                utils.plot_distances(plot_distance, plot_mean_distance)
 
             iteration_total_reward = 0
 

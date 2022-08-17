@@ -1,5 +1,7 @@
 import os.path
-import lot_generator
+
+import utils
+from lot_generator import *
 from reward_analyzer import *
 from feature_extractor import *
 import numpy as np
@@ -24,17 +26,17 @@ action_mapping = {
 }
 
 if __name__ == '__main__':
-    lot_generator = lot_generator.example0
-    reward_analyzer = AnalyzerAccumulating4
+    lot_generator = generate_only_target
+    reward_analyzer = AnalyzerAccumulating5
     feature_extractor = Extractor4
     draw_screen = True
     env = Simulator(lot_generator, reward_analyzer, feature_extractor,
-                    max_iteration_time_sec=500,
+                    max_iteration_time_sec=100,
                     draw_screen=draw_screen,
                     resize_screen=False,
                     drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)
     time_difference_secs = 0.1
-    N = 5
+    N = 50
     batch_size = 5
     n_epochs = 4
     alpha = 0.0003
@@ -47,6 +49,8 @@ if __name__ == '__main__':
 
     best_score = -float("inf")
     score_history = []
+    distance_history = []
+    mean_distance_history = []
 
     learn_iters = 0
     avg_score = 0
@@ -74,6 +78,11 @@ if __name__ == '__main__':
             observation = observation_
         score_history.append(score)
         avg_score = np.mean(score_history[-100:])
+        distance_history.append(env.agent.location.distance_to(env.parking_lot.target_park.location))
+        mean_distance_history.append(sum(distance_history) / len(distance_history))
+        if (i + 1) % 10 == 0:
+            utils.plot_rewards(score_history)
+            utils.plot_distances(distance_history, mean_distance_history)
 
         if avg_score > best_score:
             best_score = avg_score

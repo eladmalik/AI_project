@@ -54,7 +54,7 @@ class ActorNetwork(nn.Module):
                  fc1_dims=1024, fc2_dims=1024, chkpt_dir=os.path.join("tmp", "ppo")):
         super(ActorNetwork, self).__init__()
 
-        self.checkpoint_file = os.path.join(chkpt_dir, 'actor_torch_ppo')
+        self.checkpoint_file = os.path.join(chkpt_dir, 'actor_torch_ppo_1')
         self.actor = nn.Sequential(
             nn.Linear(*input_dims, fc1_dims),
             nn.ReLU(),
@@ -86,7 +86,7 @@ class CriticNetwork(nn.Module):
                  chkpt_dir=os.path.join("tmp", "ppo")):
         super(CriticNetwork, self).__init__()
 
-        self.checkpoint_file = os.path.join(chkpt_dir, 'critic_torch_ppo')
+        self.checkpoint_file = os.path.join(chkpt_dir, 'critic_torch_ppo_1')
         self.critic = nn.Sequential(
             nn.Linear(*input_dims, fc1_dims),
             nn.ReLU(),

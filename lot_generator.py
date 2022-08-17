@@ -223,7 +223,8 @@ def scenario1_perpendicular() -> ParkingLot:
 
 
 def generate_lot() -> ParkingLot:
-    parking_type = random.choice([park_type for park_type in ParkingType])
+    # parking_type = random.choice([park_type for park_type in ParkingType])
+    parking_type = ParkingType.VERTICAL
     lot = None
     if parking_type == ParkingType.PARALLEL:
         lot = scenario1_parallel()

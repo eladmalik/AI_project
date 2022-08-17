@@ -3,10 +3,10 @@ import sys
 import pygame
 
 import lot_generator
-from feature_extractor import Extractor, Extractor2, Extractor3
+from feature_extractor import Extractor, Extractor2, Extractor3, Extractor4
 from reward_analyzer import Analyzer, AnalyzerStopOnTarget, AnalyzerDistanceCritical, \
     AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision, AnalyzerAccumulating, AnalyzerAccumulating3, \
-    AnalyzerAccumulating4
+    AnalyzerAccumulating4, AnalyzerAccumulating5
 from simulator import Simulator, DrawingMethod
 from car import Car, Movement, Steering
 
@@ -15,8 +15,8 @@ DEBUG = True
 
 if __name__ == '__main__':
     # initializing the parking lot
-    sim = Simulator(lot_generator.generate_lot, AnalyzerAccumulating4,
-                    Extractor3,
+    sim = Simulator(lot_generator.generate_lot, AnalyzerAccumulating5,
+                    Extractor4,
                     draw_screen=True,
                     resize_screen=True,
                     drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)
