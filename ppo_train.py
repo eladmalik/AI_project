@@ -31,7 +31,7 @@ if __name__ == '__main__':
     feature_extractor = Extractor4
     draw_screen = True
     env = Simulator(lot_generator, reward_analyzer, feature_extractor,
-                    max_iteration_time_sec=100,
+                    max_iteration_time_sec=300,
                     draw_screen=draw_screen,
                     resize_screen=False,
                     drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)

@@ -522,7 +522,7 @@ class AnalyzerAccumulating5(RewardAnalyzer):
         if current_distance < self.last_distance:
             while self.outside_circle < len(self.distances) and \
                     current_distance < self.distances[self.outside_circle]:
-                parking_vec = parking_lot.target_park.front - parking_lot.target_park.location
+                parking_vec = parking_lot.target_park.left - parking_lot.target_park.location
                 car_vec = parking_lot.target_park.location - parking_lot.car_agent.front
                 angle = car_vec.angle_to(parking_vec)
 
