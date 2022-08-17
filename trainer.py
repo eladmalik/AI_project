@@ -192,7 +192,8 @@ class AgentTrainer:
         # random moves: tradeoff exploration / exploitation
         self.epsilon = self.max_epsilon - self.n_games
         final_move = [0] * NUM_OF_ACTIONS
-        if random.randint(0, int(self.max_epsilon / self.randomness_rate)) < self.epsilon:
+        if self.randomness_rate > 0 and \
+                random.randint(0, int(self.max_epsilon / self.randomness_rate)) < self.epsilon:
             move = random.randint(0, NUM_OF_ACTIONS - 1)
             final_move[move] = 1
         else:
@@ -256,7 +257,8 @@ def train():
         if done:
             # train long memory, plot result
             print(f"Total real time: {agent_trainer.simulator.total_time}")
-            plot_distance.append(sim.agent.location.distance_to(sim.parking_lot.target_park.location))
+            final_distance = sim.agent.location.distance_to(sim.parking_lot.target_park.location)
+            plot_distance.append(final_distance)
             plot_mean_distance.append(sum(plot_distance) / len(plot_distance))
 
             sim.reset()
@@ -268,7 +270,8 @@ def train():
                 agent_trainer.model.save(
                     folder, filename[:filename.rfind(".")] + f"_iter_{agent_trainer.n_games}.pth")
 
-            print('Game', agent_trainer.n_games, 'Reward', iteration_total_reward)
+            print('Game', agent_trainer.n_games, 'Reward', iteration_total_reward, 'Distance',
+                  f"{final_distance:.2f}")
 
             plot_rewards.append(iteration_total_reward)
             if agent_trainer.n_games % 50 == 0:
