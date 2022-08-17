@@ -25,11 +25,11 @@ action_mapping = {
 
 if __name__ == '__main__':
     lot_generator = lot_generator.example0
-    reward_analyzer = AnalyzerAccumulating
+    reward_analyzer = AnalyzerAccumulating4
     feature_extractor = Extractor4
     draw_screen = True
     env = Simulator(lot_generator, reward_analyzer, feature_extractor,
-                    max_iteration_time_sec=300,
+                    max_iteration_time_sec=500,
                     draw_screen=draw_screen,
                     resize_screen=False,
                     drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)

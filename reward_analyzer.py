@@ -471,11 +471,11 @@ class AnalyzerAccumulating4(RewardAnalyzer):
         if current_distance < self.last_distance:
             while self.outside_circle < len(self.distances) and \
                     current_distance < self.distances[self.outside_circle]:
-                reward -= self.rewards[self.outside_circle]
+                reward += self.rewards[self.outside_circle]
                 self.outside_circle += 1
         elif current_distance > self.last_distance:
             while self.outside_circle > 0 and current_distance > self.distances[self.outside_circle - 1]:
-                reward += self.rewards[self.outside_circle - 1]
+                reward -= self.rewards[self.outside_circle - 1]
                 self.outside_circle -= 1
         if results[Results.PERCENTAGE_IN_TARGET] >= 1 and not self.in_parking:
             self.in_parking = True
