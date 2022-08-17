@@ -15,7 +15,7 @@ from dqn_model import DQNAgent1, DQNAgent2
 from feature_extractor import Extractor, Extractor2, Extractor2NoSensors, Extractor3
 from reward_analyzer import Analyzer, AnalyzerPenaltyOnStanding, AnalyzerStopOnTarget, \
     AnalyzerDistanceCritical, AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision, \
-    AnalyzerNoCollisionNoDistanceReward, AnalyzerAccumulating
+    AnalyzerNoCollisionNoDistanceReward, AnalyzerAccumulating, AnalyzerAccumulating2
 from simulator import Simulator, DrawingMethod
 from car import Movement, Steering
 
@@ -37,7 +37,8 @@ Analyzers = {
     "AnalyzerCollisionReduceNearTarget": AnalyzerCollisionReduceNearTarget,
     "AnalyzerNoCollision": AnalyzerNoCollision,
     "AnalyzerNoCollisionNoDistanceReward": AnalyzerNoCollisionNoDistanceReward,
-    "AnalyzerAccumulating": AnalyzerAccumulating
+    "AnalyzerAccumulating": AnalyzerAccumulating,
+    "AnalyzerAccumulating2": AnalyzerAccumulating2
 }
 
 Extractors = {

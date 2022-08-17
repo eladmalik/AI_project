@@ -219,10 +219,10 @@ class AnalyzerCollisionReduceNearTarget(RewardAnalyzer):
     DISTANCE_REWARD_FACTOR = 0.05  # lower => more reward for far distances
 
     MAX_IN_TARGET_REWARD = 1000  # higher => more reward as the car is more inside target
-    MAX_ANGLE_TO_TARGET_REWARD = 50  # higher => more reward as the car more aligned with the target
-    VELOCITY_PENALTY_FACTOR = 2  # higher => less reward as the car is faster while in the target
+    MAX_ANGLE_TO_TARGET_REWARD = 200  # higher => more reward as the car more aligned with the target
+    VELOCITY_PENALTY_FACTOR = 0.08  # higher => less reward as the car is faster while in the target
 
-    COLLISION_PENALTY = -100  # lower => more penalty for the agent
+    COLLISION_PENALTY = -30  # lower => more penalty for the agent
     COLLISION_PENALTY_FACTOR = 0.003  # lower => less penalty for far collisions from target
 
     def analyze(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> Tuple[float, bool]:
@@ -352,6 +352,38 @@ class AnalyzerAccumulating(RewardAnalyzer):
             reward += self.rewards[self.best_distance_index]
             self.rewards[self.best_distance_index] = 0
             self.best_distance_index += 1
+        if results[Results.PERCENTAGE_IN_TARGET] >= 1 and not self.in_parking:
+            self.in_parking = True
+            reward += self.IN_PARKING_REWARD
+        if results[Results.PERCENTAGE_IN_TARGET] >= 1 and parking_lot.car_agent.velocity.magnitude() <= 0:
+            reward += self.PARKED_REWARD
+            return reward, True
+        return reward, False
+
+
+class AnalyzerAccumulating2(RewardAnalyzer):
+    ID = 8
+    COLLISION_PENALTY = -500
+    COLLISION_PENALTY_FACTOR = 0.003
+
+    IN_PARKING_REWARD = 600
+    PARKED_REWARD = 1000
+
+    def __init__(self):
+        # self.distances = [2 ** i for i in range(9)] + [x for x in range(300, 900, 100)]
+        self.best_distance = -float("inf")
+        self.in_parking = False
+
+    def analyze(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> Tuple[float, bool]:
+        current_distance = parking_lot.car_agent.location.distance_to(parking_lot.target_park.location)
+        if results[Results.COLLISION]:
+            return math.erf(self.COLLISION_PENALTY_FACTOR * current_distance) * self.COLLISION_PENALTY, True
+        reward = 0
+        if current_distance < self.best_distance:
+            reward += 3
+            self.best_distance = current_distance
+        else:
+            reward -= 1
         if results[Results.PERCENTAGE_IN_TARGET] >= 1 and not self.in_parking:
             self.in_parking = True
             reward += self.IN_PARKING_REWARD
