@@ -1,9 +1,17 @@
 import os
+import pickle
+
 import numpy as np
 import torch as T
 import torch.nn as nn
 import torch.optim as optim
 from torch.distributions.categorical import Categorical
+
+CRITIC_PICKLE_NAME = "critic.pickle"
+ACTOR_PICKLE_NAME = "actor.pickle"
+
+CRITIC_PTH_NAME = 'critic.pth'
+ACTOR_PTH_NAME = 'actor.pth'
 
 
 class PPOMemory:
@@ -54,7 +62,8 @@ class ActorNetwork(nn.Module):
                  fc1_dims=128, fc2_dims=128, fc3_dims=128, chkpt_dir=os.path.join("tmp", "ppo")):
         super(ActorNetwork, self).__init__()
 
-        self.checkpoint_file = os.path.join(chkpt_dir, 'actor_torch_ppo_1')
+        self.checkpoint_file = os.path.join(chkpt_dir, 'actor.pth')
+        self.checkpoint_dir = chkpt_dir
         self.actor = nn.Sequential(
             nn.Linear(*input_dims, fc1_dims),
             nn.ReLU(),
@@ -65,6 +74,8 @@ class ActorNetwork(nn.Module):
             nn.Linear(fc3_dims, n_actions),
             nn.Softmax(dim=-1)
         )
+        with open(os.path.join(chkpt_dir, ACTOR_PICKLE_NAME), "wb") as file:
+            pickle.dump(self.actor, file)
 
         self.optimizer = optim.Adam(self.parameters(), lr=alpha)
         self.device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
@@ -76,10 +87,16 @@ class ActorNetwork(nn.Module):
 
         return dist
 
+    def change_checkpoint_dir(self, new_dir):
+        self.checkpoint_dir = new_dir
+        self.checkpoint_file = os.path.join(new_dir, ACTOR_PTH_NAME)
+
     def save_checkpoint(self):
         T.save(self.state_dict(), self.checkpoint_file)
 
     def load_checkpoint(self):
+        with open(os.path.join(self.checkpoint_dir, ACTOR_PICKLE_NAME), "rb") as file:
+            self.actor = pickle.load(file)
         self.load_state_dict(T.load(self.checkpoint_file))
 
 
@@ -88,14 +105,8 @@ class CriticNetwork(nn.Module):
                  chkpt_dir=os.path.join("tmp", "ppo")):
         super(CriticNetwork, self).__init__()
 
-        self.checkpoint_file = os.path.join(chkpt_dir, 'critic_torch_ppo_1')
-        # self.critic = nn.Sequential(
-        #     nn.Linear(*input_dims, fc1_dims),
-        #     nn.ReLU(),
-        #     nn.Linear(fc1_dims, fc2_dims),
-        #     nn.ReLU(),
-        #     nn.Linear(fc2_dims, 1)
-        # )
+        self.checkpoint_file = os.path.join(chkpt_dir, 'critic.pth')
+        self.checkpoint_dir = chkpt_dir
         self.critic = nn.Sequential(
             nn.Linear(*input_dims, fc1_dims),
             nn.ReLU(),
@@ -105,6 +116,8 @@ class CriticNetwork(nn.Module):
             nn.ReLU(),
             nn.Linear(fc3_dims, 1)
         )
+        with open(os.path.join(chkpt_dir, CRITIC_PICKLE_NAME), "wb") as file:
+            pickle.dump(self.critic, file)
 
         self.optimizer = optim.Adam(self.parameters(), lr=alpha)
         self.device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
@@ -115,23 +128,29 @@ class CriticNetwork(nn.Module):
 
         return value
 
+    def change_checkpoint_dir(self, new_dir):
+        self.checkpoint_dir = new_dir
+        self.checkpoint_file = os.path.join(new_dir, CRITIC_PTH_NAME)
+
     def save_checkpoint(self):
         T.save(self.state_dict(), self.checkpoint_file)
 
     def load_checkpoint(self):
+        with open(os.path.join(self.checkpoint_dir, CRITIC_PICKLE_NAME), "rb") as file:
+            self.critic = pickle.load(file)
         self.load_state_dict(T.load(self.checkpoint_file))
 
 
 class Agent:
     def __init__(self, n_actions, input_dims, gamma=0.99, alpha=0.0003, gae_lambda=0.95,
-                 policy_clip=0.2, batch_size=64, n_epochs=10):
+                 policy_clip=0.2, batch_size=64, n_epochs=10, save_folder=os.path.join("tmp", "ppo")):
         self.gamma = gamma
         self.policy_clip = policy_clip
         self.n_epochs = n_epochs
         self.gae_lambda = gae_lambda
 
-        self.actor = ActorNetwork(n_actions, input_dims, alpha)
-        self.critic = CriticNetwork(input_dims, alpha)
+        self.actor = ActorNetwork(n_actions, input_dims, alpha, chkpt_dir=save_folder)
+        self.critic = CriticNetwork(input_dims, alpha, chkpt_dir=save_folder)
         self.memory = PPOMemory(batch_size)
 
     def remember(self, state, action, probs, vals, reward, done):
@@ -146,6 +165,10 @@ class Agent:
         print('... loading models ...')
         self.actor.load_checkpoint()
         self.critic.load_checkpoint()
+
+    def change_checkpoint_dir(self, new_dir):
+        self.actor.change_checkpoint_dir(new_dir)
+        self.critic.change_checkpoint_dir(new_dir)
 
     def choose_action(self, observation):
         state = T.tensor([observation], dtype=T.float).to(self.actor.device)

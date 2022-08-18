@@ -26,7 +26,7 @@ BATCH_SIZE = 1000
 NUM_OF_ACTIONS = 12
 
 config = configparser.ConfigParser()
-config.read("training_settings.ini")
+config.read("training_settings_dqn.ini")
 conf_default = config["DEFAULT"]
 conf_model_load = config["LoadModel"]
 
@@ -99,7 +99,7 @@ ACTION_TO_MOVEMENT_STEERING = {
 
 def load_model():
     loaded_config = configparser.ConfigParser()
-    loaded_config.read(os.path.join(conf_model_load["model_folder_path"], "training_settings.ini"))
+    loaded_config.read(os.path.join(conf_model_load["model_folder_path"], "training_settings_dqn.ini"))
     config._sections[conf_default["model"]] = loaded_config._sections[conf_default["model"]]
 
     kwargs = dict(config._sections[conf_default["model"]])
@@ -230,7 +230,7 @@ def train():
     if bool(int(conf_model_load["load"])):
         model = load_model()
     else:
-        with open(os.path.join(folder, "training_settings.ini"), "w") as configfile:
+        with open(os.path.join(folder, "training_settings_dqn.ini"), "w") as configfile:
             config.write(configfile)
         kwargs = dict(config._sections[conf_default["model"]])
         kwargs["input_size"] = Extractors[conf_default["extractor"]]().input_num
@@ -281,7 +281,7 @@ def train():
 
             plot_rewards.append(iteration_total_reward)
             if agent_trainer.n_games % 50 == 0:
-                utils.plot_distances(plot_distance, plot_mean_distance)
+                utils.plot_distances(plot_distance, plot_mean_distance, folder)
 
             iteration_total_reward = 0
 

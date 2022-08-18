@@ -497,7 +497,7 @@ class AnalyzerAccumulating5(RewardAnalyzer):
 
     def __init__(self):
         self.distances = [d for d in range(1200, 0, -2)]
-        self.rewards = [2 for x in self.distances]
+        self.rewards = [2] * len(self.distances)
         self.in_parking = False
         self.init = False
         self.last_distance = float("inf")

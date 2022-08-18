@@ -1,3 +1,4 @@
+import os.path
 from datetime import datetime
 
 from CarSimSprite import CarSimSprite
@@ -27,7 +28,7 @@ def get_time():
     return now.strftime("%d-%m-%Y__%H-%M-%S")
 
 
-def plot_distances(distances, mean_distances):
+def plot_distances(distances, mean_distances, save_folder):
     display.clear_output(wait=True)
     display.display(plt.gcf())
     plt.clf()
@@ -39,11 +40,13 @@ def plot_distances(distances, mean_distances):
     plt.ylim(ymin=0)
     plt.text(len(distances) - 1, distances[-1], "distance")
     plt.text(len(mean_distances) - 1, mean_distances[-1], "avg distance")
+    fig = plt.gcf()
     plt.show(block=False)
+    fig.savefig(os.path.join(save_folder, "distances.png"))
     plt.pause(.1)
 
 
-def plot_rewards(rewards):
+def plot_rewards(rewards, mean_rewards, save_folder):
     display.clear_output(wait=True)
     display.display(plt.gcf())
     plt.clf()
@@ -51,7 +54,11 @@ def plot_rewards(rewards):
     plt.xlabel('Number of Simulations')
     plt.ylabel('Reward')
     plt.plot(rewards)
+    plt.plot(mean_rewards)
     plt.ylim(ymin=0)
     plt.text(len(rewards) - 1, rewards[-1], "reward")
+    plt.text(len(mean_rewards) - 1, mean_rewards[-1], "avg reward")
+    fig = plt.gcf()
     plt.show(block=False)
+    fig.savefig(os.path.join(save_folder, "rewards.png"))
     plt.pause(.1)
