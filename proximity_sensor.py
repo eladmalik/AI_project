@@ -26,35 +26,25 @@ class ProximitySensor:
         stop_pos = None
         sensor_angle = self.car.rotation + self.angle
         if self.direction == SensorDirection.RIGHT:
-            start_pos = self.car.location + pygame.Vector2((self.car.height / 2 * math.sin(math.radians(
-                self.car.rotation))),
-                                                           (self.car.height / 2 * math.cos(
-                                                               math.radians(self.car.rotation))))
+            start_pos = self.car.right
             stop_pos = start_pos + pygame.Vector2(
                 (self.max_distance * math.sin(math.radians(self.car.rotation))),
                 (self.max_distance * math.cos(math.radians(self.car.rotation))))
 
         if self.direction == SensorDirection.LEFT:
-            start_pos = self.car.location + pygame.Vector2(
-                (self.car.height / 2 * math.sin(math.radians(self.car.rotation + 180))),
-                (self.car.height / 2 * math.cos(math.radians(self.car.rotation + 180))))
+            start_pos = self.car.left
             stop_pos = start_pos + pygame.Vector2(
                 (self.max_distance * math.sin(math.radians(sensor_angle + 180))),
                 (self.max_distance * math.cos(math.radians(sensor_angle + 180))))
 
         if self.direction == SensorDirection.FRONT:
-            start_pos = self.car.location + pygame.Vector2(
-                (self.car.width / 2 * math.cos(math.radians(self.car.rotation))),
-                (self.car.width / 2 * math.sin(math.radians(self.car.rotation + 180))))
+            start_pos = self.car.front
             stop_pos = start_pos + pygame.Vector2(self.max_distance * math.cos(math.radians(sensor_angle)),
                                                   self.max_distance * math.sin(
                                                       math.radians(sensor_angle + 180)))
 
         if self.direction == SensorDirection.BACK:
-            start_pos = self.car.location + pygame.Vector2(
-                (self.car.width / 2 * math.cos(math.radians(self.car.rotation +
-                                                            180))),
-                (self.car.width / 2 * math.sin(math.radians(self.car.rotation))))
+            start_pos = self.car.back
             stop_pos = start_pos + pygame.Vector2(
                 (self.max_distance * math.cos(math.radians(sensor_angle + 180))),
                 (self.max_distance * math.sin(math.radians(sensor_angle))))

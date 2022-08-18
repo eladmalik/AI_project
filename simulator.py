@@ -71,6 +71,7 @@ class Simulator:
                but less nice-looking screen
         """
         self.max_simulator_time = max_iteration_time_sec  # (in seconds)
+        self.frame = 0
         self.full_refresh_rate: int = full_refresh_rate
         self.lot_generator = lot_generator
         self.draw_screen = draw_screen
@@ -199,6 +200,14 @@ class Simulator:
         #         pygame.draw.line(self.window, (255, 255, 255), start, stop)
         #         min_dot, _ = sensor.detect(self.obstacles_group)
         #         pygame.draw.circle(self.window, (15, 245, 233), min_dot, 7)
+        # pygame.draw.circle(self.window, (255, 0, 0), self.agent.front, 4)
+        # pygame.draw.circle(self.window, (0, 13, 255), self.agent.back, 4)
+        # pygame.draw.circle(self.window, (0, 255, 13), self.agent.left, 4)
+        # pygame.draw.circle(self.window, (255, 242, 0), self.agent.right, 4)
+        # pygame.draw.circle(self.window, (93, 0, 255), self.agent.frontleft, 4)
+        # pygame.draw.circle(self.window, (255, 136, 0), self.agent.frontright, 4)
+        # pygame.draw.circle(self.window, (0, 255, 119), self.agent.backleft, 4)
+        # pygame.draw.circle(self.window, (255, 0, 221), self.agent.backright, 4)
 
         pygame.display.update()
         self.iteration_counter = (self.iteration_counter + 1) % sys.maxsize
@@ -206,6 +215,7 @@ class Simulator:
     def reset(self):
         self.iteration_counter: int = 0
         self.total_time = 0
+        self.frame = 0
         self.parking_lot: ParkingLot = self.lot_generator()
         self.width: float = self.parking_lot.width
         self.height: float = self.parking_lot.height
@@ -263,10 +273,13 @@ class Simulator:
         """
         self.agent.update(time, movement, steering)
         self.total_time += time
+        self.frame += 1
         results = {Results.COLLISION: self.is_collision(),
-                   Results.PERCENTAGE_IN_TARGET: self.percentage_in_target_cell()}
+                   Results.PERCENTAGE_IN_TARGET: self.percentage_in_target_cell(),
+                   Results.FRAME: self.frame,
+                   Results.SIMULATION_TIMEOUT: self.total_time >= self.max_simulator_time}
         reward, done = self.reward_analyzer.analyze(self.parking_lot, results)
-        if self.total_time >= self.max_simulator_time:
+        if results[Results.SIMULATION_TIMEOUT]:
             done = True
         new_state = self.get_state()
         return new_state, reward, done

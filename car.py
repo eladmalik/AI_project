@@ -68,16 +68,17 @@ class Car(CarSimSprite):
         dist = MAX_SENSOR_DISTANCE
         sensors[SensorDirection.FRONT] = [
             ProximitySensor(self, SensorDirection.FRONT, 0, dist),
-            ProximitySensor(self, SensorDirection.FRONT, 15, dist),
-            ProximitySensor(self, SensorDirection.FRONT, -15, dist),
             ProximitySensor(self, SensorDirection.FRONT, 30, dist),
-            ProximitySensor(self, SensorDirection.FRONT, -30, dist)]
+            ProximitySensor(self, SensorDirection.FRONT, -30, dist),
+            ProximitySensor(self, SensorDirection.FRONT, 60, dist),
+            ProximitySensor(self, SensorDirection.FRONT, -60, dist)
+        ]
 
         sensors[SensorDirection.BACK] = [ProximitySensor(self, SensorDirection.BACK, 0, dist),
-                                         ProximitySensor(self, SensorDirection.BACK, 15, dist),
-                                         ProximitySensor(self, SensorDirection.BACK, -15, dist),
                                          ProximitySensor(self, SensorDirection.BACK, 30, dist),
-                                         ProximitySensor(self, SensorDirection.BACK, -30, dist)]
+                                         ProximitySensor(self, SensorDirection.BACK, -30, dist),
+                                         ProximitySensor(self, SensorDirection.BACK, 60, dist),
+                                         ProximitySensor(self, SensorDirection.BACK, -60, dist)]
 
         sensors[SensorDirection.LEFT] = [ProximitySensor(self, SensorDirection.LEFT, 0, dist)]
         sensors[SensorDirection.RIGHT] = [ProximitySensor(self, SensorDirection.RIGHT, 0, dist)]

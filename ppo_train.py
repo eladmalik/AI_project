@@ -39,23 +39,25 @@ if __name__ == '__main__':
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     load_model = False
-    model_folder = os.path.join("model", "PPO_18-08-2022__16-35-19")
+    model_folder = os.path.join("model", "PPO_18-08-2022__19-27-30")
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CHANGE HYPER-PARAMETERS HERE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    lot_generator = generate_only_target
-    reward_analyzer = AnalyzerAccumulating6
-    feature_extractor = Extractor4
+    lot_generator = example0
+    reward_analyzer = AnalyzerNew
+    feature_extractor = ExtractorNew
     time_difference_secs = 0.1
-    max_iteration_time = 500
+    max_iteration_time = 250
     draw_screen = True
+    draw_rate = 100
 
-    N = 50
+    N = 20
     batch_size = 5
     n_epochs = 4
-    alpha = 0.00003
+    policy_clip = 0.1
+    alpha = 0.001
     n_games = 10000
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,7 +71,7 @@ if __name__ == '__main__':
                     drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)
     save_folder = get_agent_output_folder()
     agent = Agent(n_actions=12, batch_size=batch_size,
-                  alpha=alpha, n_epochs=n_epochs,
+                  alpha=alpha, n_epochs=n_epochs, policy_clip=policy_clip,
                   input_dims=tuple([feature_extractor.input_num]),
                   save_folder=save_folder)
     if load_model:
@@ -98,7 +100,7 @@ if __name__ == '__main__':
                                                      time_difference_secs)
             n_steps += 1
             score += reward
-            if draw_screen:
+            if draw_screen and i % draw_rate == 0:
                 pygame.event.pump()
                 env.update_screen()
             agent.remember(observation, action, prob, val, reward, done)

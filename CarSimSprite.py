@@ -85,6 +85,32 @@ class CarSimSprite(pygame.sprite.Sprite):
             (self.height / 2 * math.sin(math.radians(self.rotation))),
             (self.height / 2 * math.cos(math.radians(self.rotation))))
 
+        self.frontleft = self.location + pygame.Vector2(
+            (self.width / 2 * math.cos(math.radians(self.rotation))),
+            (self.width / 2 * math.sin(math.radians(self.rotation + 180))))  + pygame.Vector2(
+            (self.height / 2 * math.sin(math.radians(self.rotation + 180))),
+            (self.height / 2 * math.cos(math.radians(self.rotation + 180))))
+
+        self.frontright = self.location + pygame.Vector2(
+            (self.width / 2 * math.cos(math.radians(self.rotation))),
+            (self.width / 2 * math.sin(math.radians(self.rotation + 180)))) + pygame.Vector2(
+            (self.height / 2 * math.sin(math.radians(self.rotation))),
+            (self.height / 2 * math.cos(math.radians(self.rotation))))
+
+        self.backleft = self.location + pygame.Vector2(
+            (self.width / 2 * math.cos(math.radians(self.rotation +
+                                                    180))),
+            (self.width / 2 * math.sin(math.radians(self.rotation)))) + pygame.Vector2(
+            (self.height / 2 * math.sin(math.radians(self.rotation + 180))),
+            (self.height / 2 * math.cos(math.radians(self.rotation + 180))))
+
+        self.backright = self.location + pygame.Vector2(
+            (self.width / 2 * math.cos(math.radians(self.rotation +
+                                                    180))),
+            (self.width / 2 * math.sin(math.radians(self.rotation)))) + pygame.Vector2(
+            (self.height / 2 * math.sin(math.radians(self.rotation))),
+            (self.height / 2 * math.cos(math.radians(self.rotation))))
+
     def get_x(self):
         return self.location.x
 
@@ -158,6 +184,32 @@ class CarSimSprite(pygame.sprite.Sprite):
             (self.height / 2 * math.cos(math.radians(self.rotation + 180))))
 
         self.right = self.location + pygame.Vector2(
+            (self.height / 2 * math.sin(math.radians(self.rotation))),
+            (self.height / 2 * math.cos(math.radians(self.rotation))))
+
+        self.frontleft = self.location + pygame.Vector2(
+            (self.width / 2 * math.cos(math.radians(self.rotation))),
+            (self.width / 2 * math.sin(math.radians(self.rotation + 180)))) + pygame.Vector2(
+            (self.height / 2 * math.sin(math.radians(self.rotation + 180))),
+            (self.height / 2 * math.cos(math.radians(self.rotation + 180))))
+
+        self.frontright = self.location + pygame.Vector2(
+            (self.width / 2 * math.cos(math.radians(self.rotation))),
+            (self.width / 2 * math.sin(math.radians(self.rotation + 180)))) + pygame.Vector2(
+            (self.height / 2 * math.sin(math.radians(self.rotation))),
+            (self.height / 2 * math.cos(math.radians(self.rotation))))
+
+        self.backleft = self.location + pygame.Vector2(
+            (self.width / 2 * math.cos(math.radians(self.rotation +
+                                                    180))),
+            (self.width / 2 * math.sin(math.radians(self.rotation)))) + pygame.Vector2(
+            (self.height / 2 * math.sin(math.radians(self.rotation + 180))),
+            (self.height / 2 * math.cos(math.radians(self.rotation + 180))))
+
+        self.backright = self.location + pygame.Vector2(
+            (self.width / 2 * math.cos(math.radians(self.rotation +
+                                                    180))),
+            (self.width / 2 * math.sin(math.radians(self.rotation)))) + pygame.Vector2(
             (self.height / 2 * math.sin(math.radians(self.rotation))),
             (self.height / 2 * math.cos(math.radians(self.rotation))))
 
