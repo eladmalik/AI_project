@@ -494,7 +494,7 @@ class AnalyzerAccumulating5(RewardAnalyzer):
     COLLISION_PENALTY_FACTOR = 0.003
 
     IN_PARKING_REWARD = 1000
-    PARKED_REWARD = 2000
+    PARKED_REWARD = 10000
 
     def __init__(self):
         self.distances = [d for d in range(1200, 0, -2)]
@@ -616,7 +616,7 @@ class AnalyzerAccumulating6(RewardAnalyzer):
 class AnalyzerNew(RewardAnalyzer):
     ID = 12
 
-    STOP_COUNT = 360
+    STOP_COUNT = 30
     DISTANCE_FACTOR = 2
     MAX_DISTANCE_FACTOR = 2
     DONE_FACTOR = 10
@@ -669,14 +669,13 @@ class AnalyzerNew(RewardAnalyzer):
         if results[Results.COLLISION]:
             return -self.COLLISION_PENALTY, True
 
-        if not done:
-            reward += self.__reward_from_distance()
-            if results[Results.SIMULATION_TIMEOUT]:
-                reward -= self.TIMEOUT_PENALTY + distance
-        else:
-            if distance < self.MIN_DISTANCE_FROM_TARGET:
-                reward += self.__reward_from_angle()
-            reward += self.FINAL_DISTANCE_REWARD / (1 + self.FINAL_DISTANCE_FACTOR * distance)
-            if results[Results.PERCENTAGE_IN_TARGET] > 0.5:
-                reward *= 2
+        # reward += self.__reward_from_distance()
+        # TODO: add penalty for finishing far on timeout
+        if results[Results.SIMULATION_TIMEOUT]:
+            reward -= self.TIMEOUT_PENALTY + distance
+        if distance < self.MIN_DISTANCE_FROM_TARGET:
+            reward += self.__reward_from_angle()
+        reward += self.FINAL_DISTANCE_REWARD / (1 + self.FINAL_DISTANCE_FACTOR * distance)
+        if results[Results.PERCENTAGE_IN_TARGET] > 0.5:
+            reward *= 2
         return reward, done

@@ -49,9 +49,9 @@ if __name__ == '__main__':
     reward_analyzer = AnalyzerNew
     feature_extractor = ExtractorNew
     time_difference_secs = 0.1
-    max_iteration_time = 250
+    max_iteration_time = 60
     draw_screen = True
-    draw_rate = 100
+    draw_rate = 10
 
     N = 20
     batch_size = 5

@@ -12,11 +12,11 @@ import lot_generator
 import utils
 from assets_images import FLOOR_IMG
 from dqn_model import DQNAgent1, DQNAgent2, DQNAgent3
-from feature_extractor import Extractor, Extractor2, Extractor2NoSensors, Extractor3, Extractor4
+from feature_extractor import Extractor, Extractor2, Extractor2NoSensors, Extractor3, Extractor4, ExtractorNew
 from reward_analyzer import Analyzer, AnalyzerPenaltyOnStanding, AnalyzerStopOnTarget, \
     AnalyzerDistanceCritical, AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision, \
     AnalyzerNoCollisionNoDistanceReward, AnalyzerAccumulating, AnalyzerAccumulating2, AnalyzerAccumulating3, \
-    AnalyzerAccumulating4
+    AnalyzerAccumulating4, AnalyzerNew
 from simulator import Simulator, DrawingMethod
 from car import Movement, Steering
 
@@ -41,7 +41,8 @@ Analyzers = {
     "AnalyzerAccumulating": AnalyzerAccumulating,
     "AnalyzerAccumulating2": AnalyzerAccumulating2,
     "AnalyzerAccumulating3": AnalyzerAccumulating3,
-    "AnalyzerAccumulating4": AnalyzerAccumulating4
+    "AnalyzerAccumulating4": AnalyzerAccumulating4,
+    "AnalyzerNew": AnalyzerNew
 }
 
 Extractors = {
@@ -49,7 +50,8 @@ Extractors = {
     "Extractor2": Extractor2,
     "Extractor2NoSensors": Extractor2NoSensors,
     "Extractor3": Extractor3,
-    "Extractor4": Extractor4
+    "Extractor4": Extractor4,
+    "ExtractorNew": ExtractorNew
 }
 
 Model_Classes = {
@@ -217,6 +219,7 @@ def train():
     plot_mean_distance = []
     time_difference = float(conf_default["time_difference"])
     draw_screen = bool(int(conf_default["draw_screen"]))
+    draw_rate = 10
     resize_screen = bool(int(conf_default["resize_screen"]))
     iteration_total_reward = 0
     sim = Simulator(Lot_Generators[conf_default["lot_generation"]],
@@ -249,7 +252,7 @@ def train():
         final_movement, final_steering = ACTION_TO_MOVEMENT_STEERING[final_move]
         state_new, reward, done = agent_trainer.simulator.do_step(final_movement, final_steering,
                                                                   time_difference)
-        if draw_screen:
+        if draw_screen and agent_trainer.n_games % draw_rate == 0:
             pygame.event.pump()
             agent_trainer.simulator.update_screen()
         iteration_total_reward += reward
@@ -272,7 +275,7 @@ def train():
             agent_trainer.train_long_memory()
 
             agent_trainer.model.save(folder, filename)
-            if agent_trainer.n_games % 1000 == 0:
+            if agent_trainer.n_games % 250 == 0:
                 agent_trainer.model.save(
                     folder, filename[:filename.rfind(".")] + f"_iter_{agent_trainer.n_games}.pth")
 
