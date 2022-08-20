@@ -1,7 +1,7 @@
 import os.path
 from datetime import datetime
 
-from CarSimSprite import CarSimSprite
+from sim.CarSimSprite import CarSimSprite
 import matplotlib.pyplot as plt
 from IPython import display
 

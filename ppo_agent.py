@@ -26,7 +26,7 @@ class PPOMemory:
         self.batch_size = batch_size
 
     def generate_batches(self):
-        n_states = len(self.states)
+        n_states = len(self.states) - 1
         batch_start = np.arange(0, n_states, self.batch_size)
         indices = np.arange(n_states, dtype=np.int64)
         np.random.shuffle(indices)
@@ -154,6 +154,8 @@ class Agent:
         self.memory = PPOMemory(batch_size)
 
     def remember(self, state, action, probs, vals, reward, done):
+        if len(self.memory.vals):
+            self.memory.vals[-1] = vals
         self.memory.store_memory(state, action, probs, vals, reward, done)
 
     def save_models(self):

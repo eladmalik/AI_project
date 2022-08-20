@@ -1,14 +1,14 @@
 import os.path
 
 import utils
-from lot_generator import *
-from reward_analyzer import *
-from feature_extractor import *
+from training_utils.lot_generator import *
+from training_utils.reward_analyzer import *
+from training_utils.feature_extractor import *
 import numpy as np
 
-from car import Movement, Steering
+from sim.car import Movement, Steering
 from ppo_agent import Agent, ACTOR_PTH_NAME, CRITIC_PTH_NAME
-from simulator import Simulator, DrawingMethod
+from sim.simulator import Simulator, DrawingMethod
 
 action_mapping = {
     0: (Movement.NEUTRAL, Steering.NEUTRAL),
@@ -49,9 +49,9 @@ if __name__ == '__main__':
     reward_analyzer = AnalyzerNew
     feature_extractor = ExtractorNew
     time_difference_secs = 0.1
-    max_iteration_time = 60
+    max_iteration_time = 20
     draw_screen = True
-    draw_rate = 10
+    draw_rate = 1
 
     N = 20
     batch_size = 5
@@ -108,12 +108,15 @@ if __name__ == '__main__':
                 agent.learn()
                 learn_iters += 1
             observation = observation_
+        
+        agent.learn()
+
         score_history.append(score)
         mean_score_history.append(sum(score_history) / len(score_history))
         avg_score = np.mean(score_history[-100:])
         distance_history.append(env.agent.location.distance_to(env.parking_lot.target_park.location))
         mean_distance_history.append(sum(distance_history) / len(distance_history))
-        if (i + 1) % 20 == 0:
+        if (i + 1) % 200 == 0:
             utils.plot_rewards(score_history, mean_score_history, save_folder)
             utils.plot_distances(distance_history, mean_distance_history, save_folder)
             agent.save_models()
