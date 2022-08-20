@@ -1,5 +1,6 @@
 import os.path
 
+import calculations
 import utils
 from lot_generator import *
 from reward_analyzer import *
@@ -39,25 +40,25 @@ if __name__ == '__main__':
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     load_model = False
-    model_folder = os.path.join("model", "PPO_18-08-2022__19-27-30")
+    model_folder = os.path.join("model", "PPO_20-08-2022__15-03-47")
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CHANGE HYPER-PARAMETERS HERE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    lot_generator = example0
-    reward_analyzer = AnalyzerNew
-    feature_extractor = ExtractorNew
+    lot_generator = example1
+    reward_analyzer = AnalyzerAba
+    feature_extractor = Extractor4
     time_difference_secs = 0.1
-    max_iteration_time = 60
+    max_iteration_time = 10000000000
     draw_screen = True
-    draw_rate = 10
+    draw_rate = 1
 
-    N = 20
-    batch_size = 5
+    N = 80
+    batch_size = 20
     n_epochs = 4
     policy_clip = 0.1
-    alpha = 0.001
+    alpha = 0.0005
     n_games = 10000
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,8 +102,15 @@ if __name__ == '__main__':
             n_steps += 1
             score += reward
             if draw_screen and i % draw_rate == 0:
+                text = {
+                    "Run ID": save_folder,
+                    "Velocity": f"{env.agent.velocity.x:.1f}",
+                    "Reward": f"{reward:.8f}",
+                    "Total Reward": f"{score:.8f}",
+                    "Angle to target": f"{calculations.get_angle_to_target(env.agent, env.parking_lot.target_park):.1f}"
+                }
                 pygame.event.pump()
-                env.update_screen()
+                env.update_screen(text)
             agent.remember(observation, action, prob, val, reward, done)
             if n_steps % N == 0:
                 agent.learn()
@@ -117,10 +125,9 @@ if __name__ == '__main__':
             utils.plot_rewards(score_history, mean_score_history, save_folder)
             utils.plot_distances(distance_history, mean_distance_history, save_folder)
             agent.save_models()
-
         if avg_score > best_score:
             best_score = avg_score
 
-        print('episode', i, 'score %.1f' % score, 'avg score %.1f' % avg_score,
+        print('episode', i, 'score %.9f' % score, 'avg score %.1f' % avg_score,
               'time_steps', n_steps, 'learning_steps', learn_iters)
     x = [i + 1 for i in range(len(score_history))]

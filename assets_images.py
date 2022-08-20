@@ -3,8 +3,8 @@ import os
 import pygame
 
 AGENT_IMG = pygame.image.load(os.path.join("assets", "green-car-top-view.png"))
-PARKING_IMG = pygame.image.load(os.path.join("assets", "parking_left.png"))
-PARKING_TARGET_IMG = pygame.image.load(os.path.join("assets", "parking_left_target.png"))
+PARKING_IMG = pygame.image.load(os.path.join("assets", "parking_right.png"))
+PARKING_TARGET_IMG = pygame.image.load(os.path.join("assets", "parking_right_target.png"))
 PARKING_SIDEWALK_IMG = pygame.image.load(os.path.join("assets", "parking_sidewalk_down.png"))
 PARKING_SIDEWALK_TARGET_IMG = pygame.image.load(os.path.join("assets",
                                                              "parking_sidewalk_down_target.png"))

@@ -3,11 +3,13 @@ import sys
 
 import pygame
 
+import calculations
 import lot_generator
 from feature_extractor import Extractor, Extractor2, Extractor3, Extractor4
 from reward_analyzer import Analyzer, AnalyzerStopOnTarget, AnalyzerDistanceCritical, \
     AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision, AnalyzerAccumulating, AnalyzerAccumulating3, \
-    AnalyzerAccumulating4, AnalyzerAccumulating5, AnalyzerAccumulating6, AnalyzerNew
+    AnalyzerAccumulating4, AnalyzerAccumulating5, AnalyzerAccumulating6, AnalyzerNew, \
+    AnalyzerAccumulatingCheckpoints, AnalyzerAba
 from simulator import Simulator, DrawingMethod
 from car import Car, Movement, Steering
 
@@ -16,12 +18,12 @@ DEBUG = True
 
 if __name__ == '__main__':
     # initializing the parking lot
-    sim = Simulator(lot_generator.generate_only_target, AnalyzerNew,
+    sim = Simulator(lot_generator.example1, AnalyzerAba,
                     Extractor4,
                     draw_screen=True,
-                    resize_screen=True,
+                    resize_screen=False,
                     max_iteration_time_sec=2000,
-                    drawing_method=DrawingMethod.FULL)
+                    drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)
     clock = pygame.time.Clock()
     total_reward = 0
     while True:
@@ -52,14 +54,21 @@ if __name__ == '__main__':
         total_reward += reward
         # if done:
         #     print(f"reward: {reward}")
-        #     input()
         #     sim.reset()
         #     total_reward = 0
-        #     pass
 
         # printing the results:
         if DEBUG:
-            print(f"reward: {reward:.3f}, done: {done}")
-
+            # print(sim.agent.velocity)
+            print(f"reward: {reward:.9f}, done: {done}")
+            # print(sim.agent.velocity)
         # updating the screen
-        sim.update_screen()
+        text = {
+            "Velocity": f"{sim.agent.velocity.x:.1f}",
+            "Reward": f"{reward:.8f}",
+            "Total Reward": f"{total_reward:.8f}",
+            "Angle to target": f""
+                               f""
+                               f"{calculations.get_angle_to_target(sim.agent, sim.parking_lot.target_park):.1f}"
+        }
+        sim.update_screen(text)

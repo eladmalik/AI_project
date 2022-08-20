@@ -1,3 +1,4 @@
+import math
 import sys
 from enum import Enum
 from typing import Dict, Union, Callable
@@ -9,7 +10,8 @@ from feature_extractor import FeatureExtractor
 from parking_cell import ParkingCell
 from utils import mask_subset_percentage
 from parking_lot import ParkingLot
-from reward_analyzer import RewardAnalyzer, Results
+from reward_analyzer import RewardAnalyzer
+from enums import Results
 
 from assets_images import ICON_IMG, FLOOR_IMG
 
@@ -70,8 +72,8 @@ class Simulator:
                once every this number of iterations. higher values means more efficient drawing,
                but less nice-looking screen
         """
+        pygame.font.init()
         self.max_simulator_time = max_iteration_time_sec  # (in seconds)
-        self.frame = 0
         self.full_refresh_rate: int = full_refresh_rate
         self.lot_generator = lot_generator
         self.draw_screen = draw_screen
@@ -81,27 +83,8 @@ class Simulator:
         self._org_background_image = background_image
         self._drawing_method = drawing_method
 
-        self.iteration_counter: int = 0
-        self.total_time = 0
-        self.parking_lot: ParkingLot = self.lot_generator()
-        self.width: float = self.parking_lot.width
-        self.height: float = self.parking_lot.height
-        self.agent: Car = self.parking_lot.car_agent
-        self.agent_group: pygame.sprite.Group = pygame.sprite.Group(self.agent)
-        self.stationary_cars_group: pygame.sprite.Group = pygame.sprite.Group(
-            self.parking_lot.stationary_cars)
-        self.parking_cells_group: pygame.sprite.Group = pygame.sprite.Group(self.parking_lot.parking_cells)
-        self.obstacles_group: pygame.sprite.Group = pygame.sprite.Group(self.parking_lot.all_obstacles)
-        self.reward_analyzer = self.reward_analyzer_class()
-        self.feature_extractor = self.feature_extractor_class()
+        self._init_episode()
 
-        self.background_img = None
-        if self._org_background_image is not None:
-            self.background_img = pygame.transform.scale(self._org_background_image,
-                                                         (self.parking_lot.width, self.parking_lot.height))
-        self.bg_snapshot = self._create_background_snapshot()
-
-        self._lot_rect = pygame.Rect(0, 0, self.width, self.height)
         if self.draw_screen:
             if self.resize_screen:
                 self.window: pygame.Surface = pygame.display.set_mode((self.width, self.height))
@@ -114,22 +97,68 @@ class Simulator:
         else:
             self.window = pygame.Surface((self.width, self.height))
 
+    def _init_episode(self):
+        self.iteration_counter: int = 0
+        self.total_time = 0
+        self.frame = 0
+        self.parking_lot: ParkingLot = self.lot_generator()
+        self.width: float = self.parking_lot.width
+        self.height: float = self.parking_lot.height
+        self.agent: Car = self.parking_lot.car_agent
+        self.agent_group: pygame.sprite.Group = pygame.sprite.Group(self.agent)
+        self.stationary_cars_group: pygame.sprite.Group = pygame.sprite.Group(
+            self.parking_lot.stationary_cars)
+        self.parking_cells_group: pygame.sprite.Group = pygame.sprite.Group(self.parking_lot.parking_cells)
+        self.obstacles_group: pygame.sprite.Group = pygame.sprite.Group(self.parking_lot.all_obstacles)
+        self.borders_group: pygame.sprite.Group = pygame.sprite.Group(self.parking_lot.borders)
+        self.reward_analyzer = self.reward_analyzer_class()
+        self.feature_extractor = self.feature_extractor_class()
+        self.background_img = None
+        if self._org_background_image is not None:
+            self.background_img = pygame.transform.scale(self._org_background_image,
+                                                         (self.parking_lot.width, self.parking_lot.height))
+        self._lot_rect = pygame.Rect(0, 0, self.width, self.height)
+        self.bg_snapshot = self._create_background_snapshot()
+        self.overlays = dict()
+
+    def reset(self):
+        self._init_episode()
+
+        if self.draw_screen:
+            if self.resize_screen:
+                if self.width != self.window.get_width() or self.height != self.window.get_height():
+                    pygame.display.quit()
+                    self.window: pygame.Surface = pygame.display.set_mode((self.width, self.height))
+                    pygame.display.set_icon(ICON_IMG)
+                    pygame.display.set_caption("Car Parking Simulator")
+                self._draw_screen_full()
+                pygame.display.update()
+            else:
+                self.window.fill(BLACK)
+                self._draw_screen_full()
+                pygame.display.update()
+        else:
+            self.window = pygame.Surface((self.width, self.height))
+
     def _create_background_snapshot(self):
         """
         Creates a surface which contains the background and every sprite in the simulator, execpt for the
         agent.
         :return the surface
         """
+        snapshot = pygame.Surface((MAX_SCREEN_SIZE, MAX_SCREEN_SIZE))
         if self.background_img is not None:
-            snapshot = self.background_img.copy()
+            snapshot.blit(self.background_img, (0, 0))
+            # snapshot = self.background_img.copy()
         else:
-            snapshot = pygame.Surface((self.width, self.height))
-            snapshot.fill(FLOOR)
+            pygame.draw.rect(snapshot, FLOOR, self._lot_rect)
+            # snapshot = pygame.Surface((self.width, self.height))
+            # snapshot.fill(FLOOR)
         self.parking_cells_group.draw(snapshot)
         self.obstacles_group.draw(snapshot)
         return snapshot
 
-    def _draw_screen_full(self):
+    def _draw_screen_full(self, text_dict=None):
         """
         A function which draws all the objects on the screen in the correct order
         """
@@ -144,6 +173,13 @@ class Simulator:
         self.obstacles_group.draw(self.window)
         # drawing the agent
         self.agent_group.draw(self.window)
+
+        self.update_info_text_surface(text_dict, font_size=16, text_color=WHITE,
+                                      bg_color=BLACK,
+                                      location=(MAX_SCREEN_SIZE - 400, 0))
+        for surface, rect in self.overlays.values():
+            if surface is not None:
+                self.window.blit(surface, rect)
 
     def _draw_screen_no_obstacles(self):
         """
@@ -165,32 +201,49 @@ class Simulator:
         # drawing the agent
         self.agent_group.draw(self.window)
 
-    def _draw_screen_snapshot(self):
+    def _draw_screen_snapshot(self, text_dict):
         """
         A function which redraws the screen only around the agent, using the snapshot image.
         """
         # removing the previous drawing of the agent
-        sub_rect = self.agent.prev_rect.clip(self._lot_rect)
+        sub_rect = self.agent.prev_rect.clip(self.window.get_rect(topleft=(0, 0)))
         if sub_rect.size != (0, 0):
             subsurface = self.bg_snapshot.subsurface(sub_rect)
             self.window.blit(subsurface, sub_rect.topleft)
+
+        # removing previous overlays
+        for surface, rect in self.overlays.values():
+            if surface is not None:
+                sub_rect = rect.clip(self.window.get_rect(topleft=(0, 0)))
+                subsurface = self.bg_snapshot.subsurface(sub_rect)
+                self.window.blit(subsurface, sub_rect.topleft)
+
         # drawing the agent in its new position
         self.agent_group.draw(self.window)
 
-    def update_screen(self):
+        self.update_info_text_surface(text_dict, font_size=16, text_color=WHITE,
+                                      bg_color=BLACK,
+                                      location=(MAX_SCREEN_SIZE - 400, 0))
+
+        # drawing new overlays
+        for surface, rect in self.overlays.values():
+            if surface is not None:
+                self.window.blit(surface, rect)
+
+    def update_screen(self, info_text=None):
         """
         A function which draws the current state on the screen and updates the screen. should be called by
         the main loop after every desired object was updated.
         """
         if self._drawing_method == DrawingMethod.FULL:
-            self._draw_screen_full()
+            self._draw_screen_full(info_text)
         elif self._drawing_method == DrawingMethod.SKIP_OBSTACLES:
             if self.iteration_counter % self.full_refresh_rate == 0:
-                self._draw_screen_full()
+                self._draw_screen_full(info_text)
             else:
                 self._draw_screen_no_obstacles()
         elif self._drawing_method == DrawingMethod.BACKGROUND_SNAPSHOT:
-            self._draw_screen_snapshot()
+            self._draw_screen_snapshot(info_text)
 
         # unmark this to display the sensors
 
@@ -208,47 +261,45 @@ class Simulator:
         # pygame.draw.circle(self.window, (255, 136, 0), self.agent.frontright, 4)
         # pygame.draw.circle(self.window, (0, 255, 119), self.agent.backleft, 4)
         # pygame.draw.circle(self.window, (255, 0, 221), self.agent.backright, 4)
-
+        # pygame.draw.line(self.window, (255, 0, 0), self.parking_lot.target_park.backleft,
+        #                  self.parking_lot.target_park.backright)
+        # if len(self.reward_analyzer.checkpoints) > 0:
+        #     for checkpoint in self.reward_analyzer.checkpoints:
+        #         if not checkpoint[2]:
+        #             pygame.draw.line(self.window, (255, 0, 0), checkpoint[0], checkpoint[1])
         pygame.display.update()
         self.iteration_counter = (self.iteration_counter + 1) % sys.maxsize
 
-    def reset(self):
-        self.iteration_counter: int = 0
-        self.total_time = 0
-        self.frame = 0
-        self.parking_lot: ParkingLot = self.lot_generator()
-        self.width: float = self.parking_lot.width
-        self.height: float = self.parking_lot.height
-        self.agent: Car = self.parking_lot.car_agent
-        self.agent_group: pygame.sprite.Group = pygame.sprite.Group(self.agent)
-        self.stationary_cars_group: pygame.sprite.Group = pygame.sprite.Group(
-            self.parking_lot.stationary_cars)
-        self.parking_cells_group: pygame.sprite.Group = pygame.sprite.Group(self.parking_lot.parking_cells)
-        self.obstacles_group: pygame.sprite.Group = pygame.sprite.Group(self.parking_lot.all_obstacles)
-        self.reward_analyzer = self.reward_analyzer_class()
-        self.feature_extractor = self.feature_extractor_class()
-        self.background_img = None
-        if self._org_background_image is not None:
-            self.background_img = pygame.transform.scale(self._org_background_image,
-                                                         (self.parking_lot.width, self.parking_lot.height))
-        self.bg_snapshot = self._create_background_snapshot()
-
-        self._lot_rect = pygame.Rect(0, 0, self.width, self.height)
-        if self.draw_screen:
-            if self.resize_screen:
-                if self.width != self.window.get_width() or self.height != self.window.get_height():
-                    pygame.display.quit()
-                    self.window: pygame.Surface = pygame.display.set_mode((self.width, self.height))
-                    pygame.display.set_icon(ICON_IMG)
-                    pygame.display.set_caption("Car Parking Simulator")
-                self._draw_screen_full()
-                pygame.display.update()
+    def update_info_text_surface(self, info_dict,
+                                 font_size=12,
+                                 font_style='freesansbold.ttf',
+                                 line_spacing=6,
+                                 text_color=WHITE,
+                                 bg_color=None,
+                                 location=(0, 0)):
+        max_width = 0
+        texts = []
+        max_height = 0
+        surface = None
+        rect = None
+        if info_dict is not None:
+            font = pygame.font.Font(font_style, font_size)
+            for key in info_dict:
+                text = font.render(f"{key}: {info_dict[key]}", True, text_color)
+                text_rect = text.get_rect(topleft=(0, max_height))
+                texts.append((text, text_rect))
+                if max_width < text_rect.width:
+                    max_width = text_rect.width
+                max_height += text_rect.height + line_spacing
+            surface = pygame.Surface((max_width, max_height))
+            if bg_color is not None:
+                surface.fill(bg_color)
             else:
-                self.window.fill(BLACK)
-                self._draw_screen_full()
-                pygame.display.update()
-        else:
-            self.window = pygame.Surface((self.width, self.height))
+                surface.set_colorkey((0, 0, 0))
+            for text, text_rect in texts:
+                surface.blit(text, text_rect)
+            rect = surface.get_rect(topleft=location)
+        self.overlays["info_text"] = (surface, rect)
 
     def get_state(self):
         return self.feature_extractor.get_state(self.parking_lot)
@@ -277,7 +328,8 @@ class Simulator:
         results = {Results.COLLISION: self.is_collision(),
                    Results.PERCENTAGE_IN_TARGET: self.percentage_in_target_cell(),
                    Results.FRAME: self.frame,
-                   Results.SIMULATION_TIMEOUT: self.total_time >= self.max_simulator_time}
+                   Results.SIMULATION_TIMEOUT: self.total_time >= self.max_simulator_time,
+                   Results.IN_BOUNDS: self._lot_rect.contains(self.agent.rect)}
         reward, done = self.reward_analyzer.analyze(self.parking_lot, results)
         if results[Results.SIMULATION_TIMEOUT]:
             done = True

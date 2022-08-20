@@ -1,20 +1,11 @@
 from abc import ABC, abstractmethod
-from enum import Enum
 from typing import Any, Dict, Tuple
-import math
 
+import pygame
+
+from calculations import *
+from enums import Results
 from parking_lot import ParkingLot
-
-
-class Results(Enum):
-    """
-    keys of values returned by the move function of the simulator. use them in order to gather information
-    on the current state of the simulation.
-    """
-    COLLISION = 1
-    PERCENTAGE_IN_TARGET = 2
-    FRAME = 3
-    SIMULATION_TIMEOUT = 4
 
 
 class RewardAnalyzer(ABC):
@@ -494,7 +485,7 @@ class AnalyzerAccumulating5(RewardAnalyzer):
     COLLISION_PENALTY_FACTOR = 0.003
 
     IN_PARKING_REWARD = 1000
-    PARKED_REWARD = 10000
+    PARKED_REWARD = 100000
 
     def __init__(self):
         self.distances = [d for d in range(1200, 0, -2)]
@@ -509,7 +500,8 @@ class AnalyzerAccumulating5(RewardAnalyzer):
         if not self.init:
             self.init = True
             self.last_distance = current_distance
-            while current_distance < self.distances[self.outside_circle]:
+            while self.outside_circle < len(self.distances) and current_distance < self.distances[
+                self.outside_circle]:
                 self.outside_circle += 1
         if results[Results.COLLISION]:
             return (math.erf(self.COLLISION_PENALTY_FACTOR * current_distance) *
@@ -578,7 +570,11 @@ class AnalyzerAccumulating6(RewardAnalyzer):
         if current_distance < self.last_distance:
             while self.outside_circle < len(self.distances) and \
                     current_distance < self.distances[self.outside_circle]:
-                reward += self.rewards[self.outside_circle]
+                parking_vec = parking_lot.target_park.left - parking_lot.target_park.location
+                car_vec = parking_lot.target_park.location - parking_lot.car_agent.front
+                angle = car_vec.angle_to(parking_vec)
+
+                reward += self.rewards[self.outside_circle] * abs(math.cos(math.radians(angle)))
                 self.outside_circle += 1
         elif current_distance > self.last_distance:
             while self.outside_circle > 0 and current_distance > self.distances[self.outside_circle - 1]:
@@ -650,7 +646,7 @@ class AnalyzerNew(RewardAnalyzer):
         return -dist_factored
 
     def __reward_from_angle(self):
-        parking_vec = self.current_lot.target_park.back - self.current_lot.target_park.location
+        parking_vec = self.current_lot.target_park.front - self.current_lot.target_park.location
         car_vec = self.current_lot.car_agent.front - self.current_lot.car_agent.location
         angle = 2 - abs(math.cos(2 * math.radians(car_vec.angle_to(parking_vec))) - 1)
         return angle
@@ -678,4 +674,128 @@ class AnalyzerNew(RewardAnalyzer):
         reward += self.FINAL_DISTANCE_REWARD / (1 + self.FINAL_DISTANCE_FACTOR * distance)
         if results[Results.PERCENTAGE_IN_TARGET] > 0.5:
             reward *= 2
+        return reward, done
+
+
+class AnalyzerAccumulatingCheckpoints(RewardAnalyzer):
+    ID = 11
+    COLLISION_PENALTY = -100
+    COLLISION_PENALTY_FACTOR = 0.003
+
+    IN_PARKING_REWARD = 1000
+    PARKED_REWARD = 10
+    CHECKPOINT_REWARD = 5000
+
+    CHECKPOINTS_NUM = 10
+    CHECKPOINT_SPACING = 30
+
+    def __init__(self):
+        self.distances = [d for d in range(1200, 0, -2)]
+        self.rewards = [2] * len(self.distances)
+        self.in_parking = False
+        self.init = False
+        self.last_distance = float("inf")
+        self.outside_circle = 0
+        self.checkpoints = []
+        self.next_checkpoint = 0
+
+    def __create_checkpoints(self, parking_lot: ParkingLot):
+        target = parking_lot.target_park
+        gap_offset = pygame.Vector2(self.CHECKPOINT_SPACING * math.cos(math.radians(target.rotation)),
+                                    -self.CHECKPOINT_SPACING * math.sin(math.radians(target.rotation)))
+        p1 = target.backleft.copy()
+        p2 = target.backright.copy()
+        for _ in range(self.CHECKPOINTS_NUM):
+            self.checkpoints.append([p1, p2, False])
+            p1 = p1.copy() + gap_offset
+            p2 = p2.copy() + gap_offset
+        self.checkpoints.reverse()
+
+    def analyze(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> Tuple[float, bool]:
+        current_distance = parking_lot.car_agent.location.distance_to(parking_lot.target_park.location)
+        if not self.init:
+            self.init = True
+            self.__create_checkpoints(parking_lot)
+            self.last_distance = current_distance
+            while self.outside_circle < len(self.distances) and current_distance < self.distances[
+                self.outside_circle]:
+                self.outside_circle += 1
+        if results[Results.COLLISION]:
+            return (math.erf(self.COLLISION_PENALTY_FACTOR * current_distance) *
+                    self.COLLISION_PENALTY) / 1200, True
+
+        if results[Results.PERCENTAGE_IN_TARGET] < 1 and parking_lot.car_agent.velocity.magnitude() <= 0:
+            return -0.001 * (current_distance / 1200), False
+
+        reward = 0
+
+        if current_distance < self.last_distance:
+            while self.outside_circle < len(self.distances) and \
+                    current_distance < self.distances[self.outside_circle]:
+                parking_vec = parking_lot.target_park.front - parking_lot.target_park.location
+                car_vec = parking_lot.car_agent.front - parking_lot.target_park.location
+                angle = car_vec.angle_to(parking_vec)
+
+                reward += self.rewards[self.outside_circle] * abs(math.cos(math.radians(angle)))
+                self.outside_circle += 1
+        elif current_distance > self.last_distance:
+            while self.outside_circle > 0 and current_distance > self.distances[self.outside_circle - 1]:
+                reward -= self.rewards[self.outside_circle - 1]
+                self.outside_circle -= 1
+        if self.next_checkpoint < len(self.checkpoints):
+            p1, p2, _ = self.checkpoints[self.next_checkpoint]
+            if parking_lot.car_agent.rect.clipline(p1.x, p1.y, p2.x, p2.y):
+                self.checkpoints[self.next_checkpoint][2] = True
+                self.next_checkpoint += 1
+                parking_in_vec = parking_lot.target_park.back - parking_lot.target_park.location
+                car_vec = parking_lot.car_agent.front - parking_lot.car_agent.location
+                factor = math.cos(math.radians(car_vec.angle_to(parking_in_vec))) * math.erf(
+                    parking_lot.car_agent.velocity.magnitude())
+                reward += self.CHECKPOINT_REWARD * factor
+
+        if results[Results.PERCENTAGE_IN_TARGET] >= 1 and not self.in_parking:
+            self.in_parking = True
+            reward += self.IN_PARKING_REWARD
+        if results[Results.PERCENTAGE_IN_TARGET] >= 1 and parking_lot.car_agent.velocity.magnitude() <= 0:
+            reward += self.PARKED_REWARD
+            return reward / 1200, True
+        self.last_distance = current_distance
+        return reward / 1200, False
+
+
+class AnalyzerAba(RewardAnalyzer):
+    ID = 12
+    IN_PLACE_REWARD = 1
+
+    def __init__(self):
+        self.max_reward = 0
+        self.prev_location = None
+
+    def analyze(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> Tuple[float, bool]:
+        reward = 0
+        done = False
+        agent = parking_lot.car_agent
+        target = parking_lot.target_park
+
+        if self.prev_location is None:
+            self.prev_location = agent.location
+
+        cos_angle = get_agent_parking_cos(agent, target, results, angle_tolerance_degrees=20)
+        if cos_angle > 0:
+            return cos_angle, True
+        if is_agent_in_parking_slot(results):
+            reward += 0.000001
+        angle_to_target = get_angle_to_target(agent, target)
+        drive_direction = get_drive_direction(agent)
+        reward += 0.000001 * math.cos(math.radians(angle_to_target)) * drive_direction
+        if not results[Results.IN_BOUNDS]:
+            return -0.000001, True
+        if results[Results.COLLISION]:
+            return -0.000001, False
+
+        self.max_reward = max(reward, self.max_reward)
+        if agent.location.distance_to(target.location) < self.prev_location.distance_to(target.location):
+            reward = self.max_reward + reward
+
+        self.prev_location = agent.location
         return reward, done

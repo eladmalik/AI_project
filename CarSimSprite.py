@@ -68,48 +68,34 @@ class CarSimSprite(pygame.sprite.Sprite):
         self._mask_template = self.image_no_rotation
         self.mask = pygame.mask.from_surface(pygame.transform.rotate(self._mask_template, self.rotation))
 
-        self.front = self.location + pygame.Vector2(
+        front_off, back_off, left_off, right_off = self.__calculate_offsets()
+        self.front = self.location + front_off
+        self.back = self.location + back_off
+        self.left = self.location + left_off
+        self.right = self.location + right_off
+        self.frontleft = self.location + front_off + left_off
+        self.frontright = self.location + front_off + right_off
+        self.backleft = self.location + back_off + left_off
+        self.backright = self.location + back_off + right_off
+
+    def __calculate_offsets(self):
+        # front is when facing towards the positive side of X
+        # right is when facing towards the positive side of Y
+
+        front_offset = pygame.Vector2(
             (self.width / 2 * math.cos(math.radians(self.rotation))),
             (self.width / 2 * math.sin(math.radians(self.rotation + 180))))
-
-        self.back = self.location + pygame.Vector2(
+        back_offset = pygame.Vector2(
             (self.width / 2 * math.cos(math.radians(self.rotation +
                                                     180))),
             (self.width / 2 * math.sin(math.radians(self.rotation))))
-
-        self.left = self.location + pygame.Vector2(
+        left_offset = pygame.Vector2(
             (self.height / 2 * math.sin(math.radians(self.rotation + 180))),
             (self.height / 2 * math.cos(math.radians(self.rotation + 180))))
-
-        self.right = self.location + pygame.Vector2(
+        right_offset = pygame.Vector2(
             (self.height / 2 * math.sin(math.radians(self.rotation))),
             (self.height / 2 * math.cos(math.radians(self.rotation))))
-
-        self.frontleft = self.location + pygame.Vector2(
-            (self.width / 2 * math.cos(math.radians(self.rotation))),
-            (self.width / 2 * math.sin(math.radians(self.rotation + 180))))  + pygame.Vector2(
-            (self.height / 2 * math.sin(math.radians(self.rotation + 180))),
-            (self.height / 2 * math.cos(math.radians(self.rotation + 180))))
-
-        self.frontright = self.location + pygame.Vector2(
-            (self.width / 2 * math.cos(math.radians(self.rotation))),
-            (self.width / 2 * math.sin(math.radians(self.rotation + 180)))) + pygame.Vector2(
-            (self.height / 2 * math.sin(math.radians(self.rotation))),
-            (self.height / 2 * math.cos(math.radians(self.rotation))))
-
-        self.backleft = self.location + pygame.Vector2(
-            (self.width / 2 * math.cos(math.radians(self.rotation +
-                                                    180))),
-            (self.width / 2 * math.sin(math.radians(self.rotation)))) + pygame.Vector2(
-            (self.height / 2 * math.sin(math.radians(self.rotation + 180))),
-            (self.height / 2 * math.cos(math.radians(self.rotation + 180))))
-
-        self.backright = self.location + pygame.Vector2(
-            (self.width / 2 * math.cos(math.radians(self.rotation +
-                                                    180))),
-            (self.width / 2 * math.sin(math.radians(self.rotation)))) + pygame.Vector2(
-            (self.height / 2 * math.sin(math.radians(self.rotation))),
-            (self.height / 2 * math.cos(math.radians(self.rotation))))
+        return front_offset, back_offset, left_offset, right_offset
 
     def get_x(self):
         return self.location.x
@@ -170,48 +156,15 @@ class CarSimSprite(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = self.location
 
-        self.front = self.location + pygame.Vector2(
-            (self.width / 2 * math.cos(math.radians(self.rotation))),
-            (self.width / 2 * math.sin(math.radians(self.rotation + 180))))
-
-        self.back = self.location + pygame.Vector2(
-            (self.width / 2 * math.cos(math.radians(self.rotation +
-                                                    180))),
-            (self.width / 2 * math.sin(math.radians(self.rotation))))
-
-        self.left = self.location + pygame.Vector2(
-            (self.height / 2 * math.sin(math.radians(self.rotation + 180))),
-            (self.height / 2 * math.cos(math.radians(self.rotation + 180))))
-
-        self.right = self.location + pygame.Vector2(
-            (self.height / 2 * math.sin(math.radians(self.rotation))),
-            (self.height / 2 * math.cos(math.radians(self.rotation))))
-
-        self.frontleft = self.location + pygame.Vector2(
-            (self.width / 2 * math.cos(math.radians(self.rotation))),
-            (self.width / 2 * math.sin(math.radians(self.rotation + 180)))) + pygame.Vector2(
-            (self.height / 2 * math.sin(math.radians(self.rotation + 180))),
-            (self.height / 2 * math.cos(math.radians(self.rotation + 180))))
-
-        self.frontright = self.location + pygame.Vector2(
-            (self.width / 2 * math.cos(math.radians(self.rotation))),
-            (self.width / 2 * math.sin(math.radians(self.rotation + 180)))) + pygame.Vector2(
-            (self.height / 2 * math.sin(math.radians(self.rotation))),
-            (self.height / 2 * math.cos(math.radians(self.rotation))))
-
-        self.backleft = self.location + pygame.Vector2(
-            (self.width / 2 * math.cos(math.radians(self.rotation +
-                                                    180))),
-            (self.width / 2 * math.sin(math.radians(self.rotation)))) + pygame.Vector2(
-            (self.height / 2 * math.sin(math.radians(self.rotation + 180))),
-            (self.height / 2 * math.cos(math.radians(self.rotation + 180))))
-
-        self.backright = self.location + pygame.Vector2(
-            (self.width / 2 * math.cos(math.radians(self.rotation +
-                                                    180))),
-            (self.width / 2 * math.sin(math.radians(self.rotation)))) + pygame.Vector2(
-            (self.height / 2 * math.sin(math.radians(self.rotation))),
-            (self.height / 2 * math.cos(math.radians(self.rotation))))
+        front_off, back_off, left_off, right_off = self.__calculate_offsets()
+        self.front = self.location + front_off
+        self.back = self.location + back_off
+        self.left = self.location + left_off
+        self.right = self.location + right_off
+        self.frontleft = self.location + front_off + left_off
+        self.frontright = self.location + front_off + right_off
+        self.backleft = self.location + back_off + left_off
+        self.backright = self.location + back_off + right_off
 
     def copy(self):
         new_copy = CarSimSprite(self.location.x, self.location.y, self.width, self.height, self.rotation)

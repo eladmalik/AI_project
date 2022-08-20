@@ -68,16 +68,16 @@ def create_vertical_parking_cells(screen_size, sidewalk_width, side, car_size: T
     offset = random.randint(0, max_offset) if max_offset > 0 else 0
     if side == 0:
         start_pos = (sidewalk_width, offset)
-        rotation = 180
+        rotation = 0
     elif side == 1:
         start_pos = (offset, sidewalk_width)
-        rotation = 90
+        rotation = 270
     elif side == 2:
         start_pos = (screen_size - (sidewalk_width + width), offset)
-        rotation = 0
+        rotation = 180
     elif side == 3:
         start_pos = (offset, screen_size - (sidewalk_width + width))
-        rotation = 270
+        rotation = 90
     parking_cells = []
     current_position = [start_pos[0], start_pos[1]]
     for i in range(num_of_cells):
@@ -245,7 +245,7 @@ def generate_lot() -> ParkingLot:
 
 def example0() -> ParkingLot:
     screen_size = 1000
-    parking_cell = ParkingCell(600, 300, 150, 75, 0, PARKING_TARGET_IMG, topleft=True)
+    parking_cell = ParkingCell(600, 300, 150, 75, 180, PARKING_TARGET_IMG, topleft=True)
     agent = Car(200, 700, 100, 50, 90, AGENT_IMG)
     return ParkingLot(screen_size, screen_size, agent, [parking_cell], [], parking_cell)
 
