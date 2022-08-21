@@ -5,11 +5,11 @@ import pygame
 
 import calculations
 import lot_generator
-from feature_extractor import Extractor, Extractor2, Extractor3, Extractor4
+from feature_extractor import Extractor, Extractor2, Extractor3, Extractor4, Extractor7
 from reward_analyzer import Analyzer, AnalyzerStopOnTarget, AnalyzerDistanceCritical, \
     AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision, AnalyzerAccumulating, AnalyzerAccumulating3, \
     AnalyzerAccumulating4, AnalyzerAccumulating5, AnalyzerAccumulating6, AnalyzerNew, \
-    AnalyzerAccumulatingCheckpoints, AnalyzerAba
+    AnalyzerAccumulatingCheckpoints, AnalyzerAba, AnalyzerAccumulating4FrontBack
 from simulator import Simulator, DrawingMethod
 from car import Car, Movement, Steering
 
@@ -18,8 +18,8 @@ DEBUG = True
 
 if __name__ == '__main__':
     # initializing the parking lot
-    sim = Simulator(lot_generator.example1, AnalyzerAccumulating4,
-                    Extractor4,
+    sim = Simulator(lot_generator.example1, AnalyzerAccumulating4FrontBack,
+                    Extractor7,
                     draw_screen=True,
                     resize_screen=False,
                     max_iteration_time_sec=2000,
@@ -60,7 +60,7 @@ if __name__ == '__main__':
         # printing the results:
         if DEBUG:
             # print(sim.agent.velocity)
-            print(f"reward: {reward:.9f}, done: {done}")
+            print(f"reward: {total_reward:.9f}, done: {done}")
             # print(sim.agent.velocity)
         # updating the screen
         text = {

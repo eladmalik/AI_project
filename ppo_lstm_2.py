@@ -52,9 +52,9 @@ model_folder = os.path.join("model", "PPO_LSTM2_21-08-2022__12-32-27")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 from simulator import Simulator, DrawingMethod
 
-lot_generator = generate_lot
-reward_analyzer = AnalyzerAccumulatingFront
-feature_extractor = Extractor4
+lot_generator = generate_only_target
+reward_analyzer = AnalyzerAccumulating4FrontBack
+feature_extractor = Extractor7
 time_difference_secs = 0.1
 max_iteration_time = 400
 draw_screen = True
