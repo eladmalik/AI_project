@@ -337,7 +337,7 @@ class Simulator:
         if results[Results.SIMULATION_TIMEOUT]:
             done = True
         new_state = self.get_state()
-        return new_state, reward, done
+        return new_state, reward, done, results
 
     def is_collision(self):
         """

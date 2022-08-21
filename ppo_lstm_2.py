@@ -200,14 +200,17 @@ def main():
                 prob = prob.view(-1)
                 m = Categorical(prob)
                 a = m.sample().item()
-                s_prime, r, done = env.do_step(*action_mapping[a], time_difference_secs)
+                s_prime, r, done, results = env.do_step(*action_mapping[a], time_difference_secs)
                 score += r
                 if draw_screen:
                     text = {
+                        "Run folder":save_folder,
                         "Velocity": f"{env.agent.velocity.x:.1f}",
                         "Reward": f"{r:.8f}",
                         "Total Reward": f"{score:.8f}",
-                        "Angle to target": f"{calculations.get_angle_to_target(env.agent, env.parking_lot.target_park):.1f}"
+                        "Angle to target": f""
+                                           f"{calculations.get_angle_to_target(env.agent, env.parking_lot.target_park):.1f}",
+                        "Percentage in target": f"{results[Results.PERCENTAGE_IN_TARGET]:.4f}"
                     }
                     pygame.event.pump()
                     env.update_screen(text)

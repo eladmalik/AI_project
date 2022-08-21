@@ -10,13 +10,14 @@ def get_angle_to_target(agent, target) -> float:
     return angle_to_target
 
 
-def get_agent_parking_cos(agent, target, results, angle_tolerance_degrees=0) -> float:
+def get_agent_parking_cos(agent, target, results, min_percentage_in_target=1, angle_tolerance_degrees=0) -> \
+        float:
     agent_vector = agent.front - agent.location
     target_vector = target.front - target.location
     angle = agent_vector.angle_to(target_vector)
     cos_angle = abs(math.cos(math.radians(angle)))
-    if results[Results.PERCENTAGE_IN_TARGET] >= 1 and\
-            agent.velocity.magnitude() == 0 and\
+    if results[Results.PERCENTAGE_IN_TARGET] >= min_percentage_in_target and \
+            agent.velocity.magnitude() == 0 and \
             cos_angle >= math.cos(math.radians(angle_tolerance_degrees)):
         return cos_angle
     return 0

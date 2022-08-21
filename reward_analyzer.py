@@ -943,13 +943,14 @@ class AnalyzerAccumulating4FrontBack(RewardAnalyzer):
                 self.outside_back_circle -= 1
         if results[Results.PERCENTAGE_IN_TARGET] >= 1 and not self.in_parking:
             self.in_parking = True
-            reward += self.IN_PARKING_REWARD * (1 - (parking_lot.car_agent.velocity.magnitude() / 1200))
+            reward += self.IN_PARKING_REWARD * max((1 - (parking_lot.car_agent.velocity.magnitude() /
+                                                         parking_lot.car_agent.max_velocity)), 0.5)
 
         # if results[Results.PERCENTAGE_IN_TARGET] < 1 and self.in_parking:
         #     self.in_parking = False
         #     reward -= self.IN_PARKING_REWARD / 2
 
-        if calculations.get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results,
+        if calculations.get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results, 0.93,
                                               30) > 0:
             reward += self.PARKED_REWARD
             return reward, True
