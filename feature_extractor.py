@@ -556,7 +556,7 @@ class Extractor8(FeatureExtractor):
         "Sensor Front (normalized with 1/1200)",
         "Sensor Back (normalized with 1/1200)",
         "Sensor Left (normalized with 1/1200)",
-        "Sensor Right (normalized with 1/1200)"
+        "Sensor Right (normalized with 1/1200)",
         "Sensor Front Left (normalized with 1/1200)",
         "Sensor Front Right (normalized with 1/1200)",
         "Sensor Back Left (normalized with 1/1200)",
