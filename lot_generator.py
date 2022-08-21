@@ -289,7 +289,7 @@ def example2() -> ParkingLot:
     offset_x = -30 + 60 * random.random()
     offset_y = -30 + 60 * random.random()
     # agent = Car(500 + offset_x, 500 + offset_y, 100, 50, random.random() * 360, AGENT_IMG)
-    agent = Car(500, 500, 100, 50, 90, AGENT_IMG)
+    agent = Car(500, 500, 100, 50, 0, AGENT_IMG)
 
     parking_cells = [
         ParkingCell(200, 0, 150, 75, 0, PARKING_IMG, topleft=True).place_car(100, 50, CAR_IMG),

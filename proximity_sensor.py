@@ -1,16 +1,9 @@
-from enum import Enum
 import math
 from typing import Tuple, Iterable
 import pygame
 
 from CarSimSprite import CarSimSprite
-
-
-class SensorDirection(Enum):
-    LEFT = 0
-    FRONT = 1
-    RIGHT = 2
-    BACK = 3
+from enums import SensorDirection
 
 
 class ProximitySensor:
@@ -22,32 +15,8 @@ class ProximitySensor:
         self.use_mask = use_mask
 
     def _create_sensor_line(self) -> Tuple[pygame.Vector2, pygame.Vector2]:
-        start_pos = None
-        stop_pos = None
-        sensor_angle = self.car.rotation + self.angle
-        if self.direction == SensorDirection.RIGHT:
-            start_pos = self.car.right
-            stop_pos = start_pos + pygame.Vector2(
-                (self.max_distance * math.sin(math.radians(self.car.rotation))),
-                (self.max_distance * math.cos(math.radians(self.car.rotation))))
-
-        if self.direction == SensorDirection.LEFT:
-            start_pos = self.car.left
-            stop_pos = start_pos + pygame.Vector2(
-                (self.max_distance * math.sin(math.radians(sensor_angle + 180))),
-                (self.max_distance * math.cos(math.radians(sensor_angle + 180))))
-
-        if self.direction == SensorDirection.FRONT:
-            start_pos = self.car.front
-            stop_pos = start_pos + pygame.Vector2(self.max_distance * math.cos(math.radians(sensor_angle)),
-                                                  self.max_distance * math.sin(
-                                                      math.radians(sensor_angle + 180)))
-
-        if self.direction == SensorDirection.BACK:
-            start_pos = self.car.back
-            stop_pos = start_pos + pygame.Vector2(
-                (self.max_distance * math.cos(math.radians(sensor_angle + 180))),
-                (self.max_distance * math.sin(math.radians(sensor_angle))))
+        start_pos = self.car.get_sensor_start_point()[self.direction]
+        stop_pos = start_pos + self.max_distance * self.car.get_direction_vectors(self.angle)[self.direction]
 
         return start_pos, stop_pos
 

@@ -3,6 +3,7 @@ from typing import Tuple, Union
 from pygame.math import Vector2
 
 import pygame
+from enums import SensorDirection
 
 
 class CarSimSprite(pygame.sprite.Sprite):
@@ -96,6 +97,45 @@ class CarSimSprite(pygame.sprite.Sprite):
             (self.height / 2 * math.sin(math.radians(self.rotation))),
             (self.height / 2 * math.cos(math.radians(self.rotation))))
         return front_offset, back_offset, left_offset, right_offset
+
+    def get_direction_vectors(self, angle_offset=0):
+        angle = self.rotation + angle_offset
+        front = pygame.Vector2(
+            (math.cos(math.radians(angle))),
+            (math.sin(math.radians(angle + 180)))).normalize()
+        back = pygame.Vector2(
+            (math.cos(math.radians(angle + 180))),
+            (math.sin(math.radians(angle)))).normalize()
+        left = pygame.Vector2(
+            (math.sin(math.radians(angle + 180))),
+            (math.cos(math.radians(angle + 180)))).normalize()
+        right = pygame.Vector2(
+            (math.sin(math.radians(angle))),
+            (math.cos(math.radians(angle)))).normalize()
+        frontleft = (front + left).normalize()
+        frontright = (front + right).normalize()
+        backleft = (back + left).normalize()
+        backright = (back + right).normalize()
+        return {
+            SensorDirection.FRONT: front,
+            SensorDirection.BACK: back,
+            SensorDirection.LEFT: left,
+            SensorDirection.RIGHT: right,
+            SensorDirection.FRONTLEFT: frontleft,
+            SensorDirection.FRONTRIGHT: frontright,
+            SensorDirection.BACKLEFT: backleft,
+            SensorDirection.BACKRIGHT: backright
+        }
+
+    def get_sensor_start_point(self):
+        return {SensorDirection.FRONT: self.front,
+                SensorDirection.BACK: self.back,
+                SensorDirection.LEFT: self.left,
+                SensorDirection.RIGHT: self.right,
+                SensorDirection.FRONTLEFT: self.frontleft,
+                SensorDirection.FRONTRIGHT: self.frontright,
+                SensorDirection.BACKLEFT: self.backleft,
+                SensorDirection.BACKRIGHT: self.backright}
 
     def get_x(self):
         return self.location.x

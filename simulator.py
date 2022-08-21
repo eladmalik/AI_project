@@ -249,6 +249,8 @@ class Simulator:
         # unmark this to display the sensors
 
         # for direction in self.agent.sensors:
+        #     if direction not in self.agent.sensors:
+        #         continue
         #     for sensor in self.agent.sensors[direction]:
         #         start, stop = sensor._create_sensor_line()
         #         pygame.draw.line(self.window, (255, 255, 255), start, stop)

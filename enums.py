@@ -11,3 +11,14 @@ class Results(Enum):
     FRAME = 3
     SIMULATION_TIMEOUT = 4
     IN_BOUNDS = 5
+
+
+class SensorDirection(Enum):
+    LEFT = 0
+    FRONT = 1
+    RIGHT = 2
+    BACK = 3
+    FRONTLEFT = 4
+    FRONTRIGHT = 5
+    BACKLEFT = 6
+    BACKRIGHT = 7

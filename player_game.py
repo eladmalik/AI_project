@@ -23,7 +23,7 @@ if __name__ == '__main__':
                     draw_screen=True,
                     resize_screen=False,
                     max_iteration_time_sec=2000,
-                    drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)
+                    drawing_method=DrawingMethod.FULL)
     clock = pygame.time.Clock()
     total_reward = 0
     while True:
