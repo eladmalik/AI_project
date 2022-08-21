@@ -3,6 +3,7 @@ from typing import Any, Dict, Tuple
 
 import pygame
 
+import calculations
 from calculations import *
 from enums import Results
 from parking_lot import ParkingLot
@@ -798,4 +799,65 @@ class AnalyzerAba(RewardAnalyzer):
             reward = self.max_reward + reward
 
         self.prev_location = agent.location
+        return reward, done
+
+
+class AnalyzerAccumulatingNew(RewardAnalyzer):
+    ID = 20
+    COLLISION_PENALTY = -100
+    COLLISION_PENALTY_FACTOR = 0.003
+
+    IN_PARKING_REWARD = 1000
+    PARKED_REWARD = 2000
+
+    def __init__(self):
+        self.distances = [d for d in range(1200, 0, -2)]
+        self.rewards = [2 for _ in range(len(self.distances))]
+        self.in_parking = False
+        self.init = False
+        self.last_distance = float("inf")
+        self.outside_circle = 0
+
+    def analyze(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> Tuple[float, bool]:
+        current_distance = parking_lot.car_agent.location.distance_to(parking_lot.target_park.location)
+        if not self.init:
+            self.init = True
+            self.last_distance = current_distance
+            while current_distance < self.distances[self.outside_circle]:
+                self.outside_circle += 1
+        if results[Results.COLLISION]:
+            return math.erf(self.COLLISION_PENALTY_FACTOR * current_distance) * self.COLLISION_PENALTY, True
+        reward = 0
+
+        if results[Results.PERCENTAGE_IN_TARGET] >= 1 and not self.in_parking:
+            self.in_parking = True
+            reward += self.IN_PARKING_REWARD
+        if calculations.get_agent_parking_cos(
+                parking_lot.car_agent, parking_lot.target_park, results, 20) > 0:
+            reward += self.PARKED_REWARD
+            return reward, True
+        self.last_distance = current_distance
+        return reward, False
+
+
+class AnalyzerMalik(RewardAnalyzer):
+    ID = 21
+    COLLISION_PENALTY = -100
+    COLLISION_PENALTY_FACTOR = 0.003
+
+    IN_PARKING_REWARD = 1000
+    PARKED_REWARD = 2000
+
+    def analyze(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> Tuple[float, bool]:
+        current_distance = parking_lot.car_agent.location.distance_to(parking_lot.target_park.location)
+        if results[Results.COLLISION]:
+            return math.erf(self.COLLISION_PENALTY_FACTOR * current_distance) * self.COLLISION_PENALTY, True
+        reward = 0
+        done = False
+        reward += (1 - current_distance / 1200)
+        reward += results[Results.PERCENTAGE_IN_TARGET]
+        if calculations.get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results,
+                                              30) > 0:
+            reward += 1
+            done = False
         return reward, done

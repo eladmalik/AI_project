@@ -18,7 +18,7 @@ DEBUG = True
 
 if __name__ == '__main__':
     # initializing the parking lot
-    sim = Simulator(lot_generator.example1, AnalyzerAba,
+    sim = Simulator(lot_generator.example1, AnalyzerAccumulating4,
                     Extractor4,
                     draw_screen=True,
                     resize_screen=False,

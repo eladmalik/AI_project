@@ -255,7 +255,8 @@ def example1() -> ParkingLot:
     sidewalk_right = Sidewalk(0, 0, 100, 1000, 0, topleft=True)
     offset_x = -30 + 60 * random.random()
     offset_y = -30 + 60 * random.random()
-    agent = Car(500 + offset_x, 500 + offset_y, 100, 50, random.random() * 360, AGENT_IMG)
+    # agent = Car(500 + offset_x, 500 + offset_y, 100, 50, random.random() * 360, AGENT_IMG)
+    agent = Car(500, 500, 100, 50, 180, AGENT_IMG)
     parking_cells = [
         ParkingCell(100, 0, 130, 65, 90, PARKING_SIDEWALK_IMG, topleft=True),
         ParkingCell(100, 130, 130, 65, 90, PARKING_SIDEWALK_IMG, topleft=True),

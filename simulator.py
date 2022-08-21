@@ -139,6 +139,7 @@ class Simulator:
                 pygame.display.update()
         else:
             self.window = pygame.Surface((self.width, self.height))
+        return self.get_state()
 
     def _create_background_snapshot(self):
         """
