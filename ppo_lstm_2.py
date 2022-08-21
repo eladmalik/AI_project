@@ -52,11 +52,11 @@ model_folder = os.path.join("model", "PPO_LSTM2_21-08-2022__12-32-27")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 from simulator import Simulator, DrawingMethod
 
-lot_generator = generate_only_target
+lot_generator = example0
 reward_analyzer = AnalyzerAccumulating4FrontBack
 feature_extractor = Extractor7
 time_difference_secs = 0.1
-max_iteration_time = 400
+max_iteration_time = 800
 draw_screen = True
 draw_rate = 1
 
@@ -186,7 +186,9 @@ def main():
         model.load()
         model.save_folder = save_folder
     score = 0.0
-    print_interval = 1
+    plot_interval = 10
+    distance_history = []
+    mean_distance_history = []
 
     for n_epi in range(10000):
         h_out = (torch.zeros([1, 1, 32], dtype=torch.float), torch.zeros([1, 1, 32], dtype=torch.float))
@@ -219,10 +221,13 @@ def main():
 
             model.train_net()
 
-        if n_epi % print_interval == 0 and n_epi != 0:
-            print("# of episode :{}, avg score : {:.1f}".format(n_epi, score / print_interval))
-            score = 0.0
-            model.save()
+        distance_history.append(env.agent.location.distance_to(env.parking_lot.target_park.location))
+        mean_distance_history.append(sum(distance_history)/len(distance_history))
+        if n_epi % plot_interval == 0 and n_epi != 0:
+            utils.plot_distances(distance_history, mean_distance_history, save_folder)
+        model.save()
+        print("# of episode :{}, score : {:.1f}".format(n_epi, score))
+        score = 0.0
 
 
 if __name__ == '__main__':
