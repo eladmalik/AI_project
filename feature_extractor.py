@@ -386,11 +386,14 @@ class ExtractorNew(FeatureExtractor):
                 angle_to_target,
                 velocity, acceleration, steering, *sensors]
 
+
 class Extractor6(FeatureExtractor):
     ID = 9
     FEATURES = [
         "Absolute X (normalized with 1/1200)",
         "Absolute Y (normalized with 1/1200)",
+        "Front X relative to target (normalized with 1/1200)",
+        "Front Y relative to target (normalized with 1/1200)",
         "Relative X to target (normalized with 1/1200)",
         "Relative Y to target (normalized with 1/1200)",
         "Distance from front to target (normalized with 1/1200)",
@@ -414,6 +417,9 @@ class Extractor6(FeatureExtractor):
         absolute_y = parking_lot.car_agent.location.y / factor
         relative_x = (parking_lot.target_park.location.x - parking_lot.car_agent.location.x) / factor
         relative_y = (parking_lot.target_park.location.y - parking_lot.car_agent.location.y) / factor
+
+        front_x = (parking_lot.target_park.location.x - parking_lot.car_agent.front.x) / factor
+        front_y = (parking_lot.target_park.location.y - parking_lot.car_agent.front.y) / factor
 
         absolute_rotation = math.cos(math.radians(parking_lot.car_agent.rotation))
         distance_to_target = (parking_lot.car_agent.front.distance_to(
@@ -444,7 +450,8 @@ class Extractor6(FeatureExtractor):
             sensor.detect(parking_lot.all_obstacles)[1] for sensor in parking_lot.car_agent.sensors[
                 SensorDirection.RIGHT]) / factor
 
-        return [absolute_x, absolute_y, relative_x, relative_y, absolute_rotation, distance_to_target,
+        return [absolute_x, absolute_y, relative_x, relative_y, front_x, front_y, absolute_rotation,
+                distance_to_target,
                 relative_rotation,
                 angle_to_target,
                 velocity,
