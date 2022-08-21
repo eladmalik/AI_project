@@ -289,7 +289,7 @@ def example2() -> ParkingLot:
     offset_x = -30 + 60 * random.random()
     offset_y = -30 + 60 * random.random()
     # agent = Car(500 + offset_x, 500 + offset_y, 100, 50, random.random() * 360, AGENT_IMG)
-    agent = Car(500, 500, 100, 50, 0, AGENT_IMG)
+    agent = Car(500, 500, 100, 50, random.random()*360, AGENT_IMG)
 
     parking_cells = [
         ParkingCell(200, 0, 150, 75, 0, PARKING_IMG, topleft=True).place_car(100, 50, CAR_IMG),
@@ -341,7 +341,7 @@ def _get_random_place_inside_board(width, height, board_size):
 def generate_only_target() -> ParkingLot:
     car_size = (100, 50)
     screen_size = random.randint(700, 1200)
-    parking_scale = 1.6
+    parking_scale = 1.4
     parking_width = car_size[0] * parking_scale
     parking_height = car_size[1] * parking_scale
     parking_x, parking_y, parking_rotation = _get_random_place_inside_board(parking_width, parking_height,

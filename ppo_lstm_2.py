@@ -43,7 +43,7 @@ def get_agent_output_folder():
 
 
 load_model = True
-model_folder = os.path.join("model", "PPO_LSTM2_21-08-2022__18-11-38")
+model_folder = os.path.join("model", "PPO_LSTM2_21-08-2022__21-05-14")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CHANGE HYPER-PARAMETERS HERE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,8 +52,8 @@ from simulator import Simulator, DrawingMethod
 
 lot_generator = example2
 reward_analyzer = AnalyzerAccumulating4FrontBack
-feature_extractor = Extractor7
-time_difference_secs = 0.1
+feature_extractor = Extractor8
+time_difference_secs = 0.03333333
 max_iteration_time = 800
 draw_screen = True
 draw_rate = 1
