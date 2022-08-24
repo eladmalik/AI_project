@@ -45,11 +45,11 @@ if __name__ == '__main__':
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CHANGE HYPER-PARAMETERS HERE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    lot_generator = example0
+    lot_generator = generate_lot
     reward_analyzer = AnalyzerNew
     feature_extractor = ExtractorNew
-    time_difference_secs = 0.1
-    max_iteration_time = 20
+    time_difference_secs = 0.02
+    max_iteration_time = 300
     draw_screen = True
     draw_rate = 1
 

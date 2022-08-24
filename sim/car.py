@@ -1,5 +1,6 @@
 import math
 from enum import Enum
+from typing import Dict, List
 
 import pygame
 from pygame.math import Vector2
@@ -28,7 +29,7 @@ class Steering(Enum):
     RIGHT = -1
 
 
-MAX_STEERING = 120
+MAX_STEERING = 85
 MAX_ACCELERATION = 200
 MAX_VELOCITY = 150
 BRAKE_DECELERATION = 130
@@ -63,7 +64,7 @@ class Car(CarSimSprite):
         self.acceleration = 0.0
         self.steering = 0.0
 
-    def _init_sensors(self):
+    def _init_sensors(self) -> Dict[SensorDirection, List[ProximitySensor]]:
         sensors = dict()
         dist = MAX_SENSOR_DISTANCE
         sensors[SensorDirection.FRONT] = [

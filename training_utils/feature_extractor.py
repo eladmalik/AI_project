@@ -12,7 +12,7 @@ class FeatureExtractor(ABC):
     ID: int
     input_num: int
 
-    def get_state(self, parking_lot: ParkingLot):
+    def get_state(self, parking_lot: ParkingLot) -> List:
         """
         This function gets the parking lot as an inputs and outputs a list of numerical features which
         indicates the current state of the parking lot
@@ -360,7 +360,7 @@ class ExtractorNew(FeatureExtractor):
         "Steering (normalized with 1/100)",
         "All sensors"
     ]
-    input_num = 7# + 8*2
+    input_num = 7 + 8*2
 
     def get_state(self, parking_lot: ParkingLot) -> List[float]:
         factor = parking_lot.car_agent.height
@@ -379,20 +379,20 @@ class ExtractorNew(FeatureExtractor):
         back_vector = -front_vector
         parking_vector = parking_front - parking_lot.target_park.location
         to_target_vector = parking_lot.target_park.location - parking_lot.car_agent.location
-        angle_to_target = front_vector.angle_to(to_target_vector) / 100
+        angle_to_target = front_vector.angle_to(to_target_vector) / 180
 
         rel_ang_f = abs(front_vector.angle_to(parking_vector))
         rel_ang_b = abs(back_vector.angle_to(parking_vector))
         while rel_ang_f > 90: rel_ang_f -= 90
         while rel_ang_b > 90: rel_ang_b -= 90
-        relative_rotation = min(rel_ang_f, rel_ang_b) / 100
+        relative_rotation = min(rel_ang_f, rel_ang_b) / 90
 
-        velocity = parking_lot.car_agent.velocity.magnitude() / factor
+        velocity = parking_lot.car_agent.velocity.magnitude() / parking_lot.car_agent.max_velocity
         acceleration = parking_lot.car_agent.acceleration / factor
-        steering = float(parking_lot.car_agent.steering) / 100
-        sensors = [sensor.detect(parking_lot.all_obstacles)[1] for direction in SensorDirection for sensor in
+        steering = float(parking_lot.car_agent.steering) / parking_lot.car_agent.max_steering
+        sensors = [(sensor.detect(parking_lot.all_obstacles)[1] / sensor.max_distance) for direction in SensorDirection for sensor in
                    parking_lot.car_agent.sensors[direction]]
-        proximity_sensors = [int(sensor < 20) for sensor in sensors]
+        proximity_sensors = [int(sensor < 0.1) for sensor in sensors]
         
 
         str_left = max(0, steering)
@@ -400,10 +400,10 @@ class ExtractorNew(FeatureExtractor):
         angle_left = -min(0, angle_to_target)
         angle_right = max(0, angle_to_target)
 
-        car_x = parking_lot.car_agent.location.x / 600
-        car_y = parking_lot.car_agent.location.y / 600
-        parking_x = parking_lot.car_agent.location.x / 600
-        parking_y = parking_lot.car_agent.location.y / 600
+        # car_x = parking_lot.car_agent.location.x / factor
+        # car_y = parking_lot.car_agent.location.y / factor
+        # parking_x = parking_lot.car_agent.location.x / factor
+        # parking_y = parking_lot.car_agent.location.y / factor
 
         return [distance_to_target,
                 relative_rotation,
@@ -411,9 +411,5 @@ class ExtractorNew(FeatureExtractor):
                 angle_right,
                 velocity, 
                 str_left,
-                str_right]#,
-                # car_x,
-                # car_y,
-                # parking_x,
-                # parking_y,
-                #*sensors, *proximity_sensors] #, *sensors]
+                str_right,
+                *sensors, *proximity_sensors]

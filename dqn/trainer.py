@@ -1,6 +1,8 @@
+from ast import List
 import os
 from collections import deque
 import random
+from typing import Dict, Tuple
 from tqdm import tqdm
 
 import pygame.event
@@ -22,7 +24,8 @@ from sim.simulator import Simulator, DrawingMethod
 from sim.car import Movement, Steering
 
 MAX_MEMORY = 100000
-BATCH_SIZE = 32
+BATCH_SIZE = 128
+SHORT_BATCH_SIZE = 16
 
 config = configparser.ConfigParser()
 config.read("./dqn/training_settings_dqn.ini")
@@ -66,7 +69,9 @@ Lot_Generators = {
     "only_target": lot_generator.generate_only_target
 }
 
-MOVEMENT_STEERING_TO_ACTION = {
+ActionType = Tuple[int, int, int, int, int, int, int, int, int, int, int, int]
+
+MOVEMENT_STEERING_TO_ACTION: Dict[Tuple[Movement, Steering], ActionType] = {
     (Movement.NEUTRAL, Steering.NEUTRAL): [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     (Movement.NEUTRAL, Steering.LEFT): [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     (Movement.NEUTRAL, Steering.RIGHT): [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -79,10 +84,9 @@ MOVEMENT_STEERING_TO_ACTION = {
     (Movement.BRAKE, Steering.NEUTRAL): [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
     (Movement.BRAKE, Steering.LEFT): [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
     (Movement.BRAKE, Steering.RIGHT): [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-
 }
 
-ACTION_TO_MOVEMENT_STEERING = {tuple(v): k for k, v in MOVEMENT_STEERING_TO_ACTION.items() }
+ACTION_TO_MOVEMENT_STEERING: Dict[ActionType, Tuple[Movement, Steering]] = {tuple(v): k for k, v in MOVEMENT_STEERING_TO_ACTION.items() }
 NUM_OF_ACTIONS = len(MOVEMENT_STEERING_TO_ACTION)
 
 
@@ -158,13 +162,14 @@ class AgentTrainer:
     def __init__(self, simulator: Simulator, model: DQNAgent):
         self.n_games = 0
         self.epsilon = 0  # randomness
+        self.min_randomness = float(conf_default['min_randomness_rate'])
         self.randomness_decay_rate = float(conf_default['randomness_decay_rate'])
         self.randomness_rate = float(conf_default["init_randomness_chance"])
         self.gamma = float(conf_default["gamma"])  # discount rate
         self.learning_rate = float(conf_default["learning_rate"])
         self.simulator = simulator
         self.max_epsilon = int(conf_default["max_epsilon"])
-        self.memory = list()  # popleft()
+        self.memory = deque(maxlen=MAX_MEMORY)  # popleft()
         self.model = model
         self.trainer = QTrainer(self.model, lr=self.learning_rate, gamma=self.gamma)
 
@@ -174,9 +179,10 @@ class AgentTrainer:
     def train_long_memory(self, mid=False):
         mem_len = len(self.memory)
         if mem_len > BATCH_SIZE:
-            for _ in range((mem_len // BATCH_SIZE) * 3):
-                i = random.randint(0, mem_len-BATCH_SIZE-1)
-                mini_sample = self.memory[i: i+BATCH_SIZE]
+            for _ in range(min(mem_len // BATCH_SIZE, 50)):
+                # i = random.randint(0, mem_len-BATCH_SIZE-1)
+                # mini_sample = self.memory[i: i+BATCH_SIZE]
+                mini_sample = random.sample(self.memory, BATCH_SIZE)
                 states, actions, rewards, next_states, dones = zip(*mini_sample)
                 self.trainer.train_step(states, actions, rewards, next_states, dones)
         elif mem_len:
@@ -184,32 +190,34 @@ class AgentTrainer:
                 mini_sample = self.memory
                 states, actions, rewards, next_states, dones = zip(*mini_sample)
                 self.trainer.train_step(states, actions, rewards, next_states, dones)        
-        
-        if not mid:
-            self.memory.clear()
 
-    def train_short_memory(self, state, action, reward, next_state, done):
-        self.trainer.train_step(state, action, reward, next_state, done)
+    def train_short_memory(self):
+        if len(self.memory) >= SHORT_BATCH_SIZE:
+            mini_sample = self.memory[-SHORT_BATCH_SIZE:]
+            states, actions, rewards, next_states, dones = zip(*mini_sample)
+            self.trainer.train_step(states, actions, rewards, next_states, dones)
 
     def randomness_decay(self):
-        if self.randomness_rate > 0.05:
+        if self.randomness_rate > self.min_randomness:
             self.randomness_rate *= self.randomness_decay_rate # decay
+            self.randomness_rate = max(self.min_randomness, self.randomness_rate)
 
     def get_action(self, state):
         # random moves: tradeoff exploration / exploitation
         self.epsilon = self.max_epsilon - self.n_games
         final_move = [0] * NUM_OF_ACTIONS
-        if self.randomness_rate > 0 and \
-                random.randint(0, int(self.max_epsilon / self.randomness_rate)) < self.epsilon:
+        is_random = False
+        if self.randomness_rate > 0 and  random.random() < self.randomness_rate:
             move = random.randint(0, NUM_OF_ACTIONS - 1)
             final_move[move] = 1
+            is_random = True
         else:
             state0 = torch.tensor(state, dtype=torch.float)
             prediction = self.model(state0)
             move = torch.argmax(prediction).item()
             final_move[move] = 1
 
-        return tuple(final_move)
+        return tuple(final_move), is_random
 
 
 def train():
@@ -250,10 +258,15 @@ def train():
         state_old = agent_trainer.simulator.get_state()
 
         # get move
-        final_move = agent_trainer.get_action(state_old)
+        final_move, is_random = agent_trainer.get_action(state_old)
+        # other_moves = (ACTION_TO_MOVEMENT_STEERING[tuple(a)] for a in MOVEMENT_STEERING_TO_ACTION.values() if a != final_move)
+        # for move, steer in other_moves:
+        #     state_new, reward, done = agent_trainer.simulator.simulate_step(move, steer,time_difference)
+        #     agent_trainer.remember(state_old, final_move, reward, state_new, done)
 
         # perform move and get new state
         final_movement, final_steering = ACTION_TO_MOVEMENT_STEERING[final_move]
+        td = 3*time_difference if is_random else time_difference
         state_new, reward, done = agent_trainer.simulator.do_step(final_movement, final_steering,
                                                                 time_difference)
         if draw_screen:
@@ -274,6 +287,9 @@ def train():
         # remember
         agent_trainer.remember(state_old, final_move, reward, state_new, done)
         
+        if iter_num > 0 and iter_num % 3000 == 0:
+            agent_trainer.train_long_memory()
+        
         if done:
             # train long memory, plot result
             print(f"Total real time: {agent_trainer.simulator.total_time}")
@@ -285,7 +301,6 @@ def train():
             progress_bar_iter = progress_bar.__iter__()
             sim.reset()
             agent_trainer.n_games += 1
-            agent_trainer.train_long_memory()
             agent_trainer.randomness_decay()
 
             agent_trainer.model.save(folder, filename)

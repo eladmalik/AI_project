@@ -3,6 +3,7 @@ import random
 from typing import Tuple, List, Callable
 import math
 
+import pygame
 import pygame.sprite
 
 from sim.car import Car
@@ -124,7 +125,7 @@ def create_parallel_parking_cells(screen_size, sidewalk_width, side, car_size: T
     return parking_cells
 
 
-def scenario1_parallel() -> ParkingLot:
+def scenario1_parallel(facing = False) -> ParkingLot:
     car_size = (100, 50)
     screen_size = random.randint(700, 1200)
     num_of_sidewalks = random.randint(1, 2)
@@ -168,12 +169,16 @@ def scenario1_parallel() -> ParkingLot:
 
     agent_offset_x = random.randint(-screen_size // 15, screen_size // 15)
     agent_offset_y = random.randint(-screen_size // 15, screen_size // 15)
+
+    front_vector = pygame.Vector2(0, 1)
+    to_target_vector = parking_cells[target_index].location - pygame.Vector2((screen_size // 2) + agent_offset_x, (screen_size // 2) + agent_offset_y)
+    angle = front_vector.angle_to(to_target_vector) if facing else (random.random() * 360)
     agent = Car((screen_size // 2) + agent_offset_x, (screen_size // 2) + agent_offset_y, car_size[0],
-                car_size[1], random.random() * 360, AGENT_IMG)
+                car_size[1], angle, AGENT_IMG)
     return ParkingLot(screen_size, screen_size, agent, parking_cells, sidewalks, parking_cells[target_index])
 
 
-def scenario1_perpendicular() -> ParkingLot:
+def scenario1_perpendicular(facing = False) -> ParkingLot:
     car_size = (100, 50)
     screen_size = random.randint(700, 1200)
     num_of_sidewalks = random.randint(1, 2)
@@ -217,8 +222,12 @@ def scenario1_perpendicular() -> ParkingLot:
 
     agent_offset_x = random.randint(-screen_size // 15, screen_size // 15)
     agent_offset_y = random.randint(-screen_size // 15, screen_size // 15)
+
+    front_vector = pygame.Vector2(0, 1)
+    to_target_vector = parking_cells[target_index].location - pygame.Vector2((screen_size // 2) + agent_offset_x, (screen_size // 2) + agent_offset_y)
+    angle = front_vector.angle_to(to_target_vector) if facing else (random.random() * 360)
     agent = Car((screen_size // 2) + agent_offset_x, (screen_size // 2) + agent_offset_y, car_size[0],
-                car_size[1], random.random() * 360, AGENT_IMG)
+                car_size[1], angle, AGENT_IMG)
     return ParkingLot(screen_size, screen_size, agent, parking_cells, sidewalks, parking_cells[target_index])
 
 
@@ -242,11 +251,17 @@ def generate_lot() -> ParkingLot:
             lot = scenario1_perpendicular()
     return lot
 
-
-def example0() -> ParkingLot:
+def example_simple() -> ParkingLot:
     screen_size = 1000
     parking_cell = ParkingCell(600, 300, 150, 75, 0, PARKING_TARGET_IMG, topleft=True)
     agent = Car(int(random.random()*1000), int(random.random()*1000), 100, 50, int(random.random()*360), AGENT_IMG)
+    return ParkingLot(screen_size, screen_size, agent, [parking_cell], [], parking_cell)
+
+
+def example0() -> ParkingLot:
+    screen_size = 1000
+    parking_cell = ParkingCell(600, 300, 150, 75, 360, PARKING_TARGET_IMG, topleft=True)
+    agent = Car(200, 300, 100, 50, 360, AGENT_IMG)
     return ParkingLot(screen_size, screen_size, agent, [parking_cell], [], parking_cell)
 
 
