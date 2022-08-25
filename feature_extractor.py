@@ -280,6 +280,73 @@ class Extractor4(FeatureExtractor):
                 acceleration, steering, sensor_front, sensor_back, sensor_left, sensor_right]
 
 
+class Extractor4ORG(FeatureExtractor):
+    ID = 30
+    FEATURES = [
+        "Absolute X (normalized with 1/1200)",
+        "Absolute Y (normalized with 1/1200)",
+        "Relative X to target (normalized with 1/1200)",
+        "Relative Y to target (normalized with 1/1200)",
+        "Distance to target (normalized with 1/1200)",
+        "Absolute Rotation (normalized with Cos)",
+        "Relative Rotation to target's rotation (normalized with Cos)",
+        "Angle to Target (normalized with Cos)",
+        "Velocity (normalized with 1/1200)",
+        "Velocity Y (normalized with 1/1200)",
+        "Acceleration (normalized with 1/1200)",
+        "Steering (normalized with 1/100)",
+        "Sensor Front (normalized with 1/1200)",
+        "Sensor Back (normalized with 1/1200)",
+        "Sensor Left (normalized with 1/1200)",
+        "Sensor Right (normalized with 1/1200)"
+    ]
+    input_num = len(FEATURES)
+
+    def get_state(self, parking_lot: ParkingLot) -> List[float]:
+        factor = 1200
+
+        absolute_x = parking_lot.car_agent.location.x / factor
+        absolute_y = parking_lot.car_agent.location.y / factor
+        relative_x = (parking_lot.target_park.location.x - parking_lot.car_agent.location.x) / factor
+        relative_y = (parking_lot.target_park.location.y - parking_lot.car_agent.location.y) / factor
+
+        absolute_rotation = math.cos(math.radians(parking_lot.car_agent.rotation))
+        distance_to_target = (parking_lot.car_agent.location.distance_to(
+            parking_lot.target_park.location)) / factor
+        relative_rotation = math.cos(abs(math.radians(parking_lot.car_agent.rotation) - math.radians(
+            parking_lot.target_park.rotation)))
+
+        car_front = parking_lot.car_agent.location + pygame.Vector2(
+            (parking_lot.car_agent.width / 2 * math.cos(math.radians(parking_lot.car_agent.rotation))),
+            (parking_lot.car_agent.width / 2 * math.sin(math.radians(parking_lot.car_agent.rotation + 180))))
+        front_vector = car_front - parking_lot.car_agent.location
+        to_target_vector = parking_lot.target_park.location - parking_lot.car_agent.location
+        angle_to_target = math.cos(math.radians(front_vector.angle_to(to_target_vector)))
+
+        velocity = parking_lot.car_agent.velocity.x / factor
+        velocity_y = parking_lot.car_agent.velocity.y / factor
+        acceleration = parking_lot.car_agent.acceleration / factor
+        steering = float(parking_lot.car_agent.steering) / 100
+        sensor_front = min(
+            sensor.detect(parking_lot.all_obstacles)[1] for sensor in parking_lot.car_agent.sensors[
+                SensorDirection.FRONT]) / factor
+        sensor_back = min(
+            sensor.detect(parking_lot.all_obstacles)[1] for sensor in parking_lot.car_agent.sensors[
+                SensorDirection.BACK]) / factor
+        sensor_left = min(
+            sensor.detect(parking_lot.all_obstacles)[1] for sensor in parking_lot.car_agent.sensors[
+                SensorDirection.LEFT]) / factor
+        sensor_right = min(
+            sensor.detect(parking_lot.all_obstacles)[1] for sensor in parking_lot.car_agent.sensors[
+                SensorDirection.RIGHT]) / factor
+
+        return [absolute_x, absolute_y, relative_x, relative_y, absolute_rotation, distance_to_target,
+                relative_rotation,
+                angle_to_target,
+                velocity, velocity_y,
+                acceleration, steering, sensor_front, sensor_back, sensor_left, sensor_right]
+
+
 class Extractor5(FeatureExtractor):
     ID = 5
     FEATURES = [

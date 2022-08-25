@@ -42,3 +42,10 @@ class ParkingLot:
             if cell.is_occupied():
                 all_sprites.append(cell.car)
         return all_sprites
+
+    def copy(self):
+        return ParkingLot(self.width, self.height, self.car_agent.copy(), self.parking_cells,
+                          self.obstacles, self.target_park)
+
+    def __copy__(self):
+        return self.copy()

@@ -12,11 +12,12 @@ import lot_generator
 import utils
 from assets_images import FLOOR_IMG
 from dqn_model import DQNAgent1, DQNAgent2, DQNAgent3
-from feature_extractor import Extractor, Extractor2, Extractor2NoSensors, Extractor3, Extractor4, ExtractorNew
+from feature_extractor import Extractor, Extractor2, Extractor2NoSensors, Extractor3, Extractor4, \
+    ExtractorNew, Extractor8
 from reward_analyzer import Analyzer, AnalyzerPenaltyOnStanding, AnalyzerStopOnTarget, \
     AnalyzerDistanceCritical, AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision, \
     AnalyzerNoCollisionNoDistanceReward, AnalyzerAccumulating, AnalyzerAccumulating2, AnalyzerAccumulating3, \
-    AnalyzerAccumulating4, AnalyzerNew
+    AnalyzerAccumulating4, AnalyzerNew, AnalyzerAccumulating4FrontBack
 from simulator import Simulator, DrawingMethod
 from car import Movement, Steering
 
@@ -42,7 +43,8 @@ Analyzers = {
     "AnalyzerAccumulating2": AnalyzerAccumulating2,
     "AnalyzerAccumulating3": AnalyzerAccumulating3,
     "AnalyzerAccumulating4": AnalyzerAccumulating4,
-    "AnalyzerNew": AnalyzerNew
+    "AnalyzerNew": AnalyzerNew,
+    "AnalyzerAccumulating4FrontBack": AnalyzerAccumulating4FrontBack
 }
 
 Extractors = {
@@ -51,7 +53,8 @@ Extractors = {
     "Extractor2NoSensors": Extractor2NoSensors,
     "Extractor3": Extractor3,
     "Extractor4": Extractor4,
-    "ExtractorNew": ExtractorNew
+    "ExtractorNew": ExtractorNew,
+    "Extractor8": Extractor8
 }
 
 Model_Classes = {
@@ -64,7 +67,8 @@ Lot_Generators = {
     "random": lot_generator.generate_lot,
     "example0": lot_generator.example0,
     "example1": lot_generator.example1,
-    "only_target": lot_generator.generate_only_target
+    "only_target": lot_generator.generate_only_target,
+    "example2": lot_generator.example2
 }
 
 MOVEMENT_STEERING_TO_ACTION = {
@@ -219,7 +223,7 @@ def train():
     plot_mean_distance = []
     time_difference = float(conf_default["time_difference"])
     draw_screen = bool(int(conf_default["draw_screen"]))
-    draw_rate = 10
+    draw_rate = 1
     resize_screen = bool(int(conf_default["resize_screen"]))
     iteration_total_reward = 0
     sim = Simulator(Lot_Generators[conf_default["lot_generation"]],
@@ -228,7 +232,8 @@ def train():
                     draw_screen=draw_screen,
                     resize_screen=resize_screen,
                     max_iteration_time_sec=int(conf_default["max_iteration_time_sec"]),
-                    drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)
+                    drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
+                    background_image=FLOOR_IMG)
     folder, filename = get_agent_output_folder()
     if bool(int(conf_model_load["load"])):
         model = load_model()
@@ -250,8 +255,8 @@ def train():
 
         # perform move and get new state
         final_movement, final_steering = ACTION_TO_MOVEMENT_STEERING[final_move]
-        state_new, reward, done = agent_trainer.simulator.do_step(final_movement, final_steering,
-                                                                  time_difference)
+        state_new, reward, done, _ = agent_trainer.simulator.do_step(final_movement, final_steering,
+                                                                     time_difference)
         if draw_screen and agent_trainer.n_games % draw_rate == 0:
             pygame.event.pump()
             agent_trainer.simulator.update_screen()

@@ -12,23 +12,7 @@ from car import Movement, Steering
 from lot_generator import *
 from reward_analyzer import *
 from feature_extractor import *
-import time
-import numpy as np
-
-action_mapping = {
-    0: (Movement.NEUTRAL, Steering.NEUTRAL),
-    1: (Movement.NEUTRAL, Steering.LEFT),
-    2: (Movement.NEUTRAL, Steering.RIGHT),
-    3: (Movement.FORWARD, Steering.NEUTRAL),
-    4: (Movement.FORWARD, Steering.LEFT),
-    5: (Movement.FORWARD, Steering.RIGHT),
-    6: (Movement.BACKWARD, Steering.NEUTRAL),
-    7: (Movement.BACKWARD, Steering.LEFT),
-    8: (Movement.BACKWARD, Steering.RIGHT),
-    9: (Movement.BRAKE, Steering.NEUTRAL),
-    10: (Movement.BRAKE, Steering.LEFT),
-    11: (Movement.BRAKE, Steering.RIGHT)
-}
+from utils import action_mapping
 
 
 def get_agent_output_folder():
@@ -43,7 +27,7 @@ def get_agent_output_folder():
 
 
 load_model = True
-model_folder = os.path.join("model", "PPO_LSTM2_21-08-2022__21-05-14")
+model_folder = os.path.join("model", "PPO_LSTM2_24-08-2022__02-02-29")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CHANGE HYPER-PARAMETERS HERE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -51,9 +35,10 @@ model_folder = os.path.join("model", "PPO_LSTM2_21-08-2022__21-05-14")
 from simulator import Simulator, DrawingMethod
 
 lot_generator = example2
-reward_analyzer = AnalyzerAccumulating4FrontBack
+reward_analyzer = AnalyzerAccumulating4FrontBack2
 feature_extractor = Extractor8
-time_difference_secs = 0.03333333
+# time_difference_secs = 0.03333333
+time_difference_secs = 0.1
 max_iteration_time = 800
 draw_screen = True
 draw_rate = 1
@@ -77,12 +62,13 @@ class PPO(nn.Module):
         super(PPO, self).__init__()
         self.data = []
         self.lstm_input = 128
+        self.lstm_output = 32
 
         self.fc1 = nn.Linear(input_num, 128)
         self.fc2 = nn.Linear(128, self.lstm_input)
-        self.lstm = nn.LSTM(self.lstm_input, 32)
-        self.fc_pi = nn.Linear(32, action_num)
-        self.fc_v = nn.Linear(32, 1)
+        self.lstm = nn.LSTM(self.lstm_input, self.lstm_output)
+        self.fc_pi = nn.Linear(self.lstm_output, action_num)
+        self.fc_v = nn.Linear(self.lstm_output, 1)
         self.optimizer = optim.Adam(self.parameters(), lr=learning_rate)
         self.save_folder = save_folder
 
@@ -161,6 +147,17 @@ class PPO(nn.Module):
             loss.mean().backward(retain_graph=True)
             self.optimizer.step()
 
+    def get_init_hidden(self):
+        return torch.zeros([1, 1, self.lstm_output], dtype=torch.float), \
+               torch.zeros([1, 1, self.lstm_output], dtype=torch.float)
+
+    def get_action(self, state, hidden):
+        prob, h_out = self.pi(torch.Tensor(state).float(), hidden)
+        prob = prob.view(-1)
+        m = Categorical(prob)
+        action = m.sample().item()
+        return action, h_out
+
     def save(self):
         torch.save(self.state_dict(), os.path.join(self.save_folder, "agent.pth"))
 
@@ -184,11 +181,11 @@ def main():
         model.load()
         model.save_folder = save_folder
     score = 0.0
-    plot_interval = 10
+    plot_interval = 200
     distance_history = []
     mean_distance_history = []
 
-    for n_epi in range(10000):
+    for n_epi in range(100000):
         h_out = (torch.zeros([1, 1, 32], dtype=torch.float), torch.zeros([1, 1, 32], dtype=torch.float))
         s = env.reset()
         done = False
@@ -196,6 +193,7 @@ def main():
         while not done:
             for t in range(T_horizon):
                 h_in = h_out
+                # action, h_out = model.get_action(s, h_in)
                 prob, h_out = model.pi(torch.Tensor(s).float(), h_in)
                 prob = prob.view(-1)
                 m = Categorical(prob)
@@ -204,7 +202,7 @@ def main():
                 score += r
                 if draw_screen:
                     text = {
-                        "Run folder":save_folder,
+                        "Run folder": save_folder,
                         "Velocity": f"{env.agent.velocity.x:.1f}",
                         "Reward": f"{r:.8f}",
                         "Total Reward": f"{score:.8f}",
@@ -223,7 +221,7 @@ def main():
             model.train_net()
 
         distance_history.append(env.agent.location.distance_to(env.parking_lot.target_park.location))
-        mean_distance_history.append(sum(distance_history)/len(distance_history))
+        mean_distance_history.append(sum(distance_history) / len(distance_history))
         if n_epi % plot_interval == 0 and n_epi != 0:
             utils.plot_distances(distance_history, mean_distance_history, save_folder)
         model.save()

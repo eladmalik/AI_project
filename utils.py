@@ -5,7 +5,24 @@ from CarSimSprite import CarSimSprite
 import matplotlib.pyplot as plt
 from IPython import display
 
+from car import Movement, Steering
+
 plt.ion()
+
+action_mapping = {
+    0: (Movement.NEUTRAL, Steering.NEUTRAL),
+    1: (Movement.NEUTRAL, Steering.LEFT),
+    2: (Movement.NEUTRAL, Steering.RIGHT),
+    3: (Movement.FORWARD, Steering.NEUTRAL),
+    4: (Movement.FORWARD, Steering.LEFT),
+    5: (Movement.FORWARD, Steering.RIGHT),
+    6: (Movement.BACKWARD, Steering.NEUTRAL),
+    7: (Movement.BACKWARD, Steering.LEFT),
+    8: (Movement.BACKWARD, Steering.RIGHT),
+    9: (Movement.BRAKE, Steering.NEUTRAL),
+    10: (Movement.BRAKE, Steering.LEFT),
+    11: (Movement.BRAKE, Steering.RIGHT)
+}
 
 
 def mask_subset_percentage(big_sprite: CarSimSprite, small_sprite: CarSimSprite):

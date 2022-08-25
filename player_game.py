@@ -2,10 +2,10 @@ import math
 import sys
 
 import pygame
-
+from assets_images import FLOOR_IMG
 import calculations
-import lot_generator
 from feature_extractor import Extractor, Extractor2, Extractor3, Extractor4, Extractor7
+import lot_generator
 from reward_analyzer import Analyzer, AnalyzerStopOnTarget, AnalyzerDistanceCritical, \
     AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision, AnalyzerAccumulating, AnalyzerAccumulating3, \
     AnalyzerAccumulating4, AnalyzerAccumulating5, AnalyzerAccumulating6, AnalyzerNew, \
@@ -15,15 +15,15 @@ from car import Car, Movement, Steering
 
 FPS = 60
 DEBUG = True
-
 if __name__ == '__main__':
     # initializing the parking lot
-    sim = Simulator(lot_generator.example2, AnalyzerAccumulating4FrontBack,
+    sim = Simulator(lot_generator.generate_lot, AnalyzerAccumulating4FrontBack,
                     Extractor7,
                     draw_screen=True,
-                    resize_screen=False,
+                    resize_screen=True,
                     max_iteration_time_sec=2000,
-                    drawing_method=DrawingMethod.FULL)
+                    drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
+                    background_image=FLOOR_IMG)
     clock = pygame.time.Clock()
     total_reward = 0
     while True:
@@ -50,7 +50,7 @@ if __name__ == '__main__':
             steering = Steering.RIGHT
 
         # performing the input in the simulator
-        _, reward, done = sim.do_step(movement, steering, 1 / FPS)
+        _, reward, done, _ = sim.do_step(movement, steering, 1 / FPS)
         total_reward += reward
         # if done:
         #     print(f"reward: {reward}")
@@ -71,4 +71,5 @@ if __name__ == '__main__':
                                f""
                                f"{calculations.get_angle_to_target(sim.agent, sim.parking_lot.target_park):.1f}"
         }
-        sim.update_screen(text)
+        # sim.update_screen(text)
+        sim.update_screen()

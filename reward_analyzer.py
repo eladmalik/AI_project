@@ -986,8 +986,8 @@ class AnalyzerAccumulating4FrontBack2(RewardAnalyzer):
                             parking_lot.car_agent.width,
                             parking_lot.car_agent.height,
                             parking_lot.target_park.rotation, dummy_surface)
-            self.target_front = dummy_car.front
-            self.target_back = dummy_car.back
+            self.target_front = dummy_car.back
+            self.target_back = dummy_car.front
 
         current_front_distance = parking_lot.car_agent.front.distance_to(self.target_front)
         current_back_distance = parking_lot.car_agent.back.distance_to(self.target_back)
@@ -1028,9 +1028,10 @@ class AnalyzerAccumulating4FrontBack2(RewardAnalyzer):
                 self.outside_back_circle -= 1
         if results[Results.PERCENTAGE_IN_TARGET] >= 1 and not self.in_parking:
             self.in_parking = True
-            reward += self.IN_PARKING_REWARD
+            reward += self.IN_PARKING_REWARD * max((1 - (parking_lot.car_agent.velocity.magnitude() /
+                                                         parking_lot.car_agent.max_velocity)), 0.5)
 
-        if calculations.get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results,
+        if calculations.get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results, 0.93,
                                               30) > 0:
             reward += self.PARKED_REWARD
             return reward, True

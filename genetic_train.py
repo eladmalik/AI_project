@@ -1,14 +1,12 @@
 import os
 
-import gym
 import torch
-import numpy as np
 from pygad import torchga
-from torch import nn
 import pygad.kerasga
 import pygad
 
 import utils
+from assets_images import FLOOR_IMG
 from car import Movement, Steering
 from lot_generator import *
 from reward_analyzer import *
@@ -49,7 +47,7 @@ def fitness_func(solution, sol_idx):
         state = torch.tensor([observation], dtype=torch.float).to(model.device)
         q_values = model(state)
         action = torch.argmax(q_values).item()
-        observation_next, reward, done = env.do_step(action_mapping[action][0], action_mapping[action][1],
+        observation_next, reward, done, _ = env.do_step(action_mapping[action][0], action_mapping[action][1],
                                                      TIME_SECS)
         if env.draw_screen:
             pygame.event.pump()
@@ -85,11 +83,11 @@ if __name__ == '__main__':
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CHANGE HYPER-PARAMETERS HERE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    lot_generator = example1
+    lot_generator = example2
     reward_analyzer = AnalyzerAccumulating4
     feature_extractor = Extractor4
     time_difference_secs = 0.1
-    max_iteration_time = 100
+    max_iteration_time = 60
     draw_screen = True
     draw_rate = 1
 
@@ -101,7 +99,8 @@ if __name__ == '__main__':
                     max_iteration_time_sec=max_iteration_time,
                     draw_screen=draw_screen,
                     resize_screen=False,
-                    drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)
+                    drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT,
+                    background_image=FLOOR_IMG)
 
     observation_space_size = env.feature_extractor.input_num
     action_space_size = 12
@@ -112,11 +111,11 @@ if __name__ == '__main__':
         model.load_checkpoint()
         model.change_checkpoint_dir(folder)
 
-    torch_ga = pygad.torchga.TorchGA(model=model, num_solutions=75)
+    torch_ga = pygad.torchga.TorchGA(model=model, num_solutions=15)
 
     # Prepare the PyGAD parameters. Check the documentation for more information: https://pygad.readthedocs.io/en/latest/README_pygad_ReadTheDocs.html#pygad-ga-class
     num_generations = 100  # Number of generations.
-    num_parents_mating = 15  # Number of solutions to be selected as parents in the mating pool.
+    num_parents_mating = 5  # Number of solutions to be selected as parents in the mating pool.
     initial_population = torch_ga.population_weights  # Initial population of network weights
     parent_selection_type = "sss"  # Type of parent selection.
     crossover_type = "single_point"  # Type of the crossover operator.
