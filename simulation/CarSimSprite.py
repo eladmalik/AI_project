@@ -3,7 +3,7 @@ from typing import Tuple, Union
 from pygame.math import Vector2
 
 import pygame
-from enums import SensorDirection
+from utils.enums import SensorDirection
 
 
 class CarSimSprite(pygame.sprite.Sprite):

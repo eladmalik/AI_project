@@ -1,7 +1,7 @@
 import pygame
 
-from assets_images import SIDEWALK_IMG
-from CarSimSprite import CarSimSprite
+from assets.assets_images import SIDEWALK_IMG
+from simulation.CarSimSprite import CarSimSprite
 
 
 class Sidewalk(CarSimSprite):

@@ -1,11 +1,14 @@
+import functools
+import json
 import os.path
 from datetime import datetime
+from typing import Dict, Any, Callable
 
-from CarSimSprite import CarSimSprite
+from simulation.CarSimSprite import CarSimSprite
 import matplotlib.pyplot as plt
 from IPython import display
 
-from car import Movement, Steering
+from utils.enums import Movement, Steering
 
 plt.ion()
 
@@ -43,6 +46,33 @@ def get_time():
     """
     now = datetime.now()
     return now.strftime("%d-%m-%Y__%H-%M-%S")
+
+
+def get_agent_output_folder(agent_type: str) -> str:
+    folder = os.path.join("model", f'{agent_type}_{get_time()}')
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    return folder
+
+
+def dump_to_json(info_dict: Dict[str, Any], folder: str, filename: str):
+    with open(os.path.join(folder, filename), "w") as file:
+        json.dump(info_dict, file, indent=4)
+
+
+def dump_arguments(agent_type: str):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            save_folder = get_agent_output_folder(agent_type)
+            dump_to_json({key: str(kwargs[key]) for key in kwargs}, save_folder, "arguments.json")
+            kwargs["save_folder"] = save_folder
+            output = func(*args, **kwargs)
+            return output
+
+        return wrapper
+
+    return decorator
 
 
 def plot_distances(distances, mean_distances, save_folder):

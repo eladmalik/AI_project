@@ -1,33 +1,10 @@
-import math
-from enum import Enum
-
 import pygame
 from pygame.math import Vector2
 from math import sin, radians, degrees, copysign
 
-from CarSimSprite import CarSimSprite
-from proximity_sensor import ProximitySensor
-from enums import SensorDirection
-
-
-class Movement(Enum):
-    """
-    Indicates the forward/backward movement of a car
-    """
-    FORWARD = 1
-    NEUTRAL = 0
-    BACKWARD = -1
-    BRAKE = 2
-
-
-class Steering(Enum):
-    """
-    Indicates the side which the steering wheel is rotated to
-    """
-    LEFT = 1
-    NEUTRAL = 0
-    RIGHT = -1
-
+from simulation.CarSimSprite import CarSimSprite
+from simulation.proximity_sensor import ProximitySensor
+from utils.enums import SensorDirection, Movement, Steering
 
 MAX_STEERING = 100
 MAX_ACCELERATION = 200

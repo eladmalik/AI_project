@@ -22,3 +22,22 @@ class SensorDirection(Enum):
     FRONTRIGHT = 5
     BACKLEFT = 6
     BACKRIGHT = 7
+
+
+class Movement(Enum):
+    """
+    Indicates the forward/backward movement of a car
+    """
+    FORWARD = 1
+    NEUTRAL = 0
+    BACKWARD = -1
+    BRAKE = 2
+
+
+class Steering(Enum):
+    """
+    Indicates the side which the steering wheel is rotated to
+    """
+    LEFT = 1
+    NEUTRAL = 0
+    RIGHT = -1

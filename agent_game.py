@@ -1,20 +1,12 @@
-import math
 import os
 import sys
 
-import pygame
-from assets_images import FLOOR_IMG
-import calculations
-from lot_generator import *
-from feature_extractor import *
-from reward_analyzer import *
-from simulator import Simulator, DrawingMethod
-from car import Car, Movement, Steering
-from ppo_lstm_2 import PPO
-from utils import action_mapping
-from dqn_model import DQNAgent2, DQNAgent3
-from trainer import QTrainer, ACTION_TO_MOVEMENT_STEERING, AgentTrainer
-import torch
+from utils.lot_generator import *
+from utils.feature_extractor import *
+from utils.reward_analyzer import *
+from simulation.simulator import Simulator, DrawingMethod
+from agents.ppo_lstm.ppo_lstm_model import PPO_Agent
+from utils.general_utils import action_mapping
 
 FPS = 30
 DEBUG = False
@@ -45,7 +37,7 @@ if __name__ == '__main__':
     # agent loading
     # PPO
     load_folder = os.path.join("model", "PPO_LSTM2_25-08-2022__01-30-21")
-    agent = PPO(feature_extractor.input_num, 12, load_folder)
+    agent = PPO_Agent(feature_extractor.input_num, 12, load_folder)
     agent.load()
     hidden = agent.get_init_hidden()
 

@@ -2,9 +2,9 @@ from typing import Iterable, List
 
 import pygame.sprite
 
-from CarSimSprite import CarSimSprite
-from parking_cell import ParkingCell
-from car import Car
+from simulation.CarSimSprite import CarSimSprite
+from simulation.parking_cell import ParkingCell
+from simulation.car import Car
 
 
 class ParkingLot:

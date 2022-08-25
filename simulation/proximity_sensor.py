@@ -1,9 +1,8 @@
-import math
 from typing import Tuple, Iterable
 import pygame
 
-from CarSimSprite import CarSimSprite
-from enums import SensorDirection
+from simulation.CarSimSprite import CarSimSprite
+from utils.enums import SensorDirection
 
 
 class ProximitySensor:

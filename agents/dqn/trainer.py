@@ -8,18 +8,14 @@ from torch import nn
 import torch.optim as optim
 import configparser
 
-import lot_generator
-import utils
-from assets_images import FLOOR_IMG
+from utils.lot_generator import *
+import utils.general_utils
+from assets.assets_images import FLOOR_IMG
 from dqn_model import DQNAgent1, DQNAgent2, DQNAgent3
-from feature_extractor import Extractor, Extractor2, Extractor2NoSensors, Extractor3, Extractor4, \
-    ExtractorNew, Extractor8
-from reward_analyzer import Analyzer, AnalyzerPenaltyOnStanding, AnalyzerStopOnTarget, \
-    AnalyzerDistanceCritical, AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision, \
-    AnalyzerNoCollisionNoDistanceReward, AnalyzerAccumulating, AnalyzerAccumulating2, AnalyzerAccumulating3, \
-    AnalyzerAccumulating4, AnalyzerNew, AnalyzerAccumulating4FrontBack
-from simulator import Simulator, DrawingMethod
-from car import Movement, Steering
+from utils.feature_extractor import *
+from utils.reward_analyzer import *
+from simulation.simulator import Simulator, DrawingMethod
+from simulation.car import Movement, Steering
 
 MAX_MEMORY = 100000
 BATCH_SIZE = 1000
@@ -64,11 +60,11 @@ Model_Classes = {
 }
 
 Lot_Generators = {
-    "random": lot_generator.generate_lot,
-    "example0": lot_generator.example0,
-    "example1": lot_generator.example1,
-    "only_target": lot_generator.generate_only_target,
-    "example2": lot_generator.example2
+    "random": generate_lot,
+    "example0": example0,
+    "example1": example1,
+    "only_target": generate_only_target,
+    "example2": example2
 }
 
 MOVEMENT_STEERING_TO_ACTION = {
@@ -105,7 +101,7 @@ ACTION_TO_MOVEMENT_STEERING = {
 
 def load_model():
     loaded_config = configparser.ConfigParser()
-    loaded_config.read(os.path.join(conf_model_load["model_folder_path"], "training_settings_dqn.ini"))
+    loaded_config.read(os.path.join(conf_model_load["model_folder_path"], "../../training_settings_dqn.ini"))
     config._sections[conf_default["model"]] = loaded_config._sections[conf_default["model"]]
 
     kwargs = dict(config._sections[conf_default["model"]])
@@ -238,7 +234,7 @@ def train():
     if bool(int(conf_model_load["load"])):
         model = load_model()
     else:
-        with open(os.path.join(folder, "training_settings_dqn.ini"), "w") as configfile:
+        with open(os.path.join(folder, "../../training_settings_dqn.ini"), "w") as configfile:
             config.write(configfile)
         kwargs = dict(config._sections[conf_default["model"]])
         kwargs["input_size"] = Extractors[conf_default["extractor"]]().input_num

@@ -3,11 +3,10 @@ from typing import Any, Dict, Tuple
 
 import pygame
 
-import calculations
-from calculations import *
-from car import Car
-from enums import Results
-from parking_lot import ParkingLot
+from utils.calculations import *
+from simulation.car import Car
+from utils.enums import Results
+from simulation.parking_lot import ParkingLot
 
 
 class RewardAnalyzer(ABC):
@@ -20,6 +19,12 @@ class RewardAnalyzer(ABC):
         and returns a reward value
         """
         ...
+
+    def __str__(self):
+        return self.__class__.__name__
+
+    def __repr__(self):
+        return self.__class__.__name__
 
 
 class Analyzer(RewardAnalyzer):
@@ -833,8 +838,7 @@ class AnalyzerAccumulatingNew(RewardAnalyzer):
         if results[Results.PERCENTAGE_IN_TARGET] >= 1 and not self.in_parking:
             self.in_parking = True
             reward += self.IN_PARKING_REWARD
-        if calculations.get_agent_parking_cos(
-                parking_lot.car_agent, parking_lot.target_park, results, 20) > 0:
+        if get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results, 20) > 0:
             reward += self.PARKED_REWARD
             return reward, True
         self.last_distance = current_distance
@@ -950,8 +954,7 @@ class AnalyzerAccumulating4FrontBack(RewardAnalyzer):
         #     self.in_parking = False
         #     reward -= self.IN_PARKING_REWARD / 2
 
-        if calculations.get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results, 0.93,
-                                              30) > 0:
+        if get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results, 0.93, 30) > 0:
             reward += self.PARKED_REWARD
             return reward, True
         self.last_front_distance = current_front_distance
@@ -1031,8 +1034,7 @@ class AnalyzerAccumulating4FrontBack2(RewardAnalyzer):
             reward += self.IN_PARKING_REWARD * max((1 - (parking_lot.car_agent.velocity.magnitude() /
                                                          parking_lot.car_agent.max_velocity)), 0.5)
 
-        if calculations.get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results, 0.93,
-                                              30) > 0:
+        if get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results, 0.93, 30) > 0:
             reward += self.PARKED_REWARD
             return reward, True
         self.last_front_distance = current_front_distance

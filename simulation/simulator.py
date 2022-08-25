@@ -1,21 +1,20 @@
-import math
 import sys
 from enum import Enum
 from typing import Dict, Union, Callable
 
 import pygame
 
-from car import Car
-from feature_extractor import FeatureExtractor
-from parking_cell import ParkingCell
-from utils import mask_subset_percentage
-from parking_lot import ParkingLot
-from reward_analyzer import RewardAnalyzer
-from enums import Results
+from simulation.car import Car
+from utils.feature_extractor import FeatureExtractor
+from simulation.parking_cell import ParkingCell
+from utils.general_utils import mask_subset_percentage
+from simulation.parking_lot import ParkingLot
+from utils.reward_analyzer import RewardAnalyzer
+from utils.enums import Results
 
-from assets_images import ICON_IMG, FLOOR_IMG
+from assets.assets_images import ICON_IMG
 
-from lot_generator import LotGenerator
+from utils.lot_generator import LotGenerator
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)

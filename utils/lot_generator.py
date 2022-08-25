@@ -5,11 +5,11 @@ import math
 
 import pygame.sprite
 
-from car import Car
-from obstacles import Sidewalk
-from parking_cell import ParkingCell
-from parking_lot import ParkingLot
-from assets_images import AGENT_IMG, PARKING_SIDEWALK_IMG, PARKING_SIDEWALK_TARGET_IMG, \
+from simulation.car import Car
+from simulation.obstacles import Sidewalk
+from simulation.parking_cell import ParkingCell
+from simulation.parking_lot import ParkingLot
+from assets.assets_images import AGENT_IMG, PARKING_SIDEWALK_IMG, PARKING_SIDEWALK_TARGET_IMG, \
     CAR_IMG, PARKING_IMG, PARKING_TARGET_IMG
 
 LotGenerator = Callable[[], ParkingLot]

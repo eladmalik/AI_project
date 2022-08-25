@@ -4,8 +4,8 @@ from typing import List
 
 import pygame
 
-from parking_lot import ParkingLot
-from enums import SensorDirection
+from simulation.parking_lot import ParkingLot
+from utils.enums import SensorDirection
 
 
 class FeatureExtractor(ABC):
@@ -18,6 +18,12 @@ class FeatureExtractor(ABC):
         indicates the current state of the parking lot
         """
         ...
+
+    def __str__(self):
+        return self.__class__.__name__
+
+    def __repr__(self):
+        return self.__class__.__name__
 
 
 class Extractor(FeatureExtractor):

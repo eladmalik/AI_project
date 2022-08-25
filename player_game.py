@@ -1,23 +1,18 @@
-import math
 import sys
 
-import pygame
-from assets_images import FLOOR_IMG
-import calculations
-from feature_extractor import Extractor, Extractor2, Extractor3, Extractor4, Extractor7
-import lot_generator
-from reward_analyzer import Analyzer, AnalyzerStopOnTarget, AnalyzerDistanceCritical, \
-    AnalyzerCollisionReduceNearTarget, AnalyzerNoCollision, AnalyzerAccumulating, AnalyzerAccumulating3, \
-    AnalyzerAccumulating4, AnalyzerAccumulating5, AnalyzerAccumulating6, AnalyzerNew, \
-    AnalyzerAccumulatingCheckpoints, AnalyzerAba, AnalyzerAccumulating4FrontBack
-from simulator import Simulator, DrawingMethod
-from car import Car, Movement, Steering
+from assets.assets_images import FLOOR_IMG
+from utils import calculations
+from utils.feature_extractor import Extractor7
+from utils.lot_generator import *
+from utils.reward_analyzer import AnalyzerAccumulating4FrontBack
+from simulation.simulator import Simulator, DrawingMethod
+from utils.enums import Movement, Steering
 
 FPS = 60
 DEBUG = True
 if __name__ == '__main__':
     # initializing the parking lot
-    sim = Simulator(lot_generator.generate_lot, AnalyzerAccumulating4FrontBack,
+    sim = Simulator(generate_lot, AnalyzerAccumulating4FrontBack,
                     Extractor7,
                     draw_screen=True,
                     resize_screen=True,

@@ -4,10 +4,10 @@ from typing import Tuple
 import pygame
 from pygame.math import Vector2
 
-from CarSimSprite import CarSimSprite
-from car import Car
+from simulation.CarSimSprite import CarSimSprite
+from simulation.car import Car
 
-from assets_images import SOLID_WHITE
+from assets.assets_images import SOLID_WHITE
 
 
 class ParkingCell(CarSimSprite):

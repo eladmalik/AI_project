@@ -1,6 +1,6 @@
 import math
 
-from enums import Results
+from utils.enums import Results
 
 
 def get_angle_to_target(agent, target) -> float:
