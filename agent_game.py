@@ -5,7 +5,7 @@ from utils.lot_generator import *
 from utils.feature_extractor import *
 from utils.reward_analyzer import *
 from simulation.simulator import Simulator, DrawingMethod
-from agents.ppo_lstm.ppo_lstm_model import PPO_Agent
+from agents.ppo_lstm.ppo_lstm_model import PPO_LSTM_Agent
 from utils.general_utils import action_mapping
 
 FPS = 30
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     # agent loading
     # PPO
     load_folder = os.path.join("model", "PPO_LSTM2_25-08-2022__01-30-21")
-    agent = PPO_Agent(feature_extractor.input_num, 12, load_folder)
+    agent = PPO_LSTM_Agent(feature_extractor.input_num, 12, load_folder)
     agent.load()
     hidden = agent.get_init_hidden()
 

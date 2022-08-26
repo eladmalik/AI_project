@@ -10,6 +10,10 @@ def get_angle_to_target(agent, target) -> float:
     return angle_to_target
 
 
+def get_distance_to_target(agent, target) -> float:
+    return agent.location.distance_to(target.location)
+
+
 def get_agent_parking_cos(agent, target, results, min_percentage_in_target=1, angle_tolerance_degrees=0) -> \
         float:
     agent_vector = agent.front - agent.location

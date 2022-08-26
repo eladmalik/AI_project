@@ -20,6 +20,10 @@ class RewardAnalyzer(ABC):
         """
         ...
 
+    @abstractmethod
+    def is_success(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> bool:
+        ...
+
     def __str__(self):
         return self.__class__.__name__
 
@@ -954,11 +958,14 @@ class AnalyzerAccumulating4FrontBack(RewardAnalyzer):
         #     self.in_parking = False
         #     reward -= self.IN_PARKING_REWARD / 2
 
-        if get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results, 0.93, 30) > 0:
+        if self.is_success(parking_lot, results):
             reward += self.PARKED_REWARD
             return reward, True
         self.last_front_distance = current_front_distance
         return reward, False
+
+    def is_success(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> bool:
+        return get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results, 0.93, 30) > 0
 
 
 class AnalyzerAccumulating4FrontBack2(RewardAnalyzer):
@@ -1034,8 +1041,11 @@ class AnalyzerAccumulating4FrontBack2(RewardAnalyzer):
             reward += self.IN_PARKING_REWARD * max((1 - (parking_lot.car_agent.velocity.magnitude() /
                                                          parking_lot.car_agent.max_velocity)), 0.5)
 
-        if get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results, 0.93, 30) > 0:
+        if self.is_success(parking_lot, results):
             reward += self.PARKED_REWARD
             return reward, True
         self.last_front_distance = current_front_distance
         return reward, False
+
+    def is_success(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> bool:
+        return get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results, 0.93, 30) > 0

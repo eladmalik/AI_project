@@ -7,9 +7,10 @@ from torch.nn import functional as F
 import pickle
 
 MODEL_STRUCT = "structure.pickle"
+PTH_NAME = "agent.pth"
 
 
-class PPO_Agent(nn.Module):
+class PPO_LSTM_Agent(nn.Module):
     def __init__(self, input_num, action_num, save_folder="tmp/ppo_lstm",
                  lr=0.0005,
                  gamma=0.98,
@@ -17,7 +18,7 @@ class PPO_Agent(nn.Module):
                  eps_clip=0.1,
                  n_epochs=2,
                  learn_interval=20):
-        super(PPO_Agent, self).__init__()
+        super(PPO_LSTM_Agent, self).__init__()
         self.lr = lr
         self.gamma = gamma
         self.lmbda = lmbda
@@ -126,12 +127,15 @@ class PPO_Agent(nn.Module):
         action = m.sample().item()
         return action, h_out
 
-    def save(self):
-        torch.save(self.state_dict(), os.path.join(self.save_folder, "agent.pth"))
+    def save(self, custom_name=None):
+        name = PTH_NAME
+        if custom_name is not None:
+            name = custom_name
+        torch.save(self.state_dict(), os.path.join(self.save_folder, name))
 
     def load(self):
         if os.path.exists(os.path.join(self.save_folder, MODEL_STRUCT)):
             with open(os.path.join(self.save_folder, MODEL_STRUCT), "rb") as file:
                 self.lstm_input, self.lstm_output, self.pre_lstm, self.lstm, self.fc_pi, self.fc_v, \
                 self.optimizer = pickle.load(file)
-        self.load_state_dict(torch.load(os.path.join(self.save_folder, "agent.pth")))
+        self.load_state_dict(torch.load(os.path.join(self.save_folder, PTH_NAME)))

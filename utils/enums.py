@@ -11,6 +11,9 @@ class Results(Enum):
     FRAME = 3
     SIMULATION_TIMEOUT = 4
     IN_BOUNDS = 5
+    SUCCESS = 6
+    DISTANCE_TO_TARGET = 7
+    ANGLE_TO_TARGET = 8
 
 
 class SensorDirection(Enum):
@@ -41,3 +44,13 @@ class Steering(Enum):
     LEFT = 1
     NEUTRAL = 0
     RIGHT = -1
+
+
+class DataType(Enum):
+    LAST_REWARD = 0
+    TOTAL_REWARD = 1
+    DISTANCE_TO_TARGET = 2
+    PERCENTAGE_IN_TARGET = 3
+    ANGLE_TO_TARGET = 4
+    SUCCESS = 5
+    COLLISION = 6

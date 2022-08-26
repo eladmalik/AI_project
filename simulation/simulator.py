@@ -5,6 +5,7 @@ from typing import Dict, Union, Callable
 import pygame
 
 from simulation.car import Car
+from utils.calculations import *
 from utils.feature_extractor import FeatureExtractor
 from simulation.parking_cell import ParkingCell
 from utils.general_utils import mask_subset_percentage
@@ -331,7 +332,11 @@ class Simulator:
                    Results.PERCENTAGE_IN_TARGET: self.percentage_in_target_cell(),
                    Results.FRAME: self.frame,
                    Results.SIMULATION_TIMEOUT: self.total_time >= self.max_simulator_time,
-                   Results.IN_BOUNDS: self._lot_rect.contains(self.agent.rect)}
+                   Results.IN_BOUNDS: self._lot_rect.contains(self.agent.rect),
+                   Results.DISTANCE_TO_TARGET: get_distance_to_target(self.agent,
+                                                                      self.parking_lot.target_park),
+                   Results.ANGLE_TO_TARGET: get_angle_to_target(self.agent, self.parking_lot.target_park)}
+        results[Results.SUCCESS] = self.reward_analyzer.is_success(self.parking_lot, results)
         reward, done = self.reward_analyzer.analyze(self.parking_lot, results)
         if results[Results.SIMULATION_TIMEOUT]:
             done = True
