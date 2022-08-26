@@ -67,8 +67,8 @@ def plot_distance_data(data_dict, save_folder, last_epochs=100):
 def plot_percentage_in_target_data(data_dict, save_folder, last_epochs=100):
     bg_color = "#191919"
     axes_color = 'white'
-    distance_color = "#1a1fab"
-    avg_distance_color = "#e44dff"
+    percentage_color = "#1a1fab"
+    avg_percentage_color = "#e44dff"
     last_epochs_color = "#2af76b"
 
     in_targert_percentage = data_dict[DataType.PERCENTAGE_IN_TARGET]
@@ -90,8 +90,8 @@ def plot_percentage_in_target_data(data_dict, save_folder, last_epochs=100):
     plt.xlabel('Number of Simulations', color=axes_color)
     plt.ylabel('% of containment in Target', color=axes_color)
 
-    plt.plot(in_targert_percentage, label="% in target", color=distance_color, marker='o')
-    plt.plot(avg, label="mean % in target", color=avg_distance_color)
+    plt.plot(in_targert_percentage, label="% in target", color=percentage_color, marker='o')
+    plt.plot(avg, label="mean % in target", color=avg_percentage_color)
     plt.plot(last_epochs_indx, avg_last_epochs, label=f"last {last_epochs} simulations mean",
              color=last_epochs_color)
 
@@ -105,9 +105,8 @@ def plot_percentage_in_target_data(data_dict, save_folder, last_epochs=100):
 def plot_success_collision_rate(data_dict, save_folder, last_epochs=100):
     bg_color = "#191919"
     axes_color = 'white'
-    distance_color = "#1a1fab"
-    avg_success_color = "#e44dff"
-    last_epochs_success_color = "#2af76b"
+    avg_success_color = "#3700de"
+    last_epochs_success_color = "#00def2"
 
     avg_collision_color = "#bf0000"
     last_epochs_collision_color = "#d95300"
@@ -150,7 +149,7 @@ def plot_success_collision_rate(data_dict, save_folder, last_epochs=100):
     plt.legend()
     fig = plt.gcf()
     plt.show(block=False)
-    fig.savefig(os.path.join(save_folder, "success.png"))
+    fig.savefig(os.path.join(save_folder, "success_and_collision.png"))
 
 
 if __name__ == '__main__':

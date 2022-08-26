@@ -118,7 +118,7 @@ def main(
             DataType.COLLISION: results[Results.COLLISION]
         })
         if (n_epi + 1) % checkpoint_interval == 0:
-            agent.save(custom_name=f"iter_{agent.n_games}.pth")
+            agent.save(custom_name=f"iter_{n_epi}.pth")
         agent.save()
         print("# of episode :{}, score : {:.1f}".format(n_epi, score))
         score = 0.0
