@@ -623,24 +623,29 @@ class AnalyzerAccumulating6(RewardAnalyzer):
 class AnalyzerNew(RewardAnalyzer):
     ID = 12
 
-    STOP_COUNT = 30
+    STOP_COUNT = 120
     DISTANCE_FACTOR = 2
     MAX_DISTANCE_FACTOR = 2
     DONE_FACTOR = 10
-    MIN_DISTANCE_FROM_TARGET = 0.5
+    MIN_DISTANCE_FROM_TARGET = 1.5
 
     FINAL_DISTANCE_REWARD = 50
     FINAL_DISTANCE_FACTOR = 0.1
 
     FINAL_IN_TARGET_BONUS = 2
 
-    TIMEOUT_PENALTY = 150
+    TIMEOUT_PENALTY = 1000
 
-    COLLISION_PENALTY = 1000
+    COLLISION_PENALTY = 10000
+
+    MAX_DIST_MEM = 120
+    
 
     def __init__(self):
         self.stop_history = 0
         self.current_lot = None
+        self.distances = deque(maxlen=self.MAX_DIST_MEM)
+        self.WEIGHTS = [(i/self.MAX_DIST_MEM) for i in range(self.MAX_DIST_MEM, -1, -1)]
 
     def __distance_from_target(self):
         return self.current_lot.car_agent.location.distance_to(
@@ -657,10 +662,22 @@ class AnalyzerNew(RewardAnalyzer):
         return -dist_factored
 
     def __reward_from_angle(self):
-        parking_vec = self.current_lot.target_park.front - self.current_lot.target_park.location
+        parking_vec = self.current_lot.target_park.back - self.current_lot.target_park.location
         car_vec = self.current_lot.car_agent.front - self.current_lot.car_agent.location
         angle = 2 - abs(math.cos(2 * math.radians(car_vec.angle_to(parking_vec))) - 1)
         return angle
+
+    def __direction_penaltiy(self):
+        car_front = self.current_lot.car_agent.location + pygame.Vector2(
+            (self.current_lot.car_agent.width / 2 * math.cos(math.radians(self.current_lot.car_agent.rotation))),
+            (self.current_lot.car_agent.width / 2 * math.sin(math.radians(self.current_lot.car_agent.rotation + 180))))
+        parking_front = self.current_lot.target_park.location + pygame.Vector2(
+            (self.current_lot.target_park.width / 2 * math.cos(math.radians(self.current_lot.target_park.rotation))),
+            (self.current_lot.target_park.width / 2 * math.sin(math.radians(self.current_lot.target_park.rotation + 180))))
+        front_vector = car_front - self.current_lot.car_agent.location
+        to_target_vector = self.current_lot.target_park.location - self.current_lot.car_agent.location
+        angle_to_target = abs(front_vector.angle_to(to_target_vector) / 180)
+        return -angle_to_target * 50 if angle_to_target >= 90 else 0
 
     def analyze(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> Tuple[float, bool]:
         self.current_lot = parking_lot
@@ -670,21 +687,50 @@ class AnalyzerNew(RewardAnalyzer):
         else:
             self.stop_history = 0
 
-        done = self.stop_history > self.STOP_COUNT
+        # is_stopped = self.stop_history > 30
+        done = results[Results.COLLISION]
         distance = self.__distance_from_target()
 
-        if results[Results.COLLISION]:
-            return -self.COLLISION_PENALTY, True
-
         # reward += self.__reward_from_distance()
-        # TODO: add penalty for finishing far on timeout
-        if results[Results.SIMULATION_TIMEOUT]:
-            reward -= self.TIMEOUT_PENALTY + distance
+
+        self.distances.append((20-distance)**2)
+
+        # reward += sum(self.distances[i]*self.WEIGHTS[i] for i in range(min(self.MAX_DIST_MEM, len(self.distances))))
+        reward += (20-distance)**2
+
+        if results[Results.COLLISION]:
+            return reward-50, True
+
+        # if distance > 8:
+        #     reward += self.__direction_penaltiy()
+
+        # if is_stopped or done and results[Results.PERCENTAGE_IN_TARGET] == 0 and parking_lot.car_agent.velocity.magnitude() == 0:
+        #     return reward-100, done
+
+        # if results[Results.SIMULATION_TIMEOUT]:
+        #     return -(self.TIMEOUT_PENALTY + distance), True
         if distance < self.MIN_DISTANCE_FROM_TARGET:
-            reward += self.__reward_from_angle()
-        reward += self.FINAL_DISTANCE_REWARD / (1 + self.FINAL_DISTANCE_FACTOR * distance)
+            factor = 10 if results[Results.PERCENTAGE_IN_TARGET] < 0.5 else 100
+            reward += factor*self.__reward_from_angle()
+
         if results[Results.PERCENTAGE_IN_TARGET] > 0.5:
-            reward *= 2
+            reward += 400
+            if parking_lot.car_agent.velocity.magnitude() >= 0.3:
+                reward -= 450
+            if parking_lot.car_agent.velocity.magnitude() < 0.3:
+                reward *= 2
+            if parking_lot.car_agent.velocity.magnitude() < 0.1:
+                reward *= 2
+            if parking_lot.car_agent.velocity.magnitude() == 0 and results[Results.PERCENTAGE_IN_TARGET] > 0.9:
+                reward *= 4
+
+        # if results[Results.PERCENTAGE_IN_TARGET] > 0.5 and (np.mean(list(self.distances)) - self.distances[-1] < 5):
+        #     done = True
+
+        if results[Results.PERCENTAGE_IN_TARGET] > 0.9 and self.stop_history > 120:
+            done = True
+            reward *= 40
+
         return reward, done
 
 
