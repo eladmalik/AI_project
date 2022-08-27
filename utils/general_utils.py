@@ -10,8 +10,6 @@ from IPython import display
 
 from utils.enums import Movement, Steering
 
-plt.ion()
-
 action_mapping = {
     0: (Movement.NEUTRAL, Steering.NEUTRAL),
     1: (Movement.NEUTRAL, Steering.LEFT),
