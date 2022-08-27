@@ -62,6 +62,7 @@ def plot_distance_data(data_dict, save_folder, last_epochs=100, show=False):
     if show:
         plt.show(block=False)
     fig.savefig(os.path.join(save_folder, "distances.png"))
+    plt.close()
 
 
 def plot_percentage_in_target_data(data_dict, save_folder, last_epochs=100, show=False):
@@ -101,6 +102,7 @@ def plot_percentage_in_target_data(data_dict, save_folder, last_epochs=100, show
     if show:
         plt.show(block=False)
     fig.savefig(os.path.join(save_folder, "percetage_in_target.png"))
+    plt.close()
 
 
 def plot_success_collision_rate(data_dict, save_folder, last_epochs=100, show=False):
@@ -152,6 +154,7 @@ def plot_success_collision_rate(data_dict, save_folder, last_epochs=100, show=Fa
     if show:
         plt.show(block=False)
     fig.savefig(os.path.join(save_folder, "success_and_collision.png"))
+    plt.close()
 
 
 def plot_all(data_dict: Dict[DataType, List[Any]], save_folder: str, last_epochs: int = 100, show=False):
