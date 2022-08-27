@@ -1,5 +1,8 @@
 # PPO-LSTM
 import os
+
+if __name__ == '__main__':
+    os.chdir(os.path.join("..", ".."))
 import torch
 from torch.distributions import Categorical
 
@@ -13,6 +16,7 @@ from utils.reward_analyzer import *
 from utils.feature_extractor import *
 from utils.general_utils import action_mapping
 from simulation.simulator import Simulator, DrawingMethod
+from utils.plot_maker import plot_all_from_lines
 
 AGENT_TYPE = "PPO_LSTM"
 
@@ -24,6 +28,7 @@ def main(
         feature_extractor=Extractor8,
         load_model=False,
         load_folder=None,
+        load_iter=None,
         time_difference_secs=0.1,
         max_iteration_time=800,
         draw_screen=True,
@@ -61,7 +66,7 @@ def main(
                            learn_interval=learn_interval)
     if load_model:
         agent.save_folder = load_folder
-        agent.load()
+        agent.load(load_iter)
         agent.save_folder = save_folder
     score = 0.0
     result_writer = csv_handler(save_folder, [DataType.LAST_REWARD,
@@ -119,11 +124,33 @@ def main(
             DataType.COLLISION: results[Results.COLLISION]
         })
         if (n_epi + 1) % checkpoint_interval == 0:
-            agent.save(custom_name=f"iter_{n_epi}.pth")
+            agent.save(iteration=n_epi)
+        if (n_epi + 1) % plot_interval == 0:
+            plot_all_from_lines(result_writer.get_current_data(), save_folder, show=plot_in_training)
         agent.save()
         print("# of episode :{}, score : {:.1f}".format(n_epi, score))
         score = 0.0
 
 
 if __name__ == '__main__':
-    main()
+    main(lot_generator=generate_lot,
+         reward_analyzer=AnalyzerAccumulating4FrontBack,
+         feature_extractor=Extractor8,
+         load_model=False,
+         load_folder=None,
+         load_iter=None,
+         time_difference_secs=0.1,
+         max_iteration_time=800,
+         draw_screen=True,
+         resize_screen=False,
+         draw_rate=1,
+         n_simulations=100000,
+         learning_rate=0.0005,
+         gamma=0.98,
+         lmbda=0.95,
+         policy_clip=0.1,
+         learn_interval=20,
+         n_epochs=2,
+         plot_in_training=True,
+         plot_interval=100,
+         checkpoint_interval=250)

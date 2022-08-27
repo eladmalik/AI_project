@@ -91,13 +91,19 @@ class ActorNetwork(nn.Module):
         self.checkpoint_dir = new_dir
         self.checkpoint_file = os.path.join(new_dir, ACTOR_PTH_NAME)
 
-    def save_checkpoint(self):
-        T.save(self.state_dict(), self.checkpoint_file)
+    def save_checkpoint(self, iteration=None):
+        name = ACTOR_PTH_NAME
+        if iteration is not None:
+            name += f"_iter_{iteration}.pth"
+        T.save(self.state_dict(), os.path.join(self.checkpoint_dir, name))
 
-    def load_checkpoint(self):
+    def load_checkpoint(self, iteration=None):
         with open(os.path.join(self.checkpoint_dir, ACTOR_PICKLE_NAME), "rb") as file:
             self.actor = pickle.load(file)
-        self.load_state_dict(T.load(self.checkpoint_file))
+        name = ACTOR_PTH_NAME
+        if iteration is not None:
+            name += f"_iter_{iteration}.pth"
+        self.load_state_dict(T.load(os.path.join(self.checkpoint_dir, name)))
 
 
 class CriticNetwork(nn.Module):
@@ -132,13 +138,19 @@ class CriticNetwork(nn.Module):
         self.checkpoint_dir = new_dir
         self.checkpoint_file = os.path.join(new_dir, CRITIC_PTH_NAME)
 
-    def save_checkpoint(self):
-        T.save(self.state_dict(), self.checkpoint_file)
+    def save_checkpoint(self, iteration=None):
+        name = CRITIC_PTH_NAME
+        if iteration is not None:
+            name += f"_iter_{iteration}.pth"
+        T.save(self.state_dict(), os.path.join(self.checkpoint_dir, name))
 
-    def load_checkpoint(self):
+    def load_checkpoint(self, iteration=None):
         with open(os.path.join(self.checkpoint_dir, CRITIC_PICKLE_NAME), "rb") as file:
             self.critic = pickle.load(file)
-        self.load_state_dict(T.load(self.checkpoint_file))
+        name = CRITIC_PTH_NAME
+        if iteration is not None:
+            name += f"_iter_{iteration}.pth"
+        self.load_state_dict(T.load(os.path.join(self.checkpoint_dir, name)))
 
 
 class Agent:
@@ -156,15 +168,13 @@ class Agent:
     def remember(self, state, action, probs, vals, reward, done):
         self.memory.store_memory(state, action, probs, vals, reward, done)
 
-    def save_models(self):
-        print('... saving models ...')
-        self.actor.save_checkpoint()
-        self.critic.save_checkpoint()
+    def save_models(self, iteration=None):
+        self.actor.save_checkpoint(iteration)
+        self.critic.save_checkpoint(iteration)
 
-    def load_models(self):
-        print('... loading models ...')
-        self.actor.load_checkpoint()
-        self.critic.load_checkpoint()
+    def load_models(self, iteration=None):
+        self.actor.load_checkpoint(iteration)
+        self.critic.load_checkpoint(iteration)
 
     def change_checkpoint_dir(self, new_dir):
         self.actor.change_checkpoint_dir(new_dir)

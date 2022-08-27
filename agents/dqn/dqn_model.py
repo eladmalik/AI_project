@@ -39,17 +39,20 @@ class DQN_Model(nn.Module):
     def forward(self, x):
         return self.network(x)
 
-    def save(self, custom_name=None):
+    def save(self, iteration=None):
         name = PTH_NAME
-        if custom_name is not None:
-            name = custom_name
+        if iteration is not None:
+            name += f"_iter_{iteration}.pth"
         torch.save(self.state_dict(), os.path.join(self.save_folder, name))
 
-    def load(self):
+    def load(self, iteration=None):
         if os.path.exists(os.path.join(self.save_folder, STRUCTURE_NAME)):
             with open(os.path.join(self.save_folder, STRUCTURE_NAME), "rb") as file:
                 self.network = pickle.load(file)
-        self.load_state_dict(torch.load(os.path.join(self.save_folder, PTH_NAME)))
+        name = PTH_NAME
+        if iteration is not None:
+            name += f"_iter_{iteration}.pth"
+        self.load_state_dict(torch.load(os.path.join(self.save_folder, name)))
 
 
 class QTrainer:

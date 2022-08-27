@@ -1,5 +1,7 @@
 import os
 
+if __name__ == '__main__':
+    os.chdir(os.path.join("..", ".."))
 import torch
 from pygad import torchga
 import pygad.kerasga
@@ -35,8 +37,9 @@ def fitness_func(solution, sol_idx):
         state = torch.tensor([observation], dtype=torch.float).to(model.device)
         q_values = model(state)
         action = torch.argmax(q_values).item()
-        observation_next, reward, done, _ = env.do_step(action_mapping[action][0], action_mapping[action][1],
-                                                        time_difference)
+        observation_next, reward, done, results = env.do_step(action_mapping[action][0], action_mapping[
+            action][1],
+                                                              time_difference)
         if env.draw_screen:
             pygame.event.pump()
             env.update_screen({"Solution Number": sol_idx})
@@ -118,3 +121,19 @@ def main(lot_generator=generate_lot,
     model_weights_dict = pygad.torchga.model_weights_as_dict(model=model, weights_vector=solution)
     model.load_state_dict(model_weights_dict)
     model.save_checkpoint()
+
+
+if __name__ == '__main__':
+    main(lot_generator=generate_lot,
+         reward_analyzer=AnalyzerAccumulating4FrontBack,
+         feature_extractor=Extractor8,
+         load_model=False,
+         load_folder=None,
+         time_difference_secs=0.1,
+         max_iteration_time=800,
+         draw_screen=True,
+         resize_screen=False,
+         num_generations=100,
+         num_parents_mating=5,
+         genes_mutation_percent=10,
+         num_parents_to_keep=-1)

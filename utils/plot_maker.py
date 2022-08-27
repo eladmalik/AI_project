@@ -1,5 +1,5 @@
 import os.path
-from typing import List, Any
+from typing import List, Any, Dict
 
 import matplotlib
 from matplotlib import pyplot as plt
@@ -26,7 +26,7 @@ def arrange_data(lines: List[List[Any]]):
     return data_dict
 
 
-def plot_distance_data(data_dict, save_folder, last_epochs=100):
+def plot_distance_data(data_dict, save_folder, last_epochs=100, show=False):
     bg_color = "#191919"
     axes_color = 'white'
     distance_color = "#1a1fab"
@@ -60,11 +60,12 @@ def plot_distance_data(data_dict, save_folder, last_epochs=100):
     plt.ylim(ymin=0)
     plt.legend()
     fig = plt.gcf()
-    plt.show(block=False)
+    if show:
+        plt.show(block=False)
     fig.savefig(os.path.join(save_folder, "distances.png"))
 
 
-def plot_percentage_in_target_data(data_dict, save_folder, last_epochs=100):
+def plot_percentage_in_target_data(data_dict, save_folder, last_epochs=100, show=False):
     bg_color = "#191919"
     axes_color = 'white'
     percentage_color = "#1a1fab"
@@ -98,11 +99,12 @@ def plot_percentage_in_target_data(data_dict, save_folder, last_epochs=100):
     plt.ylim(ymin=0)
     plt.legend()
     fig = plt.gcf()
-    plt.show(block=False)
+    if show:
+        plt.show(block=False)
     fig.savefig(os.path.join(save_folder, "percetage_in_target.png"))
 
 
-def plot_success_collision_rate(data_dict, save_folder, last_epochs=100):
+def plot_success_collision_rate(data_dict, save_folder, last_epochs=100, show=False):
     bg_color = "#191919"
     axes_color = 'white'
     avg_success_color = "#3700de"
@@ -148,14 +150,25 @@ def plot_success_collision_rate(data_dict, save_folder, last_epochs=100):
     plt.ylim(ymin=0)
     plt.legend()
     fig = plt.gcf()
-    plt.show(block=False)
+    if show:
+        plt.show(block=False)
     fig.savefig(os.path.join(save_folder, "success_and_collision.png"))
 
 
-if __name__ == '__main__':
-    lines = csv_handler.load_all_data(
-        os.path.join("..", "model", "PPO_LSTM_26-08-2022__19-51-28", "results.csv"))
-    data = arrange_data(lines)
-    plot_distance_data(data, "tmp", last_epochs=100)
-    plot_percentage_in_target_data(data, "tmp", last_epochs=100)
-    plot_success_collision_rate(data, "tmp", last_epochs=100)
+def plot_all(data_dict: Dict[DataType, List[Any]], save_folder: str, last_epochs: int = 100, show=False):
+    plot_distance_data(data_dict, save_folder, last_epochs, show)
+    plot_percentage_in_target_data(data_dict, save_folder, last_epochs, show)
+    plot_success_collision_rate(data_dict, save_folder, last_epochs, show)
+
+
+def plot_all_from_lines(lines: List[List[Any]], save_folder: str, last_epochs: int = 100, show=False):
+    data_dict = arrange_data(lines)
+    plot_all(data_dict, save_folder, last_epochs, show)
+
+# if __name__ == '__main__':
+#     lines = csv_handler.load_all_data(
+#         os.path.join("..", "model", "PPO_LSTM_26-08-2022__19-51-28", "results.csv"))
+#     data = arrange_data(lines)
+#     plot_distance_data(data, "tmp", last_epochs=100)
+#     plot_percentage_in_target_data(data, "tmp", last_epochs=100)
+#     plot_success_collision_rate(data, "tmp", last_epochs=100)

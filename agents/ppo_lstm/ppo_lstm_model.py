@@ -127,15 +127,18 @@ class PPO_LSTM_Agent(nn.Module):
         action = m.sample().item()
         return action, h_out
 
-    def save(self, custom_name=None):
+    def save(self, iteration=None):
         name = PTH_NAME
-        if custom_name is not None:
-            name = custom_name
+        if iteration is not None:
+            name += f"_iter_{iteration}.pth"
         torch.save(self.state_dict(), os.path.join(self.save_folder, name))
 
-    def load(self):
+    def load(self, iteration=None):
         if os.path.exists(os.path.join(self.save_folder, MODEL_STRUCT)):
             with open(os.path.join(self.save_folder, MODEL_STRUCT), "rb") as file:
                 self.lstm_input, self.lstm_output, self.pre_lstm, self.lstm, self.fc_pi, self.fc_v, \
                 self.optimizer = pickle.load(file)
-        self.load_state_dict(torch.load(os.path.join(self.save_folder, PTH_NAME)))
+        name = PTH_NAME
+        if iteration is not None:
+            name += f"_iter_{iteration}.pth"
+        self.load_state_dict(torch.load(os.path.join(self.save_folder, name)))

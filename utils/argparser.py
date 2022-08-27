@@ -36,6 +36,8 @@ def parse_train_arguments():
                         metavar="{feature extractor class}")
     parser.add_argument("--load", help="the folder to load the model from", default=None, type=str,
                         metavar="{model folder}")
+    parser.add_argument("--load_iter", help="the iteration number to load. do not specify to load the last "
+                                            "checkpoint", type=int, metavar="{iteration number}")
     parser.add_argument("--time", help="time interval between actions", default=0.1, type=float,
                         metavar="{time interval}")
     parser.add_argument("--max_time", help="maximum virtual time for a single simulation", default=800,
@@ -60,7 +62,7 @@ def parse_train_arguments():
     parser.add_argument("--n_epoch", help="for PPO. how many times the current data should be learned",
                         default=2, type=int, metavar="{epochs num}")
     parser.add_argument("--batch", help="batch size", default=-1, type=int, metavar="{batch size}")
-    parser.add_argument("-p", help="use if mid-training plot is wanted", action='store_true')
+    parser.add_argument("-p", help="use if showing the plots is wanted", action='store_true')
     parser.add_argument("--p_rate", help="how many simulations should pass until new plots are drawn",
                         default=100, type=int, metavar="{plot rate}")
     parser.add_argument("--c_rate",
@@ -88,6 +90,7 @@ def parse_train_arguments():
         "max_iteration_time": args.max_time,
         "load_model": args.load is not None,
         "load_folder": args.load,
+        "load_iter": args.load_iter,
         "draw_screen": args.d,
         "resize_screen": args.r,
         "draw_rate": args.draw_rate,
