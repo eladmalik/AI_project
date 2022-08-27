@@ -19,11 +19,11 @@ from agents.genetic.genetic_model import GeneticModel
 AGENT_TYPE = "Genetic"
 
 torch_ga, model, observation_space_size, env = None, None, None, None
+generation = 1
 time_difference = None
 
-
 def fitness_func(solution, sol_idx):
-    global torch_ga, model, observation_space_size, env, time_difference
+    global torch_ga, model, observation_space_size, env, time_difference, generation
 
     model_weights_dict1 = pygad.torchga.model_weights_as_dict(model=model, weights_vector=solution)
     model.load_state_dict(model_weights_dict1)
@@ -51,6 +51,12 @@ def fitness_func(solution, sol_idx):
 
 
 def callback_generation(ga_instance):
+    global model, generation
+    generation = ga_instance.generations_completed + 1
+    solution, solution_fitness, solution_idx = ga_instance.best_solution()
+    model_weights_dict = pygad.torchga.model_weights_as_dict(model=model, weights_vector=solution)
+    model.load_state_dict(model_weights_dict)
+    model.save_checkpoint()
     print("Generation = {generation}".format(generation=ga_instance.generations_completed))
     print("Fitness    = {fitness}".format(fitness=ga_instance.best_solution()[1]))
 
