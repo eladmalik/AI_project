@@ -9,11 +9,13 @@ import utils.reward_analyzer
 import utils.feature_extractor
 import agents.dqn.dqn_train
 import agents.ppo.ppo_train
+import agents.dqn2.dqn2_train
 import agents.ppo_lstm.ppo_lstm_train
 import agents.genetic.genetic_train
 
 run_functions = {
     "dqn": agents.dqn.dqn_train.main,
+    "dqn2": agents.dqn2.dqn2_train.main,
     "ppo": agents.ppo.ppo_train.main,
     "ppo_lstm": agents.ppo_lstm.ppo_lstm_train.main,
     "genetic": agents.genetic.genetic_train.main
@@ -26,7 +28,7 @@ def parse_train_arguments():
     returns the function to run and its argument dictionary
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("agent", help="The type of agent to train", choices=["dqn", "ppo", "ppo_lstm",
+    parser.add_argument("agent", help="The type of agent to train", choices=["dqn", "dqn2", "ppo", "ppo_lstm",
                                                                              "genetic"])
     parser.add_argument("--lot", help="lot generator function", default="generate_lot", type=str,
                         metavar="{parking lot generator}")

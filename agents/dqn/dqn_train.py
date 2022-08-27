@@ -102,7 +102,7 @@ def main(lot_generator=generate_lot,
 
         if done:
             # train long memory, plot result
-            print(f"Total real time: {agent.simulator.total_time}")
+            print(f"Total virtual time: {agent.simulator.total_time}")
             print('Simulation', agent.n_games, 'Reward', iteration_total_reward, 'Distance',
                   f"{results[Results.DISTANCE_TO_TARGET]:.2f}")
             result_writer.write_row({
