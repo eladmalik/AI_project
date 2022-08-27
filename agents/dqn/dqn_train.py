@@ -16,8 +16,6 @@ from utils.plot_maker import plot_all_from_lines
 from utils.reward_analyzer import *
 from simulation.simulator import Simulator, DrawingMethod
 
-MAX_MEMORY = 100000
-BATCH_SIZE = 1000
 
 AGENT_TYPE = "DQN"
 
