@@ -325,6 +325,83 @@ def example2() -> ParkingLot:
     return lot
 
 
+def example_easy() -> ParkingLot:
+    sidewalk_left = Sidewalk(880, 0, 100, 1000, 0, topleft=True)
+    sidewalk_right = Sidewalk(0, 0, 100, 1000, 0, topleft=True)
+    offset_x = -30 + 60 * random.random()
+    offset_y = -30 + 60 * random.random()
+    # agent = Car(500 + offset_x, 500 + offset_y, 100, 50, random.random() * 360, AGENT_IMG)
+    agent = Car(500, 500, 100, 50, random.random() * 360, AGENT_IMG)
+    # agent = Car(500, 500, 100, 50, 90, AGENT_IMG)
+
+    parking_cells = [
+        ParkingCell(100, 0, 150, 140, 0, PARKING_IMG, topleft=True).place_car(100, 50,
+                                                                             CAR_IMG),
+        ParkingCell(100, 140, 150, 140, 0, PARKING_IMG, topleft=True),
+        ParkingCell(100, 280, 150, 140, 0, PARKING_IMG, topleft=True).place_car(100, 50,
+                                                                               CAR_IMG),
+        ParkingCell(100, 420, 150, 140, 0, PARKING_TARGET_IMG, topleft=True),
+        ParkingCell(100, 560, 150, 140, 0, PARKING_IMG, topleft=True),
+        ParkingCell(100, 700, 150, 140, 0, PARKING_IMG, topleft=True).place_car(100, 50,
+                                                                                CAR_IMG),
+        ParkingCell(100, 840, 150, 140, 0, PARKING_IMG, topleft=True).place_car(100, 50,
+                                                                               CAR_IMG),
+        ParkingCell(730, 0, 150, 140, 180, PARKING_IMG, topleft=True),
+        ParkingCell(730, 140, 150, 140, 180, PARKING_IMG, topleft=True).place_car(100, 50,
+                                                                                CAR_IMG),
+        ParkingCell(730, 280, 150, 140, 180, PARKING_IMG, topleft=True).place_car(100, 50,
+                                                                                CAR_IMG),
+        ParkingCell(730, 420, 150, 140, 180, PARKING_IMG, topleft=True),
+        ParkingCell(730, 560, 150, 140, 180, PARKING_IMG, topleft=True),
+        ParkingCell(730, 700, 150, 140, 180, PARKING_IMG, topleft=True),
+        ParkingCell(730, 840, 150, 140, 180, PARKING_IMG, topleft=True).place_car(100, 50,
+                                                                                 CAR_IMG)
+    ]
+    lot = ParkingLot(980, 980, agent, parking_cells, [sidewalk_left, sidewalk_right],
+                     parking_cells[3])
+    return lot
+
+
+def example_medium() -> ParkingLot:
+    sidewalk_left = Sidewalk(850, 0, 150, 1000, 0, topleft=True)
+    sidewalk_right = Sidewalk(0, 0, 150, 1000, 0, topleft=True)
+    offset_x = -30 + 60 * random.random()
+    offset_y = -30 + 60 * random.random()
+    # agent = Car(500 + offset_x, 500 + offset_y, 100, 50, random.random() * 360, AGENT_IMG)
+    agent = Car(500, 500, 100, 50, random.random()*360, AGENT_IMG)
+    # agent = Car(500, 500, 100, 50, 90, AGENT_IMG)
+
+    parking_cells = [
+        ParkingCell(150, 0, 150, 125, 0, PARKING_IMG, topleft=True).place_car(
+            100, 50, CAR_IMG),
+        ParkingCell(150, 125, 150, 125, 0, PARKING_IMG, topleft=True),
+        ParkingCell(150, 250, 150, 125, 0, PARKING_IMG, topleft=True).place_car(
+            100, 50, CAR_IMG),
+        ParkingCell(150, 375, 150, 125, 0, PARKING_IMG, topleft=True),
+        ParkingCell(150, 500, 150, 125, 0, PARKING_IMG, topleft=True).place_car(
+            100, 50, CAR_IMG),
+        ParkingCell(150, 625, 150, 125, 0, PARKING_IMG, topleft=True),
+        ParkingCell(150, 750, 150, 125, 0, PARKING_IMG, topleft=True).place_car(
+            100, 50, CAR_IMG),
+        ParkingCell(150, 875, 150, 125, 0, PARKING_IMG, topleft=True),
+
+        ParkingCell(700, 0, 150, 125, 180, PARKING_IMG, topleft=True),
+        ParkingCell(700, 125, 150, 125, 180, PARKING_IMG, topleft=True).place_car(
+            100, 50, CAR_IMG),
+        ParkingCell(700, 250, 150, 125, 180, PARKING_IMG, topleft=True),
+        ParkingCell(700, 375, 150, 125, 180, PARKING_IMG, topleft=True).place_car(
+            100, 50, CAR_IMG),
+        ParkingCell(700, 500, 150, 125, 180, PARKING_IMG, topleft=True).place_car(
+            100, 50, CAR_IMG),
+        ParkingCell(700, 625, 150, 125, 180, PARKING_TARGET_IMG, topleft=True),
+        ParkingCell(700, 750, 150, 125, 180, PARKING_IMG, topleft=True).place_car(
+            100, 50, CAR_IMG),
+        ParkingCell(700, 875, 150, 125, 180, PARKING_IMG, topleft=True),
+    ]
+    lot = ParkingLot(1000, 1000, agent, parking_cells, [sidewalk_left, sidewalk_right], parking_cells[13])
+    return lot
+
+
 def _get_random_place_inside_board(width, height, board_size):
     board_rect = pygame.Rect(0, 0, board_size, board_size)
     rotation = random.random() * 360
