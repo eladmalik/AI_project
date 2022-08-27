@@ -154,9 +154,8 @@ def plot_success_collision_rate(data_dict, save_folder, last_epochs=100):
 
 if __name__ == '__main__':
     lines = csv_handler.load_all_data(
-        os.path.join("..", "model", "PPO_LSTM_26-08-2022__18-47-39", "results.csv"))
+        os.path.join("..", "model", "PPO_LSTM_26-08-2022__19-51-28", "results.csv"))
     data = arrange_data(lines)
-    plot_distance_data(data, "tmp", last_epochs=20)
-    plot_percentage_in_target_data(data, "tmp", last_epochs=20)
-    plot_success_collision_rate(data, "tmp", last_epochs=20)
-    a = 1
+    plot_distance_data(data, "tmp", last_epochs=100)
+    plot_percentage_in_target_data(data, "tmp", last_epochs=100)
+    plot_success_collision_rate(data, "tmp", last_epochs=100)

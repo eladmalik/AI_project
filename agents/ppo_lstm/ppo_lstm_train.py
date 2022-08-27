@@ -36,6 +36,7 @@ def main(
         policy_clip=0.1,
         learn_interval=20,
         n_epochs=2,
+        plot_in_training=True,
         plot_interval=100,
         checkpoint_interval=250,
         save_folder=None):
