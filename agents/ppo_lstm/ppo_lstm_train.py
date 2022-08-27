@@ -1,5 +1,6 @@
 # PPO-LSTM
 import os
+from typing import Type
 
 if __name__ == '__main__':
     os.chdir(os.path.join("..", ".."))
@@ -23,28 +24,28 @@ AGENT_TYPE = "PPO_LSTM"
 
 @dump_arguments(agent_type=AGENT_TYPE)
 def main(
-        lot_generator=generate_lot,
-        reward_analyzer=AnalyzerAccumulating4FrontBack,
-        feature_extractor=Extractor8,
-        load_model=False,
-        load_folder=None,
-        load_iter=None,
-        time_difference_secs=0.1,
-        max_iteration_time=800,
-        draw_screen=True,
-        resize_screen=False,
-        draw_rate=1,
-        n_simulations=100000,
-        learning_rate=0.0005,
-        gamma=0.98,
-        lmbda=0.95,
-        policy_clip=0.1,
-        learn_interval=20,
-        n_epochs=2,
-        plot_in_training=True,
-        plot_interval=100,
-        checkpoint_interval=250,
-        save_folder=None):
+        lot_generator: LotGenerator = generate_lot,
+        reward_analyzer: Type[RewardAnalyzer] = AnalyzerAccumulating4FrontBack,
+        feature_extractor: Type[FeatureExtractor] = Extractor9,
+        load_model: bool = False,
+        load_folder: str = None,
+        load_iter: int = None,
+        time_difference_secs: float = 0.1,
+        max_iteration_time: int = 800,
+        draw_screen: bool = True,
+        resize_screen: bool = False,
+        draw_rate: int = 1,
+        n_simulations: int = 100000,
+        learning_rate: float = 0.0005,
+        gamma: float = 0.98,
+        lmbda: float = 0.95,
+        policy_clip: float = 0.1,
+        learn_interval: int = 20,
+        n_epochs: int = 2,
+        plot_in_training: bool = True,
+        plot_interval: int = 100,
+        checkpoint_interval: int = 250,
+        save_folder: str = None):
     assert (not load_model) or (load_model and isinstance(load_folder, str))
     if save_folder is None:
         save_folder = utils.general_utils.get_agent_output_folder(AGENT_TYPE)
@@ -135,7 +136,7 @@ def main(
 if __name__ == '__main__':
     main(lot_generator=generate_lot,
          reward_analyzer=AnalyzerAccumulating4FrontBack,
-         feature_extractor=Extractor8,
+         feature_extractor=Extractor9,
          load_model=False,
          load_folder=None,
          load_iter=None,
