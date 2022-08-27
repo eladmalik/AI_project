@@ -4,7 +4,6 @@ from typing import List, Any, Dict
 import matplotlib
 from matplotlib import pyplot as plt
 from distutils.util import strtobool
-from utils.csv_handler import csv_handler
 from utils.enums import DataType
 
 data_converters = {
