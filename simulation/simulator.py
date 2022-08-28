@@ -343,6 +343,56 @@ class Simulator:
         new_state = self.get_state()
         return new_state, reward, done, results
 
+    def peek_step(self, movement, steering, time):
+        """
+        updates the movement of the car
+        :param time: the time interval which the car should move
+        :param movement: indicates the forward/backward movement of the car
+        :param steering: indicates to which side the car should steer
+        :return: A dictionary containing data about the results of the current movement:
+                    COLLISION: True/False which indicates if the agent collided with the border or with
+                               another object.
+                    AGENT_IN_UNOCCUPIED: True/False which indicates if there is a free parking slot which
+                                         the agent is completely inside it.
+                    UNOCCUPIED_PERCENTAGE: A dictionary holding each free parking cell which the agent has
+                                           some part of it inside them. the value of each cell is a
+                                           percentage between 0 and 1, indicating how much of the agent is
+                                           inside that cell.
+        """
+        # save originals
+        org_acceleration = self.agent.acceleration
+        org_velocity = self.agent.velocity
+        org_steering = self.agent.steering
+        org_location = self.agent.location
+        org_rotation = self.agent.rotation
+
+        self.agent.update(time, movement, steering)
+        self.total_time += time
+        self.frame += 1
+        results = {Results.COLLISION: self.is_collision(),
+                   Results.PERCENTAGE_IN_TARGET: self.percentage_in_target_cell(),
+                   Results.FRAME: self.frame,
+                   Results.SIMULATION_TIMEOUT: self.total_time >= self.max_simulator_time,
+                   Results.IN_BOUNDS: self._lot_rect.contains(self.agent.rect),
+                   Results.DISTANCE_TO_TARGET: get_distance_to_target(self.agent,
+                                                                      self.parking_lot.target_park),
+                   Results.ANGLE_TO_TARGET: get_angle_to_target(self.agent, self.parking_lot.target_park)}
+        results[Results.SUCCESS] = self.reward_analyzer.is_success(self.parking_lot, results)
+        reward, done = self.reward_analyzer.analyze(self.parking_lot, results)
+        if results[Results.SIMULATION_TIMEOUT]:
+            done = True
+        new_state = self.get_state()
+
+        # revert original
+        self.agent.acceleration = org_acceleration
+        self.agent.velocity = org_velocity
+        self.agent.steering = org_steering
+        self.agent.location = org_location
+        self.agent.rotation = org_rotation
+        self.agent.update_location(org_location, org_rotation)
+
+        return new_state, reward, done, results
+
     def is_collision(self):
         """
         :return: True iff the agent collides with any object which should interrupt the agent (other cars,

@@ -22,7 +22,7 @@ draw_rate = 1
 
 if __name__ == '__main__':
     # initializing the parking lot
-    sim = Simulator(lot_generator, reward_analyzer,
+    sim = Simulator(example_easy, reward_analyzer,
                     feature_extractor,
                     draw_screen=True,
                     resize_screen=False,

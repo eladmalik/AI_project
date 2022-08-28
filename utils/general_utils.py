@@ -6,7 +6,6 @@ from typing import Dict, Any, Callable
 
 from simulation.CarSimSprite import CarSimSprite
 import matplotlib.pyplot as plt
-from IPython import display
 
 from utils.enums import Movement, Steering
 
