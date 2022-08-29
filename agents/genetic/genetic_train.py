@@ -1,5 +1,8 @@
 import os
 
+from utils.csv_handler import csv_handler
+from utils.enums import DataType
+
 if __name__ == '__main__':
     os.chdir(os.path.join("..", ".."))
 import torch
@@ -82,6 +85,8 @@ def main(lot_generator=generate_lot,
     time_difference = time_difference_secs
     if save_folder is None:
         save_folder = utils.general_utils.get_agent_output_folder(AGENT_TYPE)
+
+
     env = Simulator(lot_generator, reward_analyzer, feature_extractor,
                     max_iteration_time_sec=max_iteration_time,
                     draw_screen=draw_screen,
@@ -121,7 +126,6 @@ def main(lot_generator=generate_lot,
     # After the generations complete, some plots are showed that summarize how the outputs/fitness values evolve over generations.
     ga_instance.plot_result(title="PyGAD & Pytorch - Iteration vs. Fitness", linewidth=4)
     ga_instance.plot_new_solution_rate(title="New Solution Rate")
-    # ga_instance.plot_genes(title="Genes Plot")
     # Returning the details of the best solution.
     solution, solution_fitness, solution_idx = ga_instance.best_solution()
     print("Fitness value of the best solution = {solution_fitness}".format(solution_fitness=solution_fitness))
