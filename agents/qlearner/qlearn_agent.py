@@ -8,9 +8,7 @@
 import os
 import pickle
 from typing import Any, Dict, List
-from utils.enums import Movement, Steering
 from utils.general_utils import action_mapping
-from simulation.parking_lot import ParkingLot
 from simulation.simulator import Simulator
 from utils.feature_extractor import FeatureExtractor
 from utils.reward_analyzer import Results, RewardAnalyzer
@@ -31,21 +29,19 @@ class QLearnerAgent:
      should work as is.
     """
 
-    def __init__(self, simulator: Simulator, time: float, reward_analyzer: RewardAnalyzer,
-                 extractor: FeatureExtractor, numTraining=100, epsilon=0.5, alpha=0.5, gamma=1,
+    def __init__(self, simulator: Simulator, time: float, input_num: int, numTraining=100, epsilon=0.5,
+                 alpha=0.5, gamma=0.9,
                  save_folder="tmp"):
-        self.featExtractor = extractor
 
         # You might want to initialize weights here.
-        self.reward_analyzer = reward_analyzer
-        self.extractor = extractor
-        self.__w = np.random.rand(extractor.input_num)
+        self.__w = np.random.rand(input_num)
         self.discount = gamma
         self.epsilon = epsilon
         self.alpha = alpha
         self.numTraining = numTraining
         self.episodeRewards = 0
         self.save_folder = save_folder
+        self.episode = 1
 
         self.sim = simulator
         self.time = time
@@ -113,7 +109,7 @@ class QLearnerAgent:
         self.episodeRewards = 0
 
     def stopEpisode(self):
-        pass
+        self.episode += 1
 
     # def train(self, state: List[float], action: int, nextState: List[float], deltaReward: float):
     #     """
