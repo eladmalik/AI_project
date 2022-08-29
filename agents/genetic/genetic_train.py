@@ -1,5 +1,8 @@
 import os
 
+from utils.csv_handler import csv_handler
+from utils.enums import DataType
+
 if __name__ == '__main__':
     os.chdir(os.path.join("..", ".."))
 import torch
@@ -22,6 +25,7 @@ torch_ga, model, observation_space_size, env = None, None, None, None
 generation = 1
 time_difference = None
 
+
 def fitness_func(solution, sol_idx):
     global torch_ga, model, observation_space_size, env, time_difference, generation
 
@@ -33,7 +37,7 @@ def fitness_func(solution, sol_idx):
     sum_reward = 0
     done = False
     c = 0
-    while (not done) and c < 1000:
+    while not done:
         state = torch.tensor([observation], dtype=torch.float).to(model.device)
         q_values = model(state)
         action = torch.argmax(q_values).item()
@@ -81,6 +85,8 @@ def main(lot_generator=generate_lot,
     time_difference = time_difference_secs
     if save_folder is None:
         save_folder = utils.general_utils.get_agent_output_folder(AGENT_TYPE)
+
+
     env = Simulator(lot_generator, reward_analyzer, feature_extractor,
                     max_iteration_time_sec=max_iteration_time,
                     draw_screen=draw_screen,
@@ -112,13 +118,14 @@ def main(lot_generator=generate_lot,
                            mutation_type=mutation_type,
                            mutation_percent_genes=genes_mutation_percent,
                            keep_parents=num_parents_to_keep,
-                           on_generation=callback_generation)
+                           on_generation=callback_generation,
+                           save_solutions=True)
 
     ga_instance.run()
 
     # After the generations complete, some plots are showed that summarize how the outputs/fitness values evolve over generations.
     ga_instance.plot_result(title="PyGAD & Pytorch - Iteration vs. Fitness", linewidth=4)
-
+    ga_instance.plot_new_solution_rate(title="New Solution Rate")
     # Returning the details of the best solution.
     solution, solution_fitness, solution_idx = ga_instance.best_solution()
     print("Fitness value of the best solution = {solution_fitness}".format(solution_fitness=solution_fitness))
@@ -139,7 +146,7 @@ if __name__ == '__main__':
          max_iteration_time=800,
          draw_screen=True,
          resize_screen=False,
-         num_generations=100,
+         num_generations=10,
          num_parents_mating=5,
          genes_mutation_percent=10,
          num_parents_to_keep=-1)
