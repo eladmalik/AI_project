@@ -31,6 +31,21 @@ class RewardAnalyzer(ABC):
         return self.__class__.__name__
 
 
+class AnalyzerNull(RewardAnalyzer):
+    ID = 0
+
+    def analyze(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> Tuple[float, bool]:
+        """
+        This function gets a current parking lot state and the results which this parking lot has,
+        and returns a reward value
+        """
+
+        return 0, results[Results.COLLISION]
+
+    def is_success(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> bool:
+        return get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results, 0.93, 30) > 0
+
+
 class Analyzer(RewardAnalyzer):
     ID = 0
     # keep every argument greater than 0

@@ -16,7 +16,6 @@ from utils.plot_maker import plot_all_from_lines
 from utils.reward_analyzer import *
 from simulation.simulator import Simulator, DrawingMethod
 
-
 AGENT_TYPE = "DQN"
 
 
@@ -57,17 +56,18 @@ def main(lot_generator=generate_lot,
 
     model = DQN_Model(feature_extractor.input_num, len(utils.general_utils.action_mapping), 128, 128, 128,
                       128,
-                      128, save_folder)
+                      128)
     agent = Agent(sim, model,
                   learning_rate=learning_rate,
                   gamma=gamma,
                   randomness_rate=randomness_rate,
                   batch_size=batch_size,
-                  max_memory=max_memory)
+                  max_memory=max_memory,
+                  save_folder=save_folder)
     if load_model:
-        model.save_folder = load_folder
-        model.load(load_iter)
-        model.save_folder = save_folder
+        agent.save_folder = load_folder
+        agent.load(load_iter)
+        agent.save_folder = save_folder
 
     result_writer = csv_handler(save_folder, [DataType.LAST_REWARD,
                                               DataType.TOTAL_REWARD,
@@ -117,9 +117,9 @@ def main(lot_generator=generate_lot,
             agent.n_games += 1
             agent.train_long_memory()
 
-            agent.model.save()
+            agent.save()
             if agent.n_games % checkpoint_interval == 0:
-                agent.model.save(iteration=agent.n_games)
+                agent.save(iteration=agent.n_games)
 
             if agent.n_games % plot_interval == 0:
                 plot_all_from_lines(result_writer.get_current_data(), save_folder, show=plot_in_training)

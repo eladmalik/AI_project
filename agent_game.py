@@ -13,14 +13,14 @@ DEBUG = False
 
 lot_generator = generate_lot
 reward_analyzer = AnalyzerAccumulating4FrontBack
-feature_extractor = Extractor8
+feature_extractor = Extractor9
 # time_difference_secs = 0.03333333
 time_difference_secs = 0.1
 max_iteration_time = 200
 draw_screen = True
 draw_rate = 1
 
-if __name__ == '__main__':
+def main():
     # initializing the parking lot
     sim = Simulator(example_easy, reward_analyzer,
                     feature_extractor,

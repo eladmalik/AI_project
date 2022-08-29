@@ -193,6 +193,9 @@ class Agent:
 
         return action, probs, value
 
+    def get_action(self, observation):
+        return self.choose_action(observation)[0]
+
     def learn(self):
         for _ in range(self.n_epochs):
             state_arr, action_arr, old_prob_arr, vals_arr, \

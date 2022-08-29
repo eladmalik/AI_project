@@ -18,9 +18,9 @@ PTH_NAME = "agent.pth"
 class DQN_Model(nn.Module):
     def __init__(self, input_size, output_size, hidden_size1=128, hidden_size2=128, hidden_size3=128,
                  hidden_size4=128,
-                 hidden_size5=128, save_folder="tmp"):
+                 hidden_size5=128,
+                 save_folder="tmp"):
         super().__init__()
-        self.save_folder = save_folder
         self.input_size = input_size
         self.actions_num = output_size
         # self.network = nn.Sequential(nn.Linear(input_size, hidden_size1),
@@ -46,21 +46,6 @@ class DQN_Model(nn.Module):
 
     def forward(self, x):
         return self.network(x)
-
-    def save(self, iteration=None):
-        name = PTH_NAME
-        if iteration is not None:
-            name += f"_iter_{iteration}.pth"
-        torch.save(self.state_dict(), os.path.join(self.save_folder, name))
-
-    def load(self, iteration=None):
-        if os.path.exists(os.path.join(self.save_folder, STRUCTURE_NAME)):
-            with open(os.path.join(self.save_folder, STRUCTURE_NAME), "rb") as file:
-                self.network = pickle.load(file)
-        name = PTH_NAME
-        if iteration is not None:
-            name += f"_iter_{iteration}.pth"
-        self.load_state_dict(torch.load(os.path.join(self.save_folder, name)))
 
 
 class QTrainer:
@@ -115,7 +100,8 @@ class Agent:
                  gamma=0.9,
                  max_epsilon=1000,
                  batch_size=1000,
-                 max_memory=100000):
+                 max_memory=100000,
+                 save_folder="tmp"):
         self.n_games = 0
         self.epsilon = 0  # randomness
         self.randomness_rate = randomness_rate
@@ -128,6 +114,7 @@ class Agent:
         self.memory = deque(maxlen=self.max_memory)  # popleft()
         self.model = model
         self.trainer = QTrainer(self.model, lr=self.learning_rate, gamma=self.gamma)
+        self.save_folder = save_folder
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))  # popleft if MAX_MEMORY is reached
@@ -156,3 +143,18 @@ class Agent:
             move = torch.argmax(prediction).item()
 
         return move
+
+    def save(self, iteration=None):
+        name = PTH_NAME
+        if iteration is not None:
+            name += f"_iter_{iteration}.pth"
+        torch.save(self.model.state_dict(), os.path.join(self.save_folder, name))
+
+    def load(self, iteration=None):
+        if os.path.exists(os.path.join(self.save_folder, STRUCTURE_NAME)):
+            with open(os.path.join(self.save_folder, STRUCTURE_NAME), "rb") as file:
+                self.network = pickle.load(file)
+        name = PTH_NAME
+        if iteration is not None:
+            name += f"_iter_{iteration}.pth"
+        self.model.load_state_dict(torch.load(os.path.join(self.save_folder, name)))

@@ -2,12 +2,13 @@ import functools
 import json
 import os.path
 from datetime import datetime
-from typing import Dict, Any, Callable
+from typing import Dict, Any
 
 from simulation.CarSimSprite import CarSimSprite
-import matplotlib.pyplot as plt
 
 from utils.enums import Movement, Steering
+
+ARGUMENTS_FILE = "arguments.json"
 
 action_mapping = {
     0: (Movement.NEUTRAL, Steering.NEUTRAL),
@@ -62,7 +63,7 @@ def dump_arguments(agent_type: str):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             save_folder = get_agent_output_folder(agent_type)
-            dump_to_json({key: str(kwargs[key]) for key in kwargs}, save_folder, "arguments.json")
+            dump_to_json({key: str(kwargs[key]) for key in kwargs}, save_folder, ARGUMENTS_FILE)
             kwargs["save_folder"] = save_folder
             output = func(*args, **kwargs)
             return output
@@ -70,39 +71,3 @@ def dump_arguments(agent_type: str):
         return wrapper
 
     return decorator
-
-
-def plot_distances(distances, mean_distances, save_folder):
-    display.clear_output(wait=True)
-    display.display(plt.gcf())
-    plt.clf()
-    plt.title('Training...')
-    plt.xlabel('Number of Simulations')
-    plt.ylabel('Distance to Target')
-    plt.plot(distances)
-    plt.plot(mean_distances)
-    plt.ylim(ymin=0)
-    plt.text(len(distances) - 1, distances[-1], "distance")
-    plt.text(len(mean_distances) - 1, mean_distances[-1], "avg distance")
-    fig = plt.gcf()
-    plt.show(block=False)
-    fig.savefig(os.path.join(save_folder, "distances.png"))
-    plt.pause(.1)
-
-
-def plot_rewards(rewards, mean_rewards, save_folder):
-    display.clear_output(wait=True)
-    display.display(plt.gcf())
-    plt.clf()
-    plt.title('Training...')
-    plt.xlabel('Number of Simulations')
-    plt.ylabel('Reward')
-    plt.plot(rewards)
-    plt.plot(mean_rewards)
-    plt.ylim(ymin=0)
-    plt.text(len(rewards) - 1, rewards[-1], "reward")
-    plt.text(len(mean_rewards) - 1, mean_rewards[-1], "avg reward")
-    fig = plt.gcf()
-    plt.show(block=False)
-    fig.savefig(os.path.join(save_folder, "rewards.png"))
-    plt.pause(.1)
