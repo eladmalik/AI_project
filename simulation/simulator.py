@@ -361,14 +361,12 @@ class Simulator:
         """
         # save originals
         org_acceleration = self.agent.acceleration
-        org_velocity = self.agent.velocity
+        org_velocity = self.agent.velocity.copy()
         org_steering = self.agent.steering
-        org_location = self.agent.location
+        org_location = self.agent.location.copy()
         org_rotation = self.agent.rotation
 
         self.agent.update(time, movement, steering)
-        self.total_time += time
-        self.frame += 1
         results = {Results.COLLISION: self.is_collision(),
                    Results.PERCENTAGE_IN_TARGET: self.percentage_in_target_cell(),
                    Results.FRAME: self.frame,

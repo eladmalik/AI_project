@@ -168,50 +168,8 @@ class Car(CarSimSprite):
         :param movement: indicates the forward/backward movement of the car
         :param steering: indicates to which side the car should steer
         """
-        # if movement == Movement.FORWARD:
-        #     if self.velocity.x < 0:
-        #         self.acceleration = self.brake_deceleration
-        #     else:
-        #         self.acceleration += self.acceleration_factor * dt
-        # elif movement == Movement.BACKWARD:
-        #     if self.velocity.x > 0:
-        #         self.acceleration = -self.brake_deceleration
-        #     else:
-        #         self.acceleration -= self.acceleration_factor * dt
-        # elif movement == Movement.BRAKE:
-        #     if abs(self.velocity.x) > dt * self.brake_deceleration:
-        #         self.acceleration = -copysign(self.brake_deceleration, self.velocity.x)
-        #     else:
-        #         self.acceleration = -self.velocity.x / dt
-        # elif movement == Movement.NEUTRAL:
-        #     if abs(self.velocity.x) > dt * self.free_deceleration:
-        #         self.acceleration = -copysign(self.free_deceleration, self.velocity.x)
-        #     else:
-        #         if dt != 0:
-        #             self.acceleration = -self.velocity.x / dt
-        # self.acceleration = max(-self.max_acceleration, min(self.acceleration, self.max_acceleration))
-        # if steering == Steering.LEFT:
-        #     self.steering += self.steering_factor * dt
-        # elif steering == Steering.RIGHT:
-        #     self.steering -= self.steering_factor * dt
-        # elif steering == Steering.NEUTRAL:
-        #     self.steering = 0
-        # self.steering = max(-self.max_steering, min(self.steering, self.max_steering))
-        #
-        # self.velocity += (self.acceleration * dt, 0)
-        # self.velocity.x = max(-self.max_velocity, min(self.velocity.x, self.max_velocity))
-        #
-        # if self.steering:
-        #     turning_radius = self.length / sin(radians(self.steering))
-        #     angular_velocity = self.velocity.x / turning_radius
-        # else:
-        #     angular_velocity = 0
-        #
-        # self.location += self.velocity.rotate(-self.rotation) * dt
-        # self.rotation += degrees(angular_velocity) * dt
-        #
-        # self.update_location(self.location, self.rotation)
         return self.__move_car(dt, movement, steering, True)
 
     def peek(self, dt: float, movement: Movement, steering: Steering):
         return self.__move_car(dt, movement, steering, False)
+

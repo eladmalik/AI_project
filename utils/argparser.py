@@ -13,8 +13,10 @@ import agents.ppo.ppo_train
 import agents.dqn2.dqn2_train
 import agents.ppo_lstm.ppo_lstm_train
 import agents.genetic.genetic_train
+import agents.qlearner.qlearn_train
 
 run_functions = {
+    "qlearn":agents.qlearner.qlearn_train.main,
     "dqn": agents.dqn.dqn_train.main,
     "dqn2": agents.dqn2.dqn2_train.main,
     "ppo": agents.ppo.ppo_train.main,
@@ -35,7 +37,7 @@ def parse_train_arguments():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("agent", help="The type of agent to train", choices=["dqn", "dqn2", "ppo", "ppo_lstm",
-                                                                             "genetic"])
+                                                                             "genetic", "qlearn"])
     parser.add_argument("--lot", help="lot generator function", type=str,
                         metavar="{parking lot generator}")
     parser.add_argument("--reward", help="{reward analyzer class}", type=str, metavar="{reward analyzer "
@@ -61,6 +63,9 @@ def parse_train_arguments():
                         metavar="{number of simulations}")
     parser.add_argument("--lr", help="learning rate", type=float, metavar="{learning rate}")
     parser.add_argument("--g", help="discount rate", type=float, metavar="{discount rate}")
+    parser.add_argument("--eps", help="epsilon for random action. used in the Q-Learner. 0 means no "
+                                      "randomness, 1 means always random", type=float,
+                        metavar="{epsilon}")
     parser.add_argument("--lm", help="smoothing parameter for PPO", type=float,
                         metavar="{smoothing parameter}")
     parser.add_argument("--clip", help="epsilon for PPO policy clip", type=float,
@@ -106,6 +111,7 @@ def parse_train_arguments():
         "n_simulations": args.n,
         "learning_rate": args.lr,
         "gamma": args.g,
+        "epsilon": args.eps,
         "lmbda": args.lm,
         "policy_clip": args.clip,
         "learn_interval": args.n_learn,
