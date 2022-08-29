@@ -12,7 +12,7 @@ FPS = 60
 DEBUG = True
 if __name__ == '__main__':
     # initializing the parking lot
-    sim = Simulator(example2, AnalyzerAccumulating4FrontBack,
+    sim = Simulator(generate_lot, AnalyzerAccumulating4FrontBack,
                     Extractor7,
                     draw_screen=True,
                     resize_screen=True,
