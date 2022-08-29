@@ -1,12 +1,10 @@
 import os
 
-from utils.csv_handler import csv_handler
-from utils.enums import StatsType
-
 if __name__ == '__main__':
     os.chdir(os.path.join("..", ".."))
 import torch
 from pygad import torchga
+import pygad.kerasga
 import pygad
 
 import utils.general_utils
@@ -17,15 +15,12 @@ from utils.reward_analyzer import *
 from utils.feature_extractor import *
 from simulation.simulator import Simulator, DrawingMethod
 from agents.genetic.genetic_model import GeneticModel
-from utils.plot_maker import plot_all_generation_from_lines
 
 AGENT_TYPE = "Genetic"
 
 torch_ga, model, observation_space_size, env = None, None, None, None
-folder, train_plot = None, None
 generation = 1
 time_difference = None
-writer = None
 
 
 def fitness_func(solution, sol_idx):
@@ -39,8 +34,6 @@ def fitness_func(solution, sol_idx):
     sum_reward = 0
     done = False
     c = 0
-    reward = 0
-    results = None
     while not done:
         state = torch.tensor([observation], dtype=torch.float).to(model.device)
         q_values = model(state)
@@ -55,29 +48,16 @@ def fitness_func(solution, sol_idx):
         sum_reward += reward
         c += 1
 
-    writer.write_row({
-        StatsType.GENERATION: generation,
-        StatsType.LAST_REWARD: reward,
-        StatsType.TOTAL_REWARD: sum_reward,
-        StatsType.DISTANCE_TO_TARGET: results[Results.DISTANCE_TO_TARGET],
-        StatsType.PERCENTAGE_IN_TARGET: results[Results.PERCENTAGE_IN_TARGET],
-        StatsType.ANGLE_TO_TARGET: results[Results.ANGLE_TO_TARGET],
-        StatsType.SUCCESS: results[Results.SUCCESS],
-        StatsType.COLLISION: results[Results.COLLISION]
-    })
-
     return sum_reward
 
 
 def callback_generation(ga_instance):
-    global model, generation, writer
+    global model, generation
     generation = ga_instance.generations_completed + 1
     solution, solution_fitness, solution_idx = ga_instance.best_solution()
     model_weights_dict = pygad.torchga.model_weights_as_dict(model=model, weights_vector=solution)
     model.load_state_dict(model_weights_dict)
     model.save_checkpoint()
-    lines = writer.get_current_data()
-    plot_all_generation_from_lines(lines, folder, train_plot)
     print("Generation = {generation}".format(generation=ga_instance.generations_completed))
     print("Fitness    = {fitness}".format(fitness=ga_instance.best_solution()[1]))
 
@@ -85,7 +65,7 @@ def callback_generation(ga_instance):
 @dump_arguments(agent_type=AGENT_TYPE)
 def main(lot_generator=generate_lot,
          reward_analyzer=AnalyzerAccumulating4FrontBack,
-         feature_extractor=Extractor9,
+         feature_extractor=Extractor8,
          load_model=False,
          load_folder=None,
          time_difference_secs=0.1,
@@ -96,26 +76,12 @@ def main(lot_generator=generate_lot,
          num_parents_mating=5,
          genes_mutation_percent=10,
          num_parents_to_keep=-1,
-         plot_in_training=False,
          save_folder=None):
-    global torch_ga, model, observation_space_size, env, time_difference, writer, folder, train_plot
+    global torch_ga, model, observation_space_size, env, time_difference
     assert (not load_model) or (load_model and isinstance(load_folder, str))
     time_difference = time_difference_secs
-
     if save_folder is None:
         save_folder = utils.general_utils.get_agent_output_folder(AGENT_TYPE)
-    folder = save_folder
-    train_plot = plot_in_training
-
-    writer = csv_handler(save_folder, [StatsType.LAST_REWARD,
-                                       StatsType.TOTAL_REWARD,
-                                       StatsType.DISTANCE_TO_TARGET,
-                                       StatsType.PERCENTAGE_IN_TARGET,
-                                       StatsType.ANGLE_TO_TARGET,
-                                       StatsType.SUCCESS,
-                                       StatsType.COLLISION,
-                                       StatsType.GENERATION])
-
     env = Simulator(lot_generator, reward_analyzer, feature_extractor,
                     max_iteration_time_sec=max_iteration_time,
                     draw_screen=draw_screen,
@@ -124,7 +90,7 @@ def main(lot_generator=generate_lot,
 
     observation_space_size = env.feature_extractor.input_num
     action_space_size = len(utils.general_utils.action_mapping)
-    model = GeneticModel(observation_space_size, action_space_size, save_folder=save_folder)
+    model = GeneticModel(observation_space_size, action_space_size, chkpt_dir=save_folder)
     if load_model:
         model.change_checkpoint_dir(load_folder)
         model.load_checkpoint()
@@ -155,10 +121,12 @@ def main(lot_generator=generate_lot,
     # After the generations complete, some plots are showed that summarize how the outputs/fitness values evolve over generations.
     ga_instance.plot_result(title="PyGAD & Pytorch - Iteration vs. Fitness", linewidth=4)
     ga_instance.plot_new_solution_rate(title="New Solution Rate")
+    # ga_instance.plot_genes(title="Genes Plot")
     # Returning the details of the best solution.
     solution, solution_fitness, solution_idx = ga_instance.best_solution()
     print("Fitness value of the best solution = {solution_fitness}".format(solution_fitness=solution_fitness))
     print("Index of the best solution : {solution_idx}".format(solution_idx=solution_idx))
+
     model_weights_dict = pygad.torchga.model_weights_as_dict(model=model, weights_vector=solution)
     model.load_state_dict(model_weights_dict)
     model.save_checkpoint()
