@@ -46,7 +46,7 @@ class Steering(Enum):
     RIGHT = -1
 
 
-class DataType(Enum):
+class StatsType(Enum):
     LAST_REWARD = 0
     TOTAL_REWARD = 1
     DISTANCE_TO_TARGET = 2
@@ -54,3 +54,7 @@ class DataType(Enum):
     ANGLE_TO_TARGET = 4
     SUCCESS = 5
     COLLISION = 6
+    IS_DONE = 7
+    I_EPISODE = 8
+    I_STEP = 9
+    GENERATION = 10
