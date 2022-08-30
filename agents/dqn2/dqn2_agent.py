@@ -28,16 +28,14 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Get number of actions from gym action space
 n_actions = len(action_mapping)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 PTH_NAME = "policy_net.pth"
 MODEL_STRUCT = "structure.pth"
 
 
 class DQNReinforcmentAgent:
-    def __init__(self, DQN, Extractor: Type[FeatureExtractor], max_mem=10000,
+    def __init__(self, DQN: nn.Module, Extractor: Type[FeatureExtractor], max_mem=10000,
                  batch_size=128, gamma=0.999, eps_start=0.9, eps_end=0.3,
-                 eps_decay=5000000, target_update=1, save_folder="tmp") -> None:
+                 eps_decay=5000000, target_update=1, save_folder="tmp", is_eval=False) -> None:
 
         self.batch_size: int = batch_size
         self.gamma: float = gamma
@@ -47,13 +45,14 @@ class DQNReinforcmentAgent:
         self.target_update: int = target_update
         self.memory = ReplayMemory(max_mem)
         self.save_folder = save_folder
+        self.is_eval = is_eval
 
         self.policy_net = DQN(Extractor.input_num, n_actions).to(device)
         self.target_net = DQN(Extractor.input_num, n_actions).to(device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
 
-        self.optimizer = optim.RMSprop(self.policy_net.parameters())
+        self.optimizer = optim.Adam(self.policy_net.parameters())
 
         with open(os.path.join(self.save_folder, MODEL_STRUCT), "wb") as file:
             pickle.dump(self.policy_net, file)
@@ -61,15 +60,19 @@ class DQNReinforcmentAgent:
         self.steps_done = 0
 
     def get_action(self, state):
+        if self.is_eval:
+            with torch.no_grad():
+                return self.target_net(state).argmax().reshape(1, 1), False
+        
         eps_threshold = max(self.eps_end + (self.eps_start - self.eps_end) * math.exp(-1. * self.steps_done /
-                                                                                      self.eps_decay), 0.4)
+                                                                                        self.eps_decay), 0.4)
         self.steps_done += 1
         if random.random() > eps_threshold:
             with torch.no_grad():
                 # t.max(1) will return largest column value of each row.
                 # second column on max result is index of where max element was
                 # found, so we pick action with the larger expected reward.
-                return self.policy_net(state).argmax(), False
+                return self.policy_net(state).argmax().reshape(1, 1), False
         else:
             return torch.tensor([[random.randrange(n_actions)]], device=device, dtype=torch.long), True
 
@@ -128,7 +131,7 @@ class DQNReinforcmentAgent:
         name = PTH_NAME
         if iteration is not None:
             name += f"_iter_{iteration}.pth"
-        torch.save(self.policy_net.state_dict(), os.path.join(self.save_folder, name))
+        torch.save(self.policy_net, os.path.join(self.save_folder, name))
 
     def load(self, iteration: int = None):
         if os.path.exists(os.path.join(self.save_folder, MODEL_STRUCT)):
