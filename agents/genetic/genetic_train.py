@@ -7,7 +7,6 @@ if __name__ == '__main__':
     os.chdir(os.path.join("..", ".."))
 import torch
 from pygad import torchga
-import pygad.kerasga
 import pygad
 
 import utils.general_utils

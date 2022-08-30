@@ -6,8 +6,6 @@ if __name__ == '__main__':
     os.chdir(os.path.join("..", ".."))
 import torch
 from torch.distributions import Categorical
-
-from utils.enums import StatsType
 from agents.ppo_lstm.ppo_lstm_model import PPO_LSTM_Agent
 import utils.general_utils
 from utils.csv_handler import csv_handler
