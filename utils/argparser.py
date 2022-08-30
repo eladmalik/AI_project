@@ -23,6 +23,7 @@ import agents.genetic.genetic_train
 import agents.genetic.genetic_run
 import agents.qlearner.qlearn_train
 import agents.qlearner.qlearn_run
+import agents.manual.manual_run
 from utils.general_utils import isfloat, isint
 
 train_functions = {
@@ -180,7 +181,7 @@ def parse_run_arguments():
                         metavar="{model folder}")
     parser.add_argument("--lot", help="lot generator function", type=str,
                         metavar="{parking lot generator}")
-    # feature extractor is loaded from the loaded model
+    # feature extractor and the reward analyzer are loaded from the loaded model
     parser.add_argument("--load_iter", help="the iteration number to load. do not specify to load the last "
                                             "checkpoint", type=int, metavar="{iteration number}")
     parser.add_argument("--time", help="time interval between actions", type=float,
@@ -247,3 +248,35 @@ def parse_run_arguments():
 
     kwargs = {key: kwargs[key] for key in relevant_args if key in kwargs.keys()}
     return run_function, kwargs
+
+
+def parse_player_arguments():
+    """
+    Parses the arguments needed to run the agents for playing manually.
+    returns the argument dictionary
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--lot", help="lot generator function", type=str,
+                        metavar="{parking lot generator}")
+    parser.add_argument("--fps", help="the framerate to run. set to 60 by default", type=float,
+                        metavar="{fps}")
+    parser.add_argument("--max_time", help="maximum virtual time for a single simulation",
+                        type=int, metavar="{max virtual simulation time}")
+    parser.add_argument("-debug", help="enable to print useful data on the screen",
+                        action='store_true')
+    args = parser.parse_args()
+
+    kwargs = {
+        "lot_generator": getattr(utils.lot_generator, args.lot) if args.lot is not None else None,
+        "max_iteration_time": args.max_time,
+        "FPS": args.fps,
+        "debug": args.debug
+    }
+    relevant_args = set(inspect.signature(agents.manual.manual_run.main).parameters.keys())
+    default_params = _get_default_parameters(agents.manual.manual_run.main)
+    for arg in kwargs:
+        if kwargs[arg] is None and arg in default_params:
+            kwargs[arg] = default_params[arg]
+
+    kwargs = {key: kwargs[key] for key in relevant_args if key in kwargs.keys()}
+    return kwargs
