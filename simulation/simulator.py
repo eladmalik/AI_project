@@ -239,10 +239,14 @@ class Simulator:
 
         # drawing the agent in its new position
         self.agent_group.draw(self.window)
+        if self.resize_screen:
+            text_location = (self._lot_rect.topright[0] - 250, 0)
+        else:
+            text_location = (MAX_SCREEN_SIZE - 400, 0)
 
         self.update_info_text_surface(text_dict, font_size=16, text_color=WHITE,
                                       bg_color=BLACK,
-                                      location=(MAX_SCREEN_SIZE - 400, 0))
+                                      location=text_location)
 
         # drawing new overlays
         for surface, rect in self.overlays.values():
