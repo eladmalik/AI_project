@@ -41,66 +41,30 @@ class Car(CarSimSprite):
         self.acceleration = 0.0
         self.steering = 0.0
 
-    # def _init_sensors_old(self):
-    #     sensors = dict()
-    #     dist = MAX_SENSOR_DISTANCE
-    #     sensors[SensorDirection.FRONT] = [
-    #         ProximitySensor(self, SensorDirection.FRONT, 0, dist),
-    #         ProximitySensor(self, SensorDirection.FRONT, 30, dist),
-    #         ProximitySensor(self, SensorDirection.FRONT, -30, dist),
-    #         ProximitySensor(self, SensorDirection.FRONT, 60, dist),
-    #         ProximitySensor(self, SensorDirection.FRONT, -60, dist)
-    #     ]
-    #
-    #     sensors[SensorDirection.BACK] = [ProximitySensor(self, SensorDirection.BACK, 0, dist),
-    #                                      ProximitySensor(self, SensorDirection.BACK, 30, dist),
-    #                                      ProximitySensor(self, SensorDirection.BACK, -30, dist),
-    #                                      ProximitySensor(self, SensorDirection.BACK, 60, dist),
-    #                                      ProximitySensor(self, SensorDirection.BACK, -60, dist)]
-    #
-    #     sensors[SensorDirection.LEFT] = [ProximitySensor(self, SensorDirection.LEFT, 0, dist)]
-    #     sensors[SensorDirection.RIGHT] = [ProximitySensor(self, SensorDirection.RIGHT, 0, dist)]
-    #     return sensors
-
     def _init_sensors(self):
         sensors = dict()
         dist = MAX_SENSOR_DISTANCE
-        sensors[SensorDirection.FRONT] = [
-            ProximitySensor(self, SensorDirection.FRONT, 0, dist),
-            # ProximitySensor(self, SensorDirection.FRONT, 30, dist),
-            # ProximitySensor(self, SensorDirection.FRONT, -30, dist),
-            # ProximitySensor(self, SensorDirection.FRONT, 60, dist),
-            # ProximitySensor(self, SensorDirection.FRONT, -60, dist)
-        ]
+        sensors[SensorDirection.FRONT] = [ProximitySensor(self, SensorDirection.FRONT, 0, dist)]
 
-        sensors[SensorDirection.BACK] = [ProximitySensor(self, SensorDirection.BACK, 0, dist),
-                                         # ProximitySensor(self, SensorDirection.BACK, 30, dist),
-                                         # ProximitySensor(self, SensorDirection.BACK, -30, dist),
-                                         # ProximitySensor(self, SensorDirection.BACK, 60, dist),
-                                         # ProximitySensor(self, SensorDirection.BACK, -60, dist)
-                                         ]
+        sensors[SensorDirection.BACK] = [ProximitySensor(self, SensorDirection.BACK, 0, dist)]
 
         sensors[SensorDirection.LEFT] = [ProximitySensor(self, SensorDirection.LEFT, 0, dist)]
         sensors[SensorDirection.RIGHT] = [ProximitySensor(self, SensorDirection.RIGHT, 0, dist)]
-        sensors[SensorDirection.FRONTLEFT] = [ProximitySensor(self, SensorDirection.FRONTLEFT, 0, dist),
-                                              # ProximitySensor(self, SensorDirection.FRONTLEFT, 25, dist),
-                                              # ProximitySensor(self, SensorDirection.FRONTLEFT, -25, dist)
-                                              ]
-        sensors[SensorDirection.FRONTRIGHT] = [ProximitySensor(self, SensorDirection.FRONTRIGHT, 0, dist),
-                                               # ProximitySensor(self, SensorDirection.FRONTRIGHT, 25, dist),
-                                               # ProximitySensor(self, SensorDirection.FRONTRIGHT, -25, dist)
-                                               ]
-        sensors[SensorDirection.BACKLEFT] = [ProximitySensor(self, SensorDirection.BACKLEFT, 0, dist),
-                                             # ProximitySensor(self, SensorDirection.BACKLEFT, 25, dist),
-                                             # ProximitySensor(self, SensorDirection.BACKLEFT, -25, dist)
-                                             ]
-        sensors[SensorDirection.BACKRIGHT] = [ProximitySensor(self, SensorDirection.BACKRIGHT, 0, dist),
-                                              # ProximitySensor(self, SensorDirection.BACKRIGHT, 25, dist),
-                                              # ProximitySensor(self, SensorDirection.BACKRIGHT, -25, dist)
-                                              ]
+
+        sensors[SensorDirection.FRONTLEFT] = [ProximitySensor(self, SensorDirection.FRONTLEFT, 0, dist)]
+        sensors[SensorDirection.FRONTRIGHT] = [ProximitySensor(self, SensorDirection.FRONTRIGHT, 0, dist)]
+        sensors[SensorDirection.BACKLEFT] = [ProximitySensor(self, SensorDirection.BACKLEFT, 0, dist)]
+        sensors[SensorDirection.BACKRIGHT] = [ProximitySensor(self, SensorDirection.BACKRIGHT, 0, dist)]
         return sensors
 
     def __move_car(self, dt: float, movement: Movement, steering: Steering, update: bool):
+        """
+        updates the movement of the car
+        :param dt: the time interval which the car should move
+        :param movement: indicates the forward/backward movement of the car
+        :param steering: indicates to which side the car should steer
+        :param update: Ture iff the car should actually be updated
+        """
         velocity = self.velocity.copy()
         acceleration = self.acceleration
         steer = self.steering
@@ -172,4 +136,3 @@ class Car(CarSimSprite):
 
     def peek(self, dt: float, movement: Movement, steering: Steering):
         return self.__move_car(dt, movement, steering, False)
-

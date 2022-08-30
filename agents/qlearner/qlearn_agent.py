@@ -10,8 +10,7 @@ import pickle
 from typing import Any, Dict, List
 from utils.general_utils import action_mapping
 from simulation.simulator import Simulator
-from utils.feature_extractor import FeatureExtractor
-from utils.reward_analyzer import Results, RewardAnalyzer
+from utils.reward_analyzer import Results
 
 import numpy as np
 import random
@@ -110,14 +109,6 @@ class QLearnerAgent:
 
     def stopEpisode(self):
         self.episode += 1
-
-    # def train(self, state: List[float], action: int, nextState: List[float], deltaReward: float):
-    #     """
-    #     Called by Pacman game at the terminal state
-    #     """
-    #     deltaReward = self.getQValue(state, action) - self.getQValue(state, action)
-    #     self.observeTransition(state, action, nextState, deltaReward)
-    #     self.stopEpisode()
 
     def save(self, iteration=None):
         name = WEIGHTS_FILE_NAME

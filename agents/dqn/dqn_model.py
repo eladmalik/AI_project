@@ -5,10 +5,7 @@ from collections import deque
 
 import torch
 from torch import nn, optim as optim
-import torch.nn.functional as F
 import os
-
-import utils
 from simulation.simulator import Simulator
 
 STRUCTURE_NAME = "structure.pickle"
@@ -16,6 +13,9 @@ PTH_NAME = "agent.pth"
 
 
 class DQNModel(ABC, nn.Module):
+    """
+    The basic structure of the DQN's neural network
+    """
 
     @abstractmethod
     def forward(self, x):
@@ -59,6 +59,9 @@ class FlatDQN_Model(DQNModel):
 
 
 class QTrainer:
+    """
+    A class which is responsible for training the DQN
+    """
     def __init__(self, model, lr, gamma):
         self.lr = lr
         self.gamma = gamma
@@ -103,6 +106,9 @@ class QTrainer:
 
 
 class Agent:
+    """
+    The DQN Agent
+    """
 
     def __init__(self, simulator: Simulator, model,
                  randomness_rate=0.25,
@@ -129,9 +135,15 @@ class Agent:
         self.is_eval = is_eval
 
     def remember(self, state, action, reward, next_state, done):
+        """
+        Stores the results of an action to the memory, to be learned later
+        """
         self.memory.append((state, action, reward, next_state, done))  # popleft if MAX_MEMORY is reached
 
     def train_long_memory(self):
+        """
+        Used after an epoch, trains the agent on a large batch of data at once
+        """
         if len(self.memory) > self.batch_size:
             mini_sample = random.sample(self.memory, self.batch_size)  # list of tuples
         else:
@@ -141,9 +153,16 @@ class Agent:
         self.trainer.train_step(states, actions, rewards, next_states, dones)
 
     def train_short_memory(self, state, action, reward, next_state, done):
+        """
+        Trains the agent on a single action
+        """
         self.trainer.train_step(state, action, reward, next_state, done)
 
     def get_action(self, state):
+        """
+        Returns an action according to the given state. might return a random value in order to explore the
+        state space
+        """
         # random moves: tradeoff exploration / exploitation
         self.epsilon = self.max_epsilon - self.n_games
         if self.randomness_rate > 0 and \
@@ -163,12 +182,18 @@ class Agent:
         return move
 
     def save(self, iteration=None):
+        """
+        Saves the current state of the agent
+        """
         name = PTH_NAME
         if iteration is not None:
             name += f"_iter_{iteration}.pth"
         torch.save(self.model.state_dict(), os.path.join(self.save_folder, name))
 
     def load(self, iteration=None):
+        """
+        Loads a state of the agent
+        """
         if os.path.exists(os.path.join(self.save_folder, STRUCTURE_NAME)):
             with open(os.path.join(self.save_folder, STRUCTURE_NAME), "rb") as file:
                 self.network = pickle.load(file)
