@@ -89,3 +89,21 @@ def write_stats(result_writer: csv_handler, i_episode, i_step, reward, total_rew
         StatsType.COLLISION: collision,
         StatsType.IS_DONE: done
     })
+
+
+def isfloat(string: str):
+    flag = True
+    try:
+        float(string)
+    except ValueError:
+        flag = False
+    return flag
+
+
+def isint(string: str):
+    flag = True
+    try:
+        int(string)
+    except ValueError:
+        flag = False
+    return flag

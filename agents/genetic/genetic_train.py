@@ -108,15 +108,13 @@ def main(lot_generator=generate_lot,
     folder = save_folder
     train_plot = plot_in_training
 
-    writer = csv_handler(save_folder, [StatsType.I_EPISODE,
-                                       StatsType.I_STEP,
-                                       StatsType.LAST_REWARD,
+    writer = csv_handler(save_folder, [StatsType.LAST_REWARD,
+                                       StatsType.TOTAL_REWARD,
                                        StatsType.DISTANCE_TO_TARGET,
                                        StatsType.PERCENTAGE_IN_TARGET,
                                        StatsType.ANGLE_TO_TARGET,
                                        StatsType.SUCCESS,
                                        StatsType.COLLISION,
-                                       StatsType.IS_DONE,
                                        StatsType.GENERATION])
 
     env = Simulator(lot_generator, reward_analyzer, feature_extractor,

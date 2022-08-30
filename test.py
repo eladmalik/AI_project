@@ -9,7 +9,7 @@ from agents.dqn.dqn_model import Agent as DQN_Agent
 from agents.ppo.ppo_agent import Agent as PPO_Agent
 from utils import calculations
 from utils.csv_handler import csv_handler
-from utils.enums import DataType
+from utils.enums import StatsType
 from utils.lot_generator import *
 from utils.feature_extractor import *
 import utils.feature_extractor
@@ -75,13 +75,13 @@ def main(
     agent.load(load_iter)
     agent.save_folder = save_folder
 
-    result_writer = csv_handler(save_folder, [DataType.LAST_REWARD,
-                                              DataType.TOTAL_REWARD,
-                                              DataType.DISTANCE_TO_TARGET,
-                                              DataType.PERCENTAGE_IN_TARGET,
-                                              DataType.ANGLE_TO_TARGET,
-                                              DataType.SUCCESS,
-                                              DataType.COLLISION])
+    result_writer = csv_handler(save_folder, [StatsType.LAST_REWARD,
+                                              StatsType.TOTAL_REWARD,
+                                              StatsType.DISTANCE_TO_TARGET,
+                                              StatsType.PERCENTAGE_IN_TARGET,
+                                              StatsType.ANGLE_TO_TARGET,
+                                              StatsType.SUCCESS,
+                                              StatsType.COLLISION])
 
     if agent_type == "ppo_lstm":
         hidden = agent.get_init_hidden()
@@ -105,13 +105,13 @@ def main(
         total_reward += reward
         if done:
             result_writer.write_row({
-                DataType.LAST_REWARD: reward,
-                DataType.TOTAL_REWARD: total_reward,
-                DataType.DISTANCE_TO_TARGET: results[Results.DISTANCE_TO_TARGET],
-                DataType.PERCENTAGE_IN_TARGET: results[Results.PERCENTAGE_IN_TARGET],
-                DataType.ANGLE_TO_TARGET: results[Results.ANGLE_TO_TARGET],
-                DataType.SUCCESS: results[Results.SUCCESS],
-                DataType.COLLISION: results[Results.COLLISION]
+                StatsType.LAST_REWARD: reward,
+                StatsType.TOTAL_REWARD: total_reward,
+                StatsType.DISTANCE_TO_TARGET: results[Results.DISTANCE_TO_TARGET],
+                StatsType.PERCENTAGE_IN_TARGET: results[Results.PERCENTAGE_IN_TARGET],
+                StatsType.ANGLE_TO_TARGET: results[Results.ANGLE_TO_TARGET],
+                StatsType.SUCCESS: results[Results.SUCCESS],
+                StatsType.COLLISION: results[Results.COLLISION]
             })
             if results[Results.SUCCESS]:
                 successful_parks += 1

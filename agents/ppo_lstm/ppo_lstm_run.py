@@ -15,11 +15,11 @@ from utils.general_utils import dump_arguments
 from utils.lot_generator import *
 from utils.reward_analyzer import *
 from utils.feature_extractor import *
-from utils.general_utils import action_mapping
+from utils.general_utils import action_mapping, write_stats
 from simulation.simulator import Simulator, DrawingMethod
 from utils.plot_maker import plot_all_from_lines
 
-AGENT_TYPE = "PPO_LSTM"
+AGENT_TYPE = "RUN_PPO_LSTM"
 
 
 @dump_arguments(agent_type=AGENT_TYPE)
@@ -39,12 +39,12 @@ def main(
         learning_rate: float = 0.0005,
         gamma: float = 0.98,
         lmbda: float = 0.95,
+        log_rate: int = 10,
         policy_clip: float = 0.1,
         learn_interval: int = 20,
         n_epochs: int = 2,
         plot_in_training: bool = True,
         plot_interval: int = 100,
-        checkpoint_interval: int = 250,
         save_folder: str = None):
     assert (not load_model) or (load_model and isinstance(load_folder, str))
     if save_folder is None:
@@ -70,19 +70,14 @@ def main(
         agent.load(load_iter)
         agent.save_folder = save_folder
     score = 0.0
-    result_writer = csv_handler(save_folder, [StatsType.LAST_REWARD,
-                                              StatsType.TOTAL_REWARD,
-                                              StatsType.DISTANCE_TO_TARGET,
-                                              StatsType.PERCENTAGE_IN_TARGET,
-                                              StatsType.ANGLE_TO_TARGET,
-                                              StatsType.SUCCESS,
-                                              StatsType.COLLISION])
+    result_writer = csv_handler(save_folder, csv_handler.DEFAULT_STATS)
 
     for n_epi in range(n_simulations):
         h_out = agent.get_init_hidden()
         state = env.reset()
         done = False
         reward = 0
+        i_step = 0
         results = None
 
         while not done:
@@ -107,51 +102,35 @@ def main(
                     pygame.event.pump()
                     env.update_screen(text)
 
-                agent.put_data(
-                    (state, action, reward / 100.0, s_prime, prob[action].item(), h_in, h_out, done))
                 state = s_prime
+                if i_step % log_rate == 0 or done:
+                    write_stats(result_writer, n_epi,
+                                i_step,
+                                reward,
+                                score,
+                                results[Results.DISTANCE_TO_TARGET],
+                                results[Results.PERCENTAGE_IN_TARGET],
+                                results[Results.ANGLE_TO_TARGET],
+                                results[Results.SUCCESS],
+                                results[Results.COLLISION],
+                                done)
+                i_step += 1
+
                 if done:
                     break
-
-            agent.train_net()
-
-        result_writer.write_row({
-            StatsType.LAST_REWARD: reward,
-            StatsType.TOTAL_REWARD: score,
-            StatsType.DISTANCE_TO_TARGET: results[Results.DISTANCE_TO_TARGET],
-            StatsType.PERCENTAGE_IN_TARGET: results[Results.PERCENTAGE_IN_TARGET],
-            StatsType.ANGLE_TO_TARGET: results[Results.ANGLE_TO_TARGET],
-            StatsType.SUCCESS: results[Results.SUCCESS],
-            StatsType.COLLISION: results[Results.COLLISION]
-        })
-        if (n_epi + 1) % checkpoint_interval == 0:
-            agent.save(iteration=n_epi)
+        if i_step % log_rate != 0:
+            write_stats(result_writer, n_epi,
+                        i_step,
+                        reward,
+                        score,
+                        results[Results.DISTANCE_TO_TARGET],
+                        results[Results.PERCENTAGE_IN_TARGET],
+                        results[Results.ANGLE_TO_TARGET],
+                        results[Results.SUCCESS],
+                        results[Results.COLLISION],
+                        done)
         if (n_epi + 1) % plot_interval == 0:
             plot_all_from_lines(result_writer.get_current_data(), save_folder, show=plot_in_training)
-        agent.save()
+
         print("# of episode :{}, score : {:.1f}".format(n_epi, score))
         score = 0.0
-
-
-if __name__ == '__main__':
-    main(lot_generator=generate_lot,
-         reward_analyzer=AnalyzerAccumulating4FrontBack,
-         feature_extractor=Extractor9,
-         load_model=False,
-         load_folder=None,
-         load_iter=None,
-         time_difference_secs=0.1,
-         max_iteration_time=800,
-         draw_screen=True,
-         resize_screen=False,
-         draw_rate=1,
-         n_simulations=100000,
-         learning_rate=0.0005,
-         gamma=0.98,
-         lmbda=0.95,
-         policy_clip=0.1,
-         learn_interval=20,
-         n_epochs=2,
-         plot_in_training=True,
-         plot_interval=100,
-         checkpoint_interval=250)

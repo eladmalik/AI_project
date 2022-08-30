@@ -40,7 +40,7 @@ class AnalyzerNull(RewardAnalyzer):
         and returns a reward value
         """
 
-        return 0, results[Results.COLLISION]
+        return 0, results[Results.COLLISION] or self.is_success(parking_lot, results)
 
     def is_success(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> bool:
         return get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results, 0.93, 30) > 0
