@@ -60,9 +60,6 @@ class Simulator:
         :param draw_screen: True iff the GUI should be shown on the screen while training/testing. setting
         this to False will improve performance
 
-        :param resize_screen: True iff The GUI's size should stay the same for every episode. setting this
-        to True will improve performance
-
         :param background_image: setting this to an image's path will make the simulator to draw the image
         as a background. keeping it as None will make the simulator to draw the default background color.
 
@@ -81,11 +78,9 @@ class Simulator:
                and every update it replaces the previous agent's rectangle with the portion of the copy
                image which is in the agent's position
 
-               ** THE BEST METHOD SO FAR IS THE BACKGROUND SNAPSHOT, SKIP OBSTACLES IS NOT RECOMMENDED **
-
         :param full_refresh_rate: if drawing method is set to SKIP_OBSTACLES, the screen will be drawn
                completely once every this number of iterations. higher values means more efficient drawing,
-               but less nice-looking screen.
+               but less nice-looking screen
         """
         pygame.font.init()
         self.max_simulator_time = max_iteration_time_sec  # (in seconds)
@@ -113,9 +108,6 @@ class Simulator:
             self.window = pygame.Surface((self.width, self.height))
 
     def _init_episode(self):
-        """
-        Initializes the parameters which are relevant to the epochs which is now being initialized
-        """
         self.iteration_counter: int = 0
         self.total_time = 0
         self.frame = 0
@@ -171,8 +163,11 @@ class Simulator:
         snapshot = pygame.Surface((MAX_SCREEN_SIZE, MAX_SCREEN_SIZE))
         if self.background_img is not None:
             snapshot.blit(self.background_img, (0, 0))
+            # snapshot = self.background_img.copy()
         else:
             pygame.draw.rect(snapshot, FLOOR, self._lot_rect)
+            # snapshot = pygame.Surface((self.width, self.height))
+            # snapshot.fill(FLOOR)
         self.parking_cells_group.draw(snapshot)
         self.obstacles_group.draw(snapshot)
         return snapshot
@@ -239,14 +234,10 @@ class Simulator:
 
         # drawing the agent in its new position
         self.agent_group.draw(self.window)
-        if self.resize_screen:
-            text_location = (self._lot_rect.topright[0] - 250, 0)
-        else:
-            text_location = (MAX_SCREEN_SIZE - 400, 0)
 
         self.update_info_text_surface(text_dict, font_size=16, text_color=WHITE,
                                       bg_color=BLACK,
-                                      location=text_location)
+                                      location=(MAX_SCREEN_SIZE - 400, 0))
 
         # drawing new overlays
         for surface, rect in self.overlays.values():
@@ -267,6 +258,31 @@ class Simulator:
                 self._draw_screen_no_obstacles()
         elif self._drawing_method == DrawingMethod.BACKGROUND_SNAPSHOT:
             self._draw_screen_snapshot(info_text)
+
+        # unmark this to display the sensors
+
+        # for direction in self.agent.sensors:
+        #     if direction not in self.agent.sensors:
+        #         continue
+        #     for sensor in self.agent.sensors[direction]:
+        #         start, stop = sensor._create_sensor_line()
+        #         pygame.draw.line(self.window, (255, 255, 255), start, stop)
+        #         min_dot, _ = sensor.detect(self.obstacles_group)
+        #         pygame.draw.circle(self.window, (15, 245, 233), min_dot, 7)
+        # pygame.draw.circle(self.window, (255, 0, 0), self.agent.front, 4)
+        # pygame.draw.circle(self.window, (0, 13, 255), self.agent.back, 4)
+        # pygame.draw.circle(self.window, (0, 255, 13), self.agent.left, 4)
+        # pygame.draw.circle(self.window, (255, 242, 0), self.agent.right, 4)
+        # pygame.draw.circle(self.window, (93, 0, 255), self.agent.frontleft, 4)
+        # pygame.draw.circle(self.window, (255, 136, 0), self.agent.frontright, 4)
+        # pygame.draw.circle(self.window, (0, 255, 119), self.agent.backleft, 4)
+        # pygame.draw.circle(self.window, (255, 0, 221), self.agent.backright, 4)
+        # pygame.draw.line(self.window, (255, 0, 0), self.parking_lot.target_park.backleft,
+        #                  self.parking_lot.target_park.backright)
+        # if len(self.reward_analyzer.checkpoints) > 0:
+        #     for checkpoint in self.reward_analyzer.checkpoints:
+        #         if not checkpoint[2]:
+        #             pygame.draw.line(self.window, (255, 0, 0), checkpoint[0], checkpoint[1])
         pygame.display.update()
         self.iteration_counter = (self.iteration_counter + 1) % sys.maxsize
 
