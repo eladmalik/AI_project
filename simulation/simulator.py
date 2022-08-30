@@ -50,6 +50,16 @@ class Simulator:
 
         :param reward_analyzer: the analyzer responsible for calculating the reward for the current state
 
+        :param feature_extractor: the module responsible for extracting numerical features which describes
+        the current state of the simulation
+
+        :param max_iteration_time_sec: the maximum virtual time the simulation should run. virtual time is
+        the sum of time differences which was passed to the "do_step" function. typically, when the time
+        difference is constant, this implies that: max_steps = max_iteration_time_sec / time_difference
+
+        :param draw_screen: True iff the GUI should be shown on the screen while training/testing. setting
+        this to False will improve performance
+
         :param background_image: setting this to an image's path will make the simulator to draw the image
         as a background. keeping it as None will make the simulator to draw the default background color.
 
@@ -68,8 +78,8 @@ class Simulator:
                and every update it replaces the previous agent's rectangle with the portion of the copy
                image which is in the agent's position
 
-        :param full_refresh_rate: if efficient_drawing is set to True, the screen will be drawn completely
-               once every this number of iterations. higher values means more efficient drawing,
+        :param full_refresh_rate: if drawing method is set to SKIP_OBSTACLES, the screen will be drawn
+               completely once every this number of iterations. higher values means more efficient drawing,
                but less nice-looking screen
         """
         pygame.font.init()
