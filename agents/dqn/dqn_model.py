@@ -1,6 +1,6 @@
 import pickle
 import random
-from abc import ABC
+from abc import ABC, abstractmethod
 from collections import deque
 
 import torch
@@ -15,7 +15,14 @@ STRUCTURE_NAME = "structure.pickle"
 PTH_NAME = "agent.pth"
 
 
-class DQN_Model(nn.Module):
+class DQNModel(ABC, nn.Module):
+
+    @abstractmethod
+    def forward(self, x):
+        ...
+
+
+class DQN_Model(DQNModel):
     def __init__(self, input_size, output_size, hidden_size1=128, hidden_size2=128, hidden_size3=128,
                  hidden_size4=128,
                  hidden_size5=128,
@@ -23,17 +30,6 @@ class DQN_Model(nn.Module):
         super().__init__()
         self.input_size = input_size
         self.actions_num = output_size
-        # self.network = nn.Sequential(nn.Linear(input_size, hidden_size1),
-        #                              nn.ReLU(),
-        #                              nn.Linear(hidden_size1, hidden_size2),
-        #                              nn.ReLU(),
-        #                              nn.Linear(hidden_size2, hidden_size3),
-        #                              nn.ReLU(),
-        #                              nn.Linear(hidden_size3, hidden_size4),
-        #                              nn.ReLU(),
-        #                              nn.Linear(hidden_size4, hidden_size5),
-        #                              nn.ReLU(),
-        #                              nn.Linear(hidden_size5, output_size))
         self.network = nn.Sequential(nn.Linear(input_size, hidden_size1),
                                      nn.ReLU(),
                                      nn.Linear(hidden_size1, hidden_size2),
@@ -41,6 +37,20 @@ class DQN_Model(nn.Module):
                                      nn.Linear(hidden_size2, hidden_size3),
                                      nn.ReLU(),
                                      nn.Linear(hidden_size3, output_size))
+        with open(os.path.join(save_folder, STRUCTURE_NAME), "wb") as file:
+            pickle.dump(self.network, file)
+
+    def forward(self, x):
+        return self.network(x)
+
+
+class FlatDQN_Model(DQNModel):
+    def __init__(self, input_size, output_size, save_folder="tmp"):
+        super().__init__()
+        self.save_folder = save_folder
+        self.input_size = input_size
+        self.actions_num = output_size
+        self.network = nn.Linear(input_size, output_size)
         with open(os.path.join(save_folder, STRUCTURE_NAME), "wb") as file:
             pickle.dump(self.network, file)
 
@@ -101,7 +111,8 @@ class Agent:
                  max_epsilon=1000,
                  batch_size=1000,
                  max_memory=100000,
-                 save_folder="tmp"):
+                 save_folder="tmp",
+                 is_eval=False):
         self.n_games = 0
         self.epsilon = 0  # randomness
         self.randomness_rate = randomness_rate
@@ -115,6 +126,7 @@ class Agent:
         self.model = model
         self.trainer = QTrainer(self.model, lr=self.learning_rate, gamma=self.gamma)
         self.save_folder = save_folder
+        self.is_eval = is_eval
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))  # popleft if MAX_MEMORY is reached
@@ -138,9 +150,15 @@ class Agent:
                 random.randint(0, int(self.max_epsilon / self.randomness_rate)) < self.epsilon:
             move = random.randint(0, self.model.actions_num - 1)
         else:
-            state0 = torch.tensor(state, dtype=torch.float)
-            prediction = self.model(state0)
-            move = torch.argmax(prediction).item()
+            if self.is_eval:
+                with torch.no_grad():
+                    state0 = torch.tensor(state, dtype=torch.float)
+                    prediction = self.model(state0)
+                    move = torch.argmax(prediction).item()
+            else:
+                state0 = torch.tensor(state, dtype=torch.float)
+                prediction = self.model(state0)
+                move = torch.argmax(prediction).item()
 
         return move
 

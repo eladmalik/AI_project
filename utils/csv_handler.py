@@ -8,6 +8,17 @@ CSV_FILE = "results.csv"
 
 
 class csv_handler:
+    DEFAULT_STATS = [StatsType.I_EPISODE,
+                     StatsType.I_STEP,
+                     StatsType.LAST_REWARD,
+                     StatsType.TOTAL_REWARD,
+                     StatsType.DISTANCE_TO_TARGET,
+                     StatsType.PERCENTAGE_IN_TARGET,
+                     StatsType.ANGLE_TO_TARGET,
+                     StatsType.SUCCESS,
+                     StatsType.COLLISION,
+                     StatsType.IS_DONE]
+
     def __init__(self, folder: str, parameters: List[StatsType]):
         self.folder = folder
         self.out_file = open(os.path.join(self.folder, CSV_FILE), 'w', encoding="utf-8", newline='')

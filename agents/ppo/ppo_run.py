@@ -1,10 +1,11 @@
 import os
+
 if __name__ == '__main__':
     os.chdir(os.path.join("..", ".."))
 import utils.general_utils
 from utils.csv_handler import csv_handler
 from utils.enums import StatsType
-from utils.general_utils import action_mapping, dump_arguments
+from utils.general_utils import action_mapping, dump_arguments, write_stats
 from utils.lot_generator import *
 from utils.reward_analyzer import *
 from utils.feature_extractor import *
@@ -13,7 +14,7 @@ from utils.calculations import get_angle_to_target
 from agents.ppo.ppo_agent import Agent
 from simulation.simulator import Simulator, DrawingMethod
 
-AGENT_TYPE = "PPO"
+AGENT_TYPE = "RUN_PPO"
 
 
 @dump_arguments(AGENT_TYPE)
@@ -33,12 +34,11 @@ def main(lot_generator=generate_lot,
          gamma=0.99,
          lmbda=0.95,
          policy_clip=0.1,
-         learn_interval=80,
          batch_size=20,
          n_epochs=4,
+         log_rate=10,
          plot_in_training=True,
          plot_interval=100,
-         checkpoint_interval=250,
          save_folder=None):
     assert (not load_model) or (load_model and isinstance(load_folder, str))
     env = Simulator(lot_generator, reward_analyzer, feature_extractor,
@@ -56,7 +56,8 @@ def main(lot_generator=generate_lot,
                   n_epochs=n_epochs,
                   policy_clip=policy_clip,
                   input_dims=tuple([feature_extractor.input_num]),
-                  save_folder=save_folder)
+                  save_folder=save_folder,
+                  is_eval=True)
     if load_model:
         agent.change_checkpoint_dir(load_folder)
         agent.load_models(load_iter)
@@ -64,13 +65,7 @@ def main(lot_generator=generate_lot,
 
     learn_iters = 0
     n_steps = 0
-    result_writer = csv_handler(save_folder, [StatsType.LAST_REWARD,
-                                              StatsType.TOTAL_REWARD,
-                                              StatsType.DISTANCE_TO_TARGET,
-                                              StatsType.PERCENTAGE_IN_TARGET,
-                                              StatsType.ANGLE_TO_TARGET,
-                                              StatsType.SUCCESS,
-                                              StatsType.COLLISION])
+    result_writer = csv_handler(save_folder, csv_handler.DEFAULT_STATS)
 
     for i in range(n_simulations):
         env.reset()
@@ -79,10 +74,13 @@ def main(lot_generator=generate_lot,
         score = 0
         reward = 0
         results = None
+        i_step = 0
+
         while not done:
             action, prob, val = agent.choose_action(observation)
             observation_, reward, done, results = env.do_step(*action_mapping[action], time_difference_secs)
             n_steps += 1
+            i_step += 1
             score += reward
             if draw_screen and i % draw_rate == 0:
                 text = {
@@ -94,50 +92,22 @@ def main(lot_generator=generate_lot,
                 }
                 pygame.event.pump()
                 env.update_screen(text)
-            agent.remember(observation, action, prob, val, reward, done)
-            if n_steps % learn_interval == 0:
-                agent.learn()
-                learn_iters += 1
+
             observation = observation_
 
-        result_writer.write_row({
-            StatsType.LAST_REWARD: reward,
-            StatsType.TOTAL_REWARD: score,
-            StatsType.DISTANCE_TO_TARGET: results[Results.DISTANCE_TO_TARGET],
-            StatsType.PERCENTAGE_IN_TARGET: results[Results.PERCENTAGE_IN_TARGET],
-            StatsType.ANGLE_TO_TARGET: results[Results.ANGLE_TO_TARGET],
-            StatsType.SUCCESS: results[Results.SUCCESS],
-            StatsType.COLLISION: results[Results.COLLISION]
-        })
-        agent.save_models()
+            if i_step % log_rate == 0 or done:
+                write_stats(result_writer, i,
+                            i_step,
+                            reward,
+                            score,
+                            results[Results.DISTANCE_TO_TARGET],
+                            results[Results.PERCENTAGE_IN_TARGET],
+                            results[Results.ANGLE_TO_TARGET],
+                            results[Results.SUCCESS],
+                            results[Results.COLLISION],
+                            done)
+
         if (i + 1) % plot_interval == 0:
             plot_all_from_lines(result_writer.get_current_data(), save_folder, show=plot_in_training)
-        if (i + 1) % checkpoint_interval == 0:
-            agent.save_models(iteration=i)
 
         print('episode', i, 'score %.9f' % score, 'time_steps', n_steps, 'learning_steps', learn_iters)
-
-
-if __name__ == '__main__':
-    main(lot_generator=generate_lot,
-         reward_analyzer=AnalyzerAccumulating4FrontBack,
-         feature_extractor=Extractor8,
-         load_model=False,
-         load_folder=None,
-         load_iter=None,
-         time_difference_secs=0.1,
-         max_iteration_time=500,
-         draw_screen=True,
-         resize_screen=False,
-         draw_rate=1,
-         n_simulations=100000,
-         learning_rate=0.0005,
-         gamma=0.99,
-         lmbda=0.95,
-         policy_clip=0.1,
-         learn_interval=80,
-         batch_size=20,
-         n_epochs=4,
-         plot_in_training=True,
-         plot_interval=100,
-         checkpoint_interval=250)
