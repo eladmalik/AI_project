@@ -125,7 +125,7 @@ def main(lot_generator=generate_lot,
 
     observation_space_size = env.feature_extractor.input_num
     action_space_size = len(utils.general_utils.action_mapping)
-    model = GeneticModel(observation_space_size, action_space_size, chkpt_dir=save_folder)
+    model = GeneticModel(observation_space_size, action_space_size, save_folder=save_folder)
     if load_model:
         model.change_checkpoint_dir(load_folder)
         model.load_checkpoint()

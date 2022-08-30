@@ -9,11 +9,11 @@ MODEL_STRUCT = 'seq.pickle'
 
 class GeneticModel(nn.Module):
     def __init__(self, input_dims, n_actions,
-                 fc1_dims=128, fc2_dims=128, fc3_dims=128, chkpt_dir=os.path.join("tmp", "gen")):
+                 fc1_dims=128, fc2_dims=128, fc3_dims=128, save_folder=os.path.join("tmp", "gen")):
         super(GeneticModel, self).__init__()
 
-        self.checkpoint_file = os.path.join(chkpt_dir, DEFAULT_NAME)
-        self.checkpoint_dir = chkpt_dir
+        self.checkpoint_file = os.path.join(save_folder, DEFAULT_NAME)
+        self.checkpoint_dir = save_folder
         self.model = nn.Sequential(
             nn.Linear(input_dims, fc1_dims),
             nn.ReLU(),
@@ -24,7 +24,7 @@ class GeneticModel(nn.Module):
             nn.Linear(fc3_dims, n_actions),
             nn.Softmax(dim=-1)
         )
-        with open(os.path.join(chkpt_dir, MODEL_STRUCT), "wb") as file:
+        with open(os.path.join(save_folder, MODEL_STRUCT), "wb") as file:
             pickle.dump(self.model, file)
 
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
