@@ -29,25 +29,12 @@ def arrange_data(lines: List[List[Any]]):
     return data_dict
 
 
-def get_only_dones(data_dict):
-    new_dict = {key: list() for key in data_dict}
-
-    for i in range(len(data_dict[StatsType.IS_DONE])):
-        if data_dict[StatsType.IS_DONE][i]:
-            for key in data_dict:
-                new_dict[key].append(data_dict[key][i])
-    return new_dict
-
-
 def plot_distance_data(data_dict, save_folder, last_epochs=100, show=False):
     bg_color = "#191919"
     axes_color = 'white'
     distance_color = "#1a1fab"
     avg_distance_color = "#e44dff"
     last_epochs_color = "#2af76b"
-
-    if StatsType.IS_DONE in data_dict:
-        data_dict = get_only_dones(data_dict)
 
     distances = data_dict[StatsType.DISTANCE_TO_TARGET]
     avg_distances = [sum(distances[:i]) / i for i in range(1, len(distances))]
@@ -89,9 +76,6 @@ def plot_percentage_in_target_data(data_dict, save_folder, last_epochs=100, show
     avg_percentage_color = "#e44dff"
     last_epochs_color = "#2af76b"
 
-    if StatsType.IS_DONE in data_dict:
-        data_dict = get_only_dones(data_dict)
-
     in_targert_percentage = data_dict[StatsType.PERCENTAGE_IN_TARGET]
     avg = [sum(in_targert_percentage[:i]) / i for i in range(1, len(in_targert_percentage))]
 
@@ -121,7 +105,7 @@ def plot_percentage_in_target_data(data_dict, save_folder, last_epochs=100, show
     fig = plt.gcf()
     if show:
         plt.show(block=False)
-    fig.savefig(os.path.join(save_folder, "percentage_in_target.png"))
+    fig.savefig(os.path.join(save_folder, "percetage_in_target.png"))
     plt.close()
 
 
@@ -133,9 +117,6 @@ def plot_success_collision_rate(data_dict, save_folder, last_epochs=100, show=Fa
 
     avg_collision_color = "#bf0000"
     last_epochs_collision_color = "#d95300"
-
-    if StatsType.IS_DONE in data_dict:
-        data_dict = get_only_dones(data_dict)
 
     success = data_dict[StatsType.SUCCESS]
     avg_success = [sum(success[:i]) / i for i in range(1, len(success))]
@@ -192,8 +173,6 @@ def plot_all_from_lines(lines: List[List[Any]], save_folder: str, last_epochs: i
 
 
 def plot_avg_distance_per_generation(data_dict: Dict[StatsType, List[Any]], save_folder: str, show=False):
-    if StatsType.IS_DONE in data_dict:
-        data_dict = get_only_dones(data_dict)
     generations = dict()
     for i in range(len(data_dict[StatsType.GENERATION])):
         generation = data_dict[StatsType.GENERATION][i]
@@ -239,9 +218,6 @@ def plot_avg_distance_per_generation(data_dict: Dict[StatsType, List[Any]], save
 
 def plot_avg_percentage_in_target_per_generation(data_dict: Dict[StatsType, List[Any]], save_folder: str,
                                                  show=False):
-    if StatsType.IS_DONE in data_dict:
-        data_dict = get_only_dones(data_dict)
-
     generations = dict()
     for i in range(len(data_dict[StatsType.GENERATION])):
         generation = data_dict[StatsType.GENERATION][i]
@@ -281,14 +257,12 @@ def plot_avg_percentage_in_target_per_generation(data_dict: Dict[StatsType, List
     fig = plt.gcf()
     if show:
         plt.show(block=False)
-    fig.savefig(os.path.join(save_folder, "percentage_in_target.png.png"))
+    fig.savefig(os.path.join(save_folder, "distances.png"))
     plt.close()
 
 
 def plot_avg_collision_success_per_generation(data_dict: Dict[StatsType, List[Any]], save_folder: str,
                                               show=False):
-    if StatsType.IS_DONE in data_dict:
-        data_dict = get_only_dones(data_dict)
     generations = dict()
     for i in range(len(data_dict[StatsType.GENERATION])):
         generation = data_dict[StatsType.GENERATION][i]
@@ -335,64 +309,6 @@ def plot_avg_collision_success_per_generation(data_dict: Dict[StatsType, List[An
     if show:
         plt.show(block=False)
     fig.savefig(os.path.join(save_folder, "success_and_collision.png"))
-    plt.close()
-
-
-def plot_avg_max_total_reward_generation(data_dict: Dict[StatsType, List[Any]], save_folder: str,
-                                         show=False):
-    if StatsType.IS_DONE in data_dict:
-        data_dict = get_only_dones(data_dict)
-
-    gen_max = dict()
-    generations = dict()
-    for i in range(len(data_dict[StatsType.GENERATION])):
-        generation = data_dict[StatsType.GENERATION][i]
-        if generation not in generations:
-            gen_max[i] = 0
-            generations[generation] = [0, 0]
-        generations[generation][0] += 1
-        generations[generation][1] += data_dict[StatsType.TOTAL_REWARD][i]
-        if gen_max[i] < data_dict[StatsType.TOTAL_REWARD][i]:
-            gen_max = data_dict[StatsType.TOTAL_REWARD][i]
-    for generation in generations:
-        generations[generation] = generations[generation][1] / generations[generation][0]
-
-    total_reward_avg_items = list(generations.items())
-    total_reward_avg_items.sort(key=lambda x: x[0])
-
-    total_reward_max_items = list(gen_max.items())
-    total_reward_max_items.sort(key=lambda x: x[0])
-    indexes = [item[0] for item in total_reward_avg_items]
-    avg_total_scores = [item[1][0] for item in total_reward_avg_items]
-    max_total_scores = [item[1] for item in total_reward_max_items]
-
-    bg_color = "#191919"
-    axes_color = 'white'
-    avg_reward_color = "#e44dff"
-    max_reward_color = "#2af76b"
-
-    plt.clf()
-    plt.figure(facecolor=bg_color)
-    ax = plt.axes()
-    ax.tick_params(axis='x', colors=axes_color)
-    ax.tick_params(axis='y', colors=axes_color)
-    for child in ax.get_children():
-        if isinstance(child, matplotlib.spines.Spine):
-            child.set_color('white')
-    ax.set_facecolor(color=bg_color)
-    plt.title('Max and Average Total Rewards', color=axes_color)
-    plt.xlabel('Number of Simulations', color=axes_color)
-    plt.ylabel('Max and Average Total Rewards', color=axes_color)
-
-    plt.plot(indexes, avg_total_scores, label="avg total reward", color=avg_reward_color)
-    plt.plot(indexes, max_total_scores, label="max total reward", color=max_reward_color)
-
-    plt.ylim(ymin=0)
-    plt.legend()
-    fig = plt.gcf()
-    if show:
-        plt.show(block=False)
-    fig.savefig(os.path.join(save_folder, "total_reward.png"))
     plt.close()
 
 
