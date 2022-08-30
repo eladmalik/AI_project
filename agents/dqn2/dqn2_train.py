@@ -3,9 +3,13 @@ import os
 if __name__ == '__main__':
     os.chdir(os.path.join("..", ".."))
 from math import ceil
+from optparse import check_choice
+import random
+from typing import Optional
 from tqdm import tqdm
 from itertools import count
 
+import pygame
 
 import torch
 
@@ -27,8 +31,8 @@ EXTRA_RANDOM = False
 
 @dump_arguments(agent_type=AGENT_TYPE)
 def main(lot_generator=generate_lot,
-         reward_analyzer=AnalyzerAccumulating4FrontBack,
-         feature_extractor=Extractor9,
+         reward_analyzer=AnalyzerNew,
+         feature_extractor=ExtractorNew,
          load_model=False,
          load_folder=None,
          load_iter=None,
@@ -64,6 +68,7 @@ def main(lot_generator=generate_lot,
     num_steps = int(ceil(sim.max_simulator_time / time_difference_secs))
     progress_bar = tqdm(range(num_steps))
     progress_bar_iter = progress_bar.__iter__()
+    iter_num = 0
     i_episode = 0
     if save_folder is None:
         save_folder = get_agent_output_folder(AGENT_TYPE)
@@ -136,7 +141,7 @@ def main(lot_generator=generate_lot,
             if done:
                 # train long memory, plot result
                 print(f"Total virtual time: {sim.total_time}")
-                print('Simulation', i_episode, 'Reward', iteration_total_reward, 'Distance',
+                print('Game', i_episode, 'Reward', iteration_total_reward, 'Distance',
                       f"{results[Results.DISTANCE_TO_TARGET]:.2f}")
                 result_writer.write_row({
                     StatsType.LAST_REWARD: reward,
@@ -193,7 +198,7 @@ if __name__ == '__main__':
          eps_start=0.9,
          eps_end=0.3,
          eps_decay=50000,
-         gamma=0.99,
+         gamma=0.1,
          plot_in_training=True,
          plot_interval=100,
          checkpoint_interval=250)

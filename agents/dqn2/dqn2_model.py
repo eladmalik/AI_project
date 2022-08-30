@@ -1,5 +1,6 @@
 import pickle
 
+import torch
 from torch import nn
 import os
 
@@ -28,7 +29,6 @@ class DQN_Model(nn.Module):
 
     def forward(self, x):
         return self.network(x)
-
 
 class FlatDQN_Model(nn.Module):
     def __init__(self, input_size, output_size, save_folder="tmp"):
