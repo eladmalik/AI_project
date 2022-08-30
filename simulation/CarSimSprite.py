@@ -79,6 +79,10 @@ class CarSimSprite(pygame.sprite.Sprite):
         self.backleft = self.location + back_off + left_off
         self.backright = self.location + back_off + right_off
 
+    """
+    calculates the offset from the center of the object to it's
+    front, back, left and right while taking the object's orientation by consideration
+    """
     def __calculate_offsets(self):
         # front is when facing towards the positive side of X
         # right is when facing towards the positive side of Y
@@ -98,6 +102,9 @@ class CarSimSprite(pygame.sprite.Sprite):
             (self.height / 2 * math.cos(math.radians(self.rotation))))
         return front_offset, back_offset, left_offset, right_offset
 
+    """
+    this function calculates the angle where the car's sensor is looking to
+    """
     def get_direction_vectors(self, angle_offset=0):
         angle = self.rotation + angle_offset
         front = pygame.Vector2(
@@ -127,6 +134,9 @@ class CarSimSprite(pygame.sprite.Sprite):
             SensorDirection.BACKRIGHT: backright
         }
 
+    """
+    calculates the sensors locations on the car
+    """
     def get_sensor_start_point(self):
         return {SensorDirection.FRONT: self.front,
                 SensorDirection.BACK: self.back,
@@ -206,6 +216,9 @@ class CarSimSprite(pygame.sprite.Sprite):
         self.backleft = self.location + back_off + left_off
         self.backright = self.location + back_off + right_off
 
+    """
+    not in use
+    """
     def copy(self):
         new_copy = CarSimSprite(self.location.x, self.location.y, self.width, self.height, self.rotation)
         new_copy.image_no_rotation = self.image_no_rotation

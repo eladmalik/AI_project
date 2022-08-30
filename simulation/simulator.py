@@ -122,6 +122,9 @@ class Simulator:
         self.overlays = dict()
 
     def reset(self):
+        """
+        re-draws the screen at the beginning of a new simulator iteration
+        """
         self._init_episode()
 
         if self.draw_screen:
@@ -280,6 +283,9 @@ class Simulator:
                                  text_color=WHITE,
                                  bg_color=None,
                                  location=(0, 0)):
+        """
+        this function is used to write text to the GUI
+        """
         max_width = 0
         texts = []
         max_height = 0
@@ -345,7 +351,7 @@ class Simulator:
 
     def peek_step(self, movement, steering, time):
         """
-        updates the movement of the car
+        "peeks" the next step that the agent will do, and doesn't actually do it
         :param time: the time interval which the car should move
         :param movement: indicates the forward/backward movement of the car
         :param steering: indicates to which side the car should steer
