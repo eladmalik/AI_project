@@ -16,6 +16,10 @@ def get_distance_to_target(agent, target) -> float:
 
 def get_agent_parking_cos(agent, target, results, min_percentage_in_target=1, angle_tolerance_degrees=0) -> \
         float:
+    """
+    returns the cos(angle) oriented to the angle of the parking cell
+    also has threshold, if outside the threshold, returns 0
+    """
     agent_vector = agent.front - agent.location
     target_vector = target.front - target.location
     angle = agent_vector.angle_to(target_vector)

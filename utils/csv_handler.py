@@ -16,10 +16,16 @@ class csv_handler:
         self.writer.writerow([param.value for param in self.parameters])
 
     def write_row(self, values_dict: Dict[DataType, Any]):
+        """
+        writes a row to the csv file
+        """
         values = [str(values_dict[param]) for param in self.parameters]
         self.writer.writerow(values)
 
     def get_current_data(self):
+        """
+        gets the currently written data in the open csv
+        """
         self.out_file.close()
         self.out_file = open(os.path.join(self.folder, CSV_FILE), 'r', encoding="utf-8")
         reader = csv.reader(self.out_file, delimiter=",", quoting=csv.QUOTE_NONE)
