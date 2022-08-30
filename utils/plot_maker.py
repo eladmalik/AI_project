@@ -29,12 +29,25 @@ def arrange_data(lines: List[List[Any]]):
     return data_dict
 
 
+def get_only_dones(data_dict):
+    new_dict = {key: list() for key in data_dict}
+
+    for i in range(len(data_dict[StatsType.IS_DONE])):
+        if data_dict[StatsType.IS_DONE][i]:
+            for key in data_dict:
+                new_dict[key].append(data_dict[key][i])
+    return new_dict
+
+
 def plot_distance_data(data_dict, save_folder, last_epochs=100, show=False):
     bg_color = "#191919"
     axes_color = 'white'
     distance_color = "#1a1fab"
     avg_distance_color = "#e44dff"
     last_epochs_color = "#2af76b"
+
+    if StatsType.IS_DONE in data_dict:
+        data_dict = get_only_dones(data_dict)
 
     distances = data_dict[StatsType.DISTANCE_TO_TARGET]
     avg_distances = [sum(distances[:i]) / i for i in range(1, len(distances))]
@@ -76,6 +89,9 @@ def plot_percentage_in_target_data(data_dict, save_folder, last_epochs=100, show
     avg_percentage_color = "#e44dff"
     last_epochs_color = "#2af76b"
 
+    if StatsType.IS_DONE in data_dict:
+        data_dict = get_only_dones(data_dict)
+
     in_targert_percentage = data_dict[StatsType.PERCENTAGE_IN_TARGET]
     avg = [sum(in_targert_percentage[:i]) / i for i in range(1, len(in_targert_percentage))]
 
@@ -105,7 +121,7 @@ def plot_percentage_in_target_data(data_dict, save_folder, last_epochs=100, show
     fig = plt.gcf()
     if show:
         plt.show(block=False)
-    fig.savefig(os.path.join(save_folder, "percetage_in_target.png"))
+    fig.savefig(os.path.join(save_folder, "percentage_in_target.png"))
     plt.close()
 
 
@@ -117,6 +133,9 @@ def plot_success_collision_rate(data_dict, save_folder, last_epochs=100, show=Fa
 
     avg_collision_color = "#bf0000"
     last_epochs_collision_color = "#d95300"
+
+    if StatsType.IS_DONE in data_dict:
+        data_dict = get_only_dones(data_dict)
 
     success = data_dict[StatsType.SUCCESS]
     avg_success = [sum(success[:i]) / i for i in range(1, len(success))]
@@ -173,6 +192,8 @@ def plot_all_from_lines(lines: List[List[Any]], save_folder: str, last_epochs: i
 
 
 def plot_avg_distance_per_generation(data_dict: Dict[StatsType, List[Any]], save_folder: str, show=False):
+    if StatsType.IS_DONE in data_dict:
+        data_dict = get_only_dones(data_dict)
     generations = dict()
     for i in range(len(data_dict[StatsType.GENERATION])):
         generation = data_dict[StatsType.GENERATION][i]
@@ -218,6 +239,9 @@ def plot_avg_distance_per_generation(data_dict: Dict[StatsType, List[Any]], save
 
 def plot_avg_percentage_in_target_per_generation(data_dict: Dict[StatsType, List[Any]], save_folder: str,
                                                  show=False):
+    if StatsType.IS_DONE in data_dict:
+        data_dict = get_only_dones(data_dict)
+
     generations = dict()
     for i in range(len(data_dict[StatsType.GENERATION])):
         generation = data_dict[StatsType.GENERATION][i]
@@ -257,12 +281,14 @@ def plot_avg_percentage_in_target_per_generation(data_dict: Dict[StatsType, List
     fig = plt.gcf()
     if show:
         plt.show(block=False)
-    fig.savefig(os.path.join(save_folder, "distances.png"))
+    fig.savefig(os.path.join(save_folder, "percentage_in_target.png.png"))
     plt.close()
 
 
 def plot_avg_collision_success_per_generation(data_dict: Dict[StatsType, List[Any]], save_folder: str,
                                               show=False):
+    if StatsType.IS_DONE in data_dict:
+        data_dict = get_only_dones(data_dict)
     generations = dict()
     for i in range(len(data_dict[StatsType.GENERATION])):
         generation = data_dict[StatsType.GENERATION][i]

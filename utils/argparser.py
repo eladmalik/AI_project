@@ -2,7 +2,6 @@ import argparse
 import json
 import os
 import inspect
-from typing import Any, Dict
 from warnings import warn
 
 if __name__ == '__main__':
@@ -20,10 +19,9 @@ import agents.dqn2.dqn2_run
 import agents.ppo_lstm.ppo_lstm_train
 import agents.ppo_lstm.ppo_lstm_run
 import agents.genetic.genetic_train
-import agents.genetic.genetic_run
 import agents.qlearner.qlearn_train
 import agents.qlearner.qlearn_run
-import agents.manual.manual_run
+from utils.reward_analyzer import AnalyzerNull
 from utils.general_utils import isfloat, isint
 
 train_functions = {
@@ -40,18 +38,11 @@ run_functions = {
     "dqn": agents.dqn.dqn_run.main,
     "dqn2": agents.dqn2.dqn2_run.main,
     "ppo": agents.ppo.ppo_run.main,
-    "ppo_lstm": agents.ppo_lstm.ppo_lstm_run.main,
-    "genetic": agents.genetic.genetic_run.main
+    "ppo_lstm": agents.ppo_lstm.ppo_lstm_run.main
 }
 
 
-def _get_default_parameters(run_function) -> Dict[str, Any]:
-    """
-    gets a function and returns a dictionary with its arguments as the keys and their default values as the
-    values.
-    :param run_function: the function to inspect
-    :returns:
-    """
+def _get_default_parameters(run_function):
     relevant_args = set(inspect.signature(run_function).parameters.keys())
     return {arg: inspect.signature(run_function).parameters[arg].default for arg in relevant_args}
 
@@ -171,17 +162,17 @@ def parse_train_arguments():
 
 def parse_run_arguments():
     """
-    Parses the arguments needed to run the agents for testing.
+    Parses the arguments needed to train the agents.
     returns the function to run and its argument dictionary
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("agent", help="The type of agent to train", choices=["dqn", "dqn2", "ppo",
-                                                                             "ppo_lstm", "qlearn", "genetic"])
+                                                                             "ppo_lstm", "qlearn"])
     parser.add_argument("load", help="the folder to load the model from", type=str,
                         metavar="{model folder}")
     parser.add_argument("--lot", help="lot generator function", type=str,
                         metavar="{parking lot generator}")
-    # feature extractor and the reward analyzer are loaded from the loaded model
+    # feature extractor is loaded from the loaded model
     parser.add_argument("--load_iter", help="the iteration number to load. do not specify to load the last "
                                             "checkpoint", type=int, metavar="{iteration number}")
     parser.add_argument("--time", help="time interval between actions", type=float,
@@ -222,12 +213,7 @@ def parse_run_arguments():
     feature_extractor_name = feature_extractor_name.split(" ")[1]
     feature_extractor_name = feature_extractor_name.split(".")[-1][:-2]
     feature_extractor = getattr(utils.feature_extractor, feature_extractor_name)
-
-    reward_analyzer_name = trained_args["reward_analyzer"]
-    reward_analyzer_name = reward_analyzer_name.split(" ")[1]
-    reward_analyzer_name = reward_analyzer_name.split(".")[-1][:-2]
-    reward_analyzer = getattr(utils.reward_analyzer, reward_analyzer_name)
-
+    reward_analyzer = AnalyzerNull
     kwargs["feature_extractor"] = feature_extractor
     kwargs["reward_analyzer"] = reward_analyzer
     for org_arg in trained_args:
@@ -241,6 +227,12 @@ def parse_run_arguments():
 
     run_function = run_functions[args.agent]
     relevant_args = set(inspect.signature(run_function).parameters.keys())
+    # for arg in kwargs:
+    #     if kwargs[arg] is not None and arg not in relevant_args:
+    #         warn(
+    #             f"parameter {str(arg)} is specified, but {str(args.agent)} doesn't use this argument",
+    #             UserWarning)
+
     default_params = _get_default_parameters(run_function)
     for arg in kwargs:
         if kwargs[arg] is None and arg in default_params:
@@ -250,33 +242,6 @@ def parse_run_arguments():
     return run_function, kwargs
 
 
-def parse_player_arguments():
-    """
-    Parses the arguments needed to run the agents for playing manually.
-    returns the argument dictionary
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--lot", help="lot generator function", type=str,
-                        metavar="{parking lot generator}")
-    parser.add_argument("--fps", help="the framerate to run. set to 60 by default", type=float,
-                        metavar="{fps}")
-    parser.add_argument("--max_time", help="maximum virtual time for a single simulation",
-                        type=int, metavar="{max virtual simulation time}")
-    parser.add_argument("-debug", help="enable to print useful data on the screen",
-                        action='store_true')
-    args = parser.parse_args()
-
-    kwargs = {
-        "lot_generator": getattr(utils.lot_generator, args.lot) if args.lot is not None else None,
-        "max_iteration_time": args.max_time,
-        "FPS": args.fps,
-        "debug": args.debug
-    }
-    relevant_args = set(inspect.signature(agents.manual.manual_run.main).parameters.keys())
-    default_params = _get_default_parameters(agents.manual.manual_run.main)
-    for arg in kwargs:
-        if kwargs[arg] is None and arg in default_params:
-            kwargs[arg] = default_params[arg]
-
-    kwargs = {key: kwargs[key] for key in relevant_args if key in kwargs.keys()}
-    return kwargs
+if __name__ == '__main__':
+    parse_run_arguments()
+    a = 1

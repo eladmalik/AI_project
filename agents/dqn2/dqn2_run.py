@@ -3,13 +3,18 @@ import os
 if __name__ == '__main__':
     os.chdir(os.path.join("..", ".."))
 from math import ceil
+from optparse import check_choice
+import random
+from typing import Optional
 from tqdm import tqdm
 from itertools import count
 
+import pygame
 
 import torch
 
 from utils.csv_handler import csv_handler
+from utils.enums import StatsType
 from utils.general_utils import dump_arguments, get_agent_output_folder, action_mapping, write_stats
 from utils.lot_generator import *
 from utils.plot_maker import plot_all_from_lines
@@ -63,6 +68,7 @@ def main(lot_generator=generate_lot,
     num_steps = int(ceil(sim.max_simulator_time / time_difference_secs))
     progress_bar = tqdm(range(num_steps))
     progress_bar_iter = progress_bar.__iter__()
+    iter_num = 0
     i_episode = 0
     if save_folder is None:
         save_folder = get_agent_output_folder(AGENT_TYPE + '_test_')

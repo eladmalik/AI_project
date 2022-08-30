@@ -4,6 +4,7 @@ if __name__ == '__main__':
     os.chdir(os.path.join("..", ".."))
 import utils.general_utils
 from utils.csv_handler import csv_handler
+from utils.enums import StatsType
 from utils.general_utils import action_mapping, dump_arguments, write_stats
 from utils.lot_generator import *
 from utils.reward_analyzer import *

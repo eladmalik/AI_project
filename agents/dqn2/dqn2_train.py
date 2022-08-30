@@ -141,7 +141,7 @@ def main(lot_generator=generate_lot,
             if done:
                 # train long memory, plot result
                 print(f"Total virtual time: {sim.total_time}")
-                print('Game', i_episode, 'Reward', iteration_total_reward, 'Distance',
+                print('Simulation', i_episode, 'Reward', iteration_total_reward, 'Distance',
                       f"{results[Results.DISTANCE_TO_TARGET]:.2f}")
                 result_writer.write_row({
                     StatsType.LAST_REWARD: reward,
@@ -198,7 +198,7 @@ if __name__ == '__main__':
          eps_start=0.9,
          eps_end=0.3,
          eps_decay=50000,
-         gamma=0.1,
+         gamma=0.99,
          plot_in_training=True,
          plot_interval=100,
          checkpoint_interval=250)
