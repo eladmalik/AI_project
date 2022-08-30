@@ -109,11 +109,11 @@ def main(lot_generator=generate_lot,
             StatsType.SUCCESS: results[Results.SUCCESS],
             StatsType.COLLISION: results[Results.COLLISION]
         })
-        agent.save_models()
+        #agent.save_models()
         if (i + 1) % plot_interval == 0:
             plot_all_from_lines(result_writer.get_current_data(), save_folder, show=plot_in_training)
-        if (i + 1) % checkpoint_interval == 0:
-            agent.save_models(iteration=i)
+        #if (i + 1) % checkpoint_interval == 0:
+        #    agent.save_models(iteration=i)
 
         print('episode', i, 'score %.9f' % score, 'time_steps', n_steps, 'learning_steps', learn_iters)
 
