@@ -5,8 +5,9 @@ from datetime import datetime
 from typing import Dict, Any
 
 from simulation.CarSimSprite import CarSimSprite
+from utils.csv_handler import csv_handler
 
-from utils.enums import Movement, Steering
+from utils.enums import Movement, Steering, StatsType
 
 ARGUMENTS_FILE = "arguments.json"
 
@@ -71,3 +72,20 @@ def dump_arguments(agent_type: str):
         return wrapper
 
     return decorator
+
+
+def write_stats(result_writer: csv_handler, i_episode, i_step, reward, total_reward, distance, percentage,
+                angle, success,
+                collision, done):
+    result_writer.write_row({
+        StatsType.I_EPISODE: i_episode,
+        StatsType.I_STEP: i_step,
+        StatsType.LAST_REWARD: reward,
+        StatsType.TOTAL_REWARD: total_reward,
+        StatsType.DISTANCE_TO_TARGET: distance,
+        StatsType.PERCENTAGE_IN_TARGET: percentage,
+        StatsType.ANGLE_TO_TARGET: angle,
+        StatsType.SUCCESS: success,
+        StatsType.COLLISION: collision,
+        StatsType.IS_DONE: done
+    })
