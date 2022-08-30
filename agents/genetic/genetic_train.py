@@ -86,7 +86,7 @@ def callback_generation(ga_instance):
 @dump_arguments(agent_type=AGENT_TYPE)
 def main(lot_generator=generate_lot,
          reward_analyzer=AnalyzerAccumulating4FrontBack,
-         feature_extractor=Extractor8,
+         feature_extractor=Extractor9,
          load_model=False,
          load_folder=None,
          time_difference_secs=0.1,
