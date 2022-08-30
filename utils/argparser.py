@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import inspect
+from typing import Any, Dict
 from warnings import warn
 
 if __name__ == '__main__':
@@ -22,7 +23,6 @@ import agents.genetic.genetic_train
 import agents.genetic.genetic_run
 import agents.qlearner.qlearn_train
 import agents.qlearner.qlearn_run
-from utils.reward_analyzer import AnalyzerNull
 from utils.general_utils import isfloat, isint
 
 train_functions = {
@@ -44,7 +44,13 @@ run_functions = {
 }
 
 
-def _get_default_parameters(run_function):
+def _get_default_parameters(run_function) -> Dict[str, Any]:
+    """
+    gets a function and returns a dictionary with its arguments as the keys and their default values as the
+    values.
+    :param run_function: the function to inspect
+    :returns:
+    """
     relevant_args = set(inspect.signature(run_function).parameters.keys())
     return {arg: inspect.signature(run_function).parameters[arg].default for arg in relevant_args}
 
@@ -164,7 +170,7 @@ def parse_train_arguments():
 
 def parse_run_arguments():
     """
-    Parses the arguments needed to train the agents.
+    Parses the arguments needed to run the agents for testing.
     returns the function to run and its argument dictionary
     """
     parser = argparse.ArgumentParser()
@@ -234,12 +240,6 @@ def parse_run_arguments():
 
     run_function = run_functions[args.agent]
     relevant_args = set(inspect.signature(run_function).parameters.keys())
-    # for arg in kwargs:
-    #     if kwargs[arg] is not None and arg not in relevant_args:
-    #         warn(
-    #             f"parameter {str(arg)} is specified, but {str(args.agent)} doesn't use this argument",
-    #             UserWarning)
-
     default_params = _get_default_parameters(run_function)
     for arg in kwargs:
         if kwargs[arg] is None and arg in default_params:
@@ -247,8 +247,3 @@ def parse_run_arguments():
 
     kwargs = {key: kwargs[key] for key in relevant_args if key in kwargs.keys()}
     return run_function, kwargs
-
-
-if __name__ == '__main__':
-    parse_run_arguments()
-    a = 1

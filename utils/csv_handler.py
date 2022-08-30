@@ -48,6 +48,9 @@ class csv_handler:
 
     @staticmethod
     def load_all_data(file_path: str):
+        """
+        loads all the data from a csv file
+        """
         with open(file_path, 'r') as read_file:
             reader = csv.reader(read_file, delimiter=",", quoting=csv.QUOTE_NONE)
             lines = list(reader)
