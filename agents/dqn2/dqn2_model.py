@@ -29,3 +29,16 @@ class DQN_Model(nn.Module):
 
     def forward(self, x):
         return self.network(x)
+
+class FlatDQN_Model(nn.Module):
+    def __init__(self, input_size, output_size, save_folder="tmp"):
+        super().__init__()
+        self.save_folder = save_folder
+        self.input_size = input_size
+        self.actions_num = output_size
+        self.network = nn.Linear(input_size, output_size)
+        with open(os.path.join(save_folder, STRUCTURE_NAME), "wb") as file:
+            pickle.dump(self.network, file)
+
+    def forward(self, x):
+        return self.network(x)
