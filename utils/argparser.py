@@ -19,6 +19,7 @@ import agents.dqn2.dqn2_run
 import agents.ppo_lstm.ppo_lstm_train
 import agents.ppo_lstm.ppo_lstm_run
 import agents.genetic.genetic_train
+import agents.genetic.genetic_run
 import agents.qlearner.qlearn_train
 import agents.qlearner.qlearn_run
 from utils.reward_analyzer import AnalyzerNull
@@ -38,7 +39,8 @@ run_functions = {
     "dqn": agents.dqn.dqn_run.main,
     "dqn2": agents.dqn2.dqn2_run.main,
     "ppo": agents.ppo.ppo_run.main,
-    "ppo_lstm": agents.ppo_lstm.ppo_lstm_run.main
+    "ppo_lstm": agents.ppo_lstm.ppo_lstm_run.main,
+    "genetic": agents.genetic.genetic_run.main
 }
 
 
@@ -167,7 +169,7 @@ def parse_run_arguments():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("agent", help="The type of agent to train", choices=["dqn", "dqn2", "ppo",
-                                                                             "ppo_lstm", "qlearn"])
+                                                                             "ppo_lstm", "qlearn", "genetic"])
     parser.add_argument("load", help="the folder to load the model from", type=str,
                         metavar="{model folder}")
     parser.add_argument("--lot", help="lot generator function", type=str,
@@ -213,7 +215,12 @@ def parse_run_arguments():
     feature_extractor_name = feature_extractor_name.split(" ")[1]
     feature_extractor_name = feature_extractor_name.split(".")[-1][:-2]
     feature_extractor = getattr(utils.feature_extractor, feature_extractor_name)
-    reward_analyzer = AnalyzerNull
+
+    reward_analyzer_name = trained_args["reward_analyzer"]
+    reward_analyzer_name = reward_analyzer_name.split(" ")[1]
+    reward_analyzer_name = reward_analyzer_name.split(".")[-1][:-2]
+    reward_analyzer = getattr(utils.reward_analyzer, reward_analyzer_name)
+
     kwargs["feature_extractor"] = feature_extractor
     kwargs["reward_analyzer"] = reward_analyzer
     for org_arg in trained_args:
