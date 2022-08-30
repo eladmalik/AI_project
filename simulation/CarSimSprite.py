@@ -40,7 +40,7 @@ class CarSimSprite(pygame.sprite.Sprite):
         :param height: the height of the sprite in pixels
         :param rotation: the angle of the sprite on the board, with 0 pointing right (0 points towards
         positive X). rotation in counter-clockwise (meaning 90 will point towards negative Y)
-        :param img_path: the path of the sprite's image in the disk
+        :param surface: the base surface (image) of the object
         :param topleft: True if (x,y) states the top left corner of the sprite. False by default.
         """
         pygame.sprite.Sprite.__init__(self)
@@ -79,11 +79,11 @@ class CarSimSprite(pygame.sprite.Sprite):
         self.backleft = self.location + back_off + left_off
         self.backright = self.location + back_off + right_off
 
-    """
-    calculates the offset from the center of the object to it's
-    front, back, left and right while taking the object's orientation by consideration
-    """
     def __calculate_offsets(self):
+        """
+        calculates the offset from the center of the object to it's
+        front, back, left and right while taking the object's orientation by consideration
+        """
         # front is when facing towards the positive side of X
         # right is when facing towards the positive side of Y
 
@@ -102,10 +102,11 @@ class CarSimSprite(pygame.sprite.Sprite):
             (self.height / 2 * math.cos(math.radians(self.rotation))))
         return front_offset, back_offset, left_offset, right_offset
 
-    """
-    this function calculates the angle where the car's sensor is looking to
-    """
     def get_direction_vectors(self, angle_offset=0):
+        """
+        this function calculates the angle where the sprite's sensor is looking to. a sprite might not have a
+        sensor but the calculations are general for all sprites.
+        """
         angle = self.rotation + angle_offset
         front = pygame.Vector2(
             (math.cos(math.radians(angle))),
@@ -134,10 +135,10 @@ class CarSimSprite(pygame.sprite.Sprite):
             SensorDirection.BACKRIGHT: backright
         }
 
-    """
-    calculates the sensors locations on the car
-    """
     def get_sensor_start_point(self):
+        """
+        calculates the sensors locations on the sprite
+        """
         return {SensorDirection.FRONT: self.front,
                 SensorDirection.BACK: self.back,
                 SensorDirection.LEFT: self.left,
@@ -161,7 +162,7 @@ class CarSimSprite(pygame.sprite.Sprite):
 
     def set_mask_template(self, surface_no_rotation: pygame.Surface):
         """
-        if the desired mask is not the image of the sprite, it can be chnaged to a custom one via this
+        if the desired mask is not the image of the sprite, it can be changed to a custom one via this
         function.
         :param surface_no_rotation: the surface (image) of the desired mask, without any rotation.
         """
@@ -170,7 +171,8 @@ class CarSimSprite(pygame.sprite.Sprite):
 
     def set_image(self, surface: pygame.Surface):
         """
-        A function which changes the image source of the sprite
+        A function which changes the image source of the sprite.
+        :param surface: the base surface (preloaded image) of the sprite
         """
         img = surface
         self.image_no_rotation = pygame.transform.scale(img, (self.width, self.height))
@@ -216,10 +218,11 @@ class CarSimSprite(pygame.sprite.Sprite):
         self.backleft = self.location + back_off + left_off
         self.backright = self.location + back_off + right_off
 
-    """
-    not in use
-    """
     def copy(self):
+        """
+        Creates a new instance of the sprite from the current one.
+        currently not in use.
+        """
         new_copy = CarSimSprite(self.location.x, self.location.y, self.width, self.height, self.rotation)
         new_copy.image_no_rotation = self.image_no_rotation
         new_copy.image = self.image

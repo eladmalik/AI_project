@@ -6,7 +6,7 @@ from simulation.CarSimSprite import CarSimSprite
 
 class Sidewalk(CarSimSprite):
     """
-    this class creates the sidewalk
+    this class creates the sidewalk sprite
     """
     DEFAULT_IMAGE = SIDEWALK_IMG
 

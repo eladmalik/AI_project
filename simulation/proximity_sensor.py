@@ -6,6 +6,11 @@ from utils.enums import SensorDirection
 
 
 class ProximitySensor:
+    """
+    A class which describes a single proximity sensor of a sprite. a proximity sensor is described as a
+    single ray coming out of a sprite's edge in a constant angle. if the ray collides with an obstacle,
+    the sensor's holder can be alerted.
+    """
     def __init__(self, car, direction: SensorDirection, angle: float, max_distance: float, use_mask=True):
         self.car = car
         self.direction: SensorDirection = direction
