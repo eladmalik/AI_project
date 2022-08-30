@@ -8,7 +8,9 @@ from simulation.CarSimSprite import CarSimSprite
 import matplotlib.pyplot as plt
 from IPython import display
 
-from utils.enums import Movement, Steering
+from utils.enums import Movement, Steering, StatsType
+from utils.csv_handler import csv_handler
+
 
 plt.ion()
 
@@ -109,3 +111,16 @@ def plot_rewards(rewards, mean_rewards, save_folder):
     plt.show(block=False)
     fig.savefig(os.path.join(save_folder, "rewards.png"))
     plt.pause(.1)
+
+def write_stats(result_writer: csv_handler, i_episode, i_step, reward, distance, percentage, angle, success, collision, done):
+    result_writer.write_row({
+                    StatsType.I_EPISODE: i_episode,
+                    StatsType.I_STEP: i_step,
+                    StatsType.REWARD: reward,
+                    StatsType.DISTANCE_TO_TARGET: distance,
+                    StatsType.PERCENTAGE_IN_TARGET: percentage,
+                    StatsType.ANGLE_TO_TARGET: angle,
+                    StatsType.SUCCESS: success,
+                    StatsType.COLLISION: collision,
+                    StatsType.IS_DONE: done
+                })

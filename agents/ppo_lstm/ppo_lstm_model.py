@@ -17,7 +17,8 @@ class PPO_LSTM_Agent(nn.Module):
                  lmbda=0.95,
                  eps_clip=0.1,
                  n_epochs=2,
-                 learn_interval=20):
+                 learn_interval=20,
+                 is_eval=False):
         super(PPO_LSTM_Agent, self).__init__()
         self.lr = lr
         self.gamma = gamma
@@ -25,6 +26,7 @@ class PPO_LSTM_Agent(nn.Module):
         self.eps_clip = eps_clip
         self.n_epochs = n_epochs
         self.learn_interval = learn_interval
+        self.is_eval = is_eval
 
         self.data = []
         self.lstm_input = 128
@@ -44,11 +46,20 @@ class PPO_LSTM_Agent(nn.Module):
                          self.optimizer), file)
 
     def pi(self, x, hidden):
-        x = self.pre_lstm(x)
-        x = x.view(-1, 1, self.lstm_input)
-        x, lstm_hidden = self.lstm(x, hidden)
-        x = self.fc_pi(x)
-        prob = F.softmax(x, dim=2)
+        prob, lstm_hidden = None, None
+        if self.is_eval:
+            with torch.no_grad():
+                x = self.pre_lstm(x)
+                x = x.view(-1, 1, self.lstm_input)
+                x, lstm_hidden = self.lstm(x, hidden)
+                x = self.fc_pi(x)
+                prob = F.softmax(x, dim=2)
+        else:
+            x = self.pre_lstm(x)
+            x = x.view(-1, 1, self.lstm_input)
+            x, lstm_hidden = self.lstm(x, hidden)
+            x = self.fc_pi(x)
+            prob = F.softmax(x, dim=2)
         return prob, lstm_hidden
 
     def v(self, x, hidden):

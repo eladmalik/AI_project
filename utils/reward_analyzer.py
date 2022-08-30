@@ -2,6 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, Tuple
 
 import pygame
+from collections import deque
+
+import numpy as np
 
 from utils.calculations import *
 from simulation.car import Car
@@ -642,6 +645,7 @@ class AnalyzerNew(RewardAnalyzer):
     
 
     def __init__(self):
+        self.in_parking_history = 0
         self.stop_history = 0
         self.current_lot = None
         self.distances = deque(maxlen=self.MAX_DIST_MEM)
@@ -686,6 +690,10 @@ class AnalyzerNew(RewardAnalyzer):
             self.stop_history += 1
         else:
             self.stop_history = 0
+        if results[Results.PERCENTAGE_IN_TARGET] > 0.3:
+            self.in_parking_history += 1
+        else:
+            self.in_parking_history = 0
 
         # is_stopped = self.stop_history > 30
         done = results[Results.COLLISION]
@@ -724,15 +732,20 @@ class AnalyzerNew(RewardAnalyzer):
             if parking_lot.car_agent.velocity.magnitude() == 0 and results[Results.PERCENTAGE_IN_TARGET] > 0.9:
                 reward *= 4
 
-        # if results[Results.PERCENTAGE_IN_TARGET] > 0.5 and (np.mean(list(self.distances)) - self.distances[-1] < 5):
-        #     done = True
+        if results[Results.PERCENTAGE_IN_TARGET] > 0.5 and self.stop_history > 120 and (np.mean(list(self.distances)) - self.distances[-1] < 5):
+            done = True
 
         if results[Results.PERCENTAGE_IN_TARGET] > 0.9 and self.stop_history > 120:
             done = True
             reward *= 40
 
+        if self.in_parking_history > 300:
+            done = True
+
         return reward, done
 
+    def is_success(self, parking_lot: ParkingLot, results: Dict[Results, Any]) -> bool:
+        return get_agent_parking_cos(parking_lot.car_agent, parking_lot.target_park, results, 0.93, 30) > 0
 
 class AnalyzerAccumulatingCheckpoints(RewardAnalyzer):
     ID = 11

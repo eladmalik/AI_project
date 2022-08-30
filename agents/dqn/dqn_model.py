@@ -1,6 +1,6 @@
 import pickle
 import random
-from abc import ABC
+from abc import ABC, abstractmethod
 from collections import deque
 
 import torch
@@ -14,8 +14,28 @@ from simulation.simulator import Simulator
 STRUCTURE_NAME = "structure.pickle"
 PTH_NAME = "agent.pth"
 
+class DQNModel(ABC, nn.Module):
 
-class DQN_Model(nn.Module):
+    @abstractmethod
+    def forward(self, x):
+        ...
+
+    def save(self, iteration=None):
+        name = PTH_NAME
+        if iteration is not None:
+            name += f"_iter_{iteration}.pth"
+        torch.save(self.state_dict(), os.path.join(self.save_folder, name))
+
+    def load(self, iteration=None):
+        if os.path.exists(os.path.join(self.save_folder, STRUCTURE_NAME)):
+            with open(os.path.join(self.save_folder, STRUCTURE_NAME), "rb") as file:
+                self.network = pickle.load(file)
+        name = PTH_NAME
+        if iteration is not None:
+            name += f"_iter_{iteration}.pth"
+        self.load_state_dict(torch.load(os.path.join(self.save_folder, name))) 
+
+class DQN_Model(DQNModel):
     def __init__(self, input_size, output_size, hidden_size1, hidden_size2, hidden_size3, hidden_size4,
                  hidden_size5, save_folder="tmp"):
         super().__init__()
@@ -36,23 +56,19 @@ class DQN_Model(nn.Module):
         with open(os.path.join(save_folder, STRUCTURE_NAME), "wb") as file:
             pickle.dump(self.network, file)
 
+
+class FlatDQN_Model(DQNModel):
+    def __init__(self, input_size, output_size, save_folder="tmp"):
+        super().__init__()
+        self.save_folder = save_folder
+        self.input_size = input_size
+        self.actions_num = output_size
+        self.network = nn.Linear(input_size, output_size)
+        with open(os.path.join(save_folder, STRUCTURE_NAME), "wb") as file:
+            pickle.dump(self.network, file)
+
     def forward(self, x):
         return self.network(x)
-
-    def save(self, iteration=None):
-        name = PTH_NAME
-        if iteration is not None:
-            name += f"_iter_{iteration}.pth"
-        torch.save(self.state_dict(), os.path.join(self.save_folder, name))
-
-    def load(self, iteration=None):
-        if os.path.exists(os.path.join(self.save_folder, STRUCTURE_NAME)):
-            with open(os.path.join(self.save_folder, STRUCTURE_NAME), "rb") as file:
-                self.network = pickle.load(file)
-        name = PTH_NAME
-        if iteration is not None:
-            name += f"_iter_{iteration}.pth"
-        self.load_state_dict(torch.load(os.path.join(self.save_folder, name)))
 
 
 class QTrainer:
@@ -107,7 +123,8 @@ class Agent:
                  gamma=0.9,
                  max_epsilon=1000,
                  batch_size=1000,
-                 max_memory=100000):
+                 max_memory=100000,
+                 is_eval=False):
         self.n_games = 0
         self.epsilon = 0  # randomness
         self.randomness_rate = randomness_rate
@@ -120,6 +137,7 @@ class Agent:
         self.memory = deque(maxlen=self.max_memory)  # popleft()
         self.model = model
         self.trainer = QTrainer(self.model, lr=self.learning_rate, gamma=self.gamma)
+        self.is_eval = is_eval
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))  # popleft if MAX_MEMORY is reached
@@ -136,15 +154,22 @@ class Agent:
     def train_short_memory(self, state, action, reward, next_state, done):
         self.trainer.train_step(state, action, reward, next_state, done)
 
-    def get_action(self, state):
+    def get_action(self, state):       
         # random moves: tradeoff exploration / exploitation
+        move = None
         self.epsilon = self.max_epsilon - self.n_games
         if self.randomness_rate > 0 and \
                 random.randint(0, int(self.max_epsilon / self.randomness_rate)) < self.epsilon:
             move = random.randint(0, self.model.actions_num - 1)
         else:
-            state0 = torch.tensor(state, dtype=torch.float)
-            prediction = self.model(state0)
-            move = torch.argmax(prediction).item()
+            if self.is_eval:
+                with torch.no_grad():
+                    state0 = torch.tensor(state, dtype=torch.float)
+                    prediction = self.model(state0)
+                    move = torch.argmax(prediction).item()
+            else:
+                state0 = torch.tensor(state, dtype=torch.float)
+                prediction = self.model(state0)
+                move = torch.argmax(prediction).item()
 
         return move

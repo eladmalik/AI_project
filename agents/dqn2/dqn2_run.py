@@ -14,8 +14,8 @@ import pygame
 import torch
 
 from utils.csv_handler import csv_handler
-from utils.enums import DataType
-from utils.general_utils import dump_arguments, get_agent_output_folder, action_mapping
+from utils.enums import DataType, StatsType
+from utils.general_utils import dump_arguments, get_agent_output_folder, action_mapping, write_stats
 from utils.lot_generator import *
 from utils.plot_maker import plot_all_from_lines
 from utils.reward_analyzer import *
@@ -27,7 +27,8 @@ from utils.feature_extractor import *
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 AGENT_TYPE = "DQN2"
-EXTRA_RANDOM = False
+
+
 
 @dump_arguments(agent_type=AGENT_TYPE)
 def main(lot_generator=generate_lot,
@@ -47,7 +48,7 @@ def main(lot_generator=generate_lot,
          eps_start=0.05,
          eps_end=0.05,
          eps_decay=500000,
-         gamma=0.995,
+         gamma=0.999,
          plot_in_training=True,
          plot_interval=100,
          checkpoint_interval=250,
@@ -63,7 +64,7 @@ def main(lot_generator=generate_lot,
                     max_iteration_time_sec=max_iteration_time,
                     drawing_method=DrawingMethod.BACKGROUND_SNAPSHOT)
 
-    print(f"device = {device}")
+    print(f"run device = {device}")
 
     num_steps = int(ceil(sim.max_simulator_time / time_difference_secs))
     progress_bar = tqdm(range(num_steps))
@@ -71,23 +72,25 @@ def main(lot_generator=generate_lot,
     iter_num = 0
     i_episode = 0
     if save_folder is None:
-        save_folder = get_agent_output_folder(AGENT_TYPE)
+        save_folder = get_agent_output_folder(AGENT_TYPE + '_test_')
     agent = DQNReinforcmentAgent(DQN_Model, feature_extractor,
                                  max_mem=max_memory, batch_size=batch_size, gamma=gamma, eps_start=eps_start,
-                                 eps_end=eps_end, eps_decay=eps_decay, target_update=target_update, save_folder=save_folder)
+                                 eps_end=eps_end, eps_decay=eps_decay, target_update=target_update, save_folder=save_folder, is_eval=False)
 
     if load_model:
         agent.save_folder = load_folder
         agent.load(load_iter)
         agent.save_folder = save_folder
 
-    result_writer = csv_handler(save_folder, [DataType.LAST_REWARD,
-                                              DataType.TOTAL_REWARD,
-                                              DataType.DISTANCE_TO_TARGET,
-                                              DataType.PERCENTAGE_IN_TARGET,
-                                              DataType.ANGLE_TO_TARGET,
-                                              DataType.SUCCESS,
-                                              DataType.COLLISION])
+    result_writer = csv_handler(save_folder, [StatsType.I_EPISODE,
+                                              StatsType.I_STEP,
+                                              StatsType.REWARD,
+                                              StatsType.DISTANCE_TO_TARGET,
+                                              StatsType.PERCENTAGE_IN_TARGET,
+                                              StatsType.ANGLE_TO_TARGET,
+                                              StatsType.SUCCESS,
+                                              StatsType.COLLISION,
+                                              StatsType.IS_DONE])
 
     while True:
         # episodes
@@ -97,29 +100,13 @@ def main(lot_generator=generate_lot,
 
         for t in count():
             # Select and perform an action
-            action, is_random = agent.get_action(state)
+            action, _ = agent.get_action(state)
             action_item = int(action.item())
-            next_state, reward, done, results = sim.do_step(*action_mapping[action_item],
-                                                            time_difference_secs)
-
-            action = torch.as_tensor(action, device=device)
+            next_state, reward, done, results = sim.do_step(*action_mapping[action_item], time_difference_secs)
             next_state = torch.as_tensor([next_state], device=device)
-            reward_torch = torch.tensor([reward], device=device)
-
-            # Store the transition in memory
-            agent.remember(state, action, next_state, reward_torch)
 
             # Move to the next state
             state = next_state
-
-            if EXTRA_RANDOM and is_random and random.random() < 0.5 and results[Results.PERCENTAGE_IN_TARGET] <= 0.2:
-                for _ in range(2):
-                    next_state, reward, done, results = sim.do_step(*action_mapping[action_item],
-                                                                    time_difference_secs)
-                    next_state = torch.as_tensor([next_state], device=device)
-                    reward_torch = torch.tensor([reward], device=device)
-                    agent.remember(state, action, next_state, reward_torch)
-                    state = next_state
 
             # manage logging and screen output
             if draw_screen:
@@ -134,45 +121,38 @@ def main(lot_generator=generate_lot,
                     sim.update_screen()
             iteration_total_reward += reward
 
-            # Perform one step of the optimization (on the policy network)
-            if len(agent.memory) > 10000:
-                agent.optimize()
+            if t % 10 == 0:
+                write_stats(result_writer,  i_episode, 
+                                            t, 
+                                            reward, 
+                                            results[Results.DISTANCE_TO_TARGET],
+                                            results[Results.PERCENTAGE_IN_TARGET],
+                                            results[Results.ANGLE_TO_TARGET],
+                                            results[Results.SUCCESS],
+                                            results[Results.COLLISION],
+                                            done)
 
             if done:
                 # train long memory, plot result
                 print(f"Total virtual time: {sim.total_time}")
                 print('Game', i_episode, 'Reward', iteration_total_reward, 'Distance',
                       f"{results[Results.DISTANCE_TO_TARGET]:.2f}")
-                result_writer.write_row({
-                    DataType.LAST_REWARD: reward,
-                    DataType.TOTAL_REWARD: iteration_total_reward,
-                    DataType.DISTANCE_TO_TARGET: results[Results.DISTANCE_TO_TARGET],
-                    DataType.PERCENTAGE_IN_TARGET: results[Results.PERCENTAGE_IN_TARGET],
-                    DataType.ANGLE_TO_TARGET: results[Results.ANGLE_TO_TARGET],
-                    DataType.SUCCESS: results[Results.SUCCESS],
-                    DataType.COLLISION: results[Results.COLLISION]
-                })
+                
+                if t % 10 != 0: # not already printed
+                    write_stats(result_writer,  i_episode, 
+                                                t, 
+                                                reward, 
+                                                results[Results.DISTANCE_TO_TARGET],
+                                                results[Results.PERCENTAGE_IN_TARGET],
+                                                results[Results.ANGLE_TO_TARGET],
+                                                results[Results.SUCCESS],
+                                                results[Results.COLLISION],
+                                                done)
 
                 progress_bar = tqdm(range(num_steps))
                 progress_bar_iter = progress_bar.__iter__()
-
-                agent.save()
-                if i_episode % checkpoint_interval == 0:
-                    agent.save(i_episode)
-
-                if i_episode % plot_interval == 0:
-                    plot_all_from_lines(result_writer.get_current_data(), save_folder, show=plot_in_training)
-                
-                if len(agent.memory) > 10000:
-                    for _ in range(1000):
-                        agent.optimize()
-
                 iteration_total_reward = 0
                 break
-
-            # Update the target network, copying all weights and biases in DQN
-            if agent.steps_done % agent.target_update == 0: 
-                agent.update_target()
 
         if i_episode > n_simulations:
             print("done")
@@ -198,7 +178,7 @@ if __name__ == '__main__':
          eps_start=0.9,
          eps_end=0.3,
          eps_decay=50000,
-         gamma=0.995,
+         gamma=0.999,
          plot_in_training=True,
          plot_interval=100,
          checkpoint_interval=250)

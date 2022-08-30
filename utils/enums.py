@@ -54,3 +54,14 @@ class DataType(Enum):
     ANGLE_TO_TARGET = 4
     SUCCESS = 5
     COLLISION = 6
+
+class StatsType(Enum):
+    I_EPISODE = 0
+    I_STEP = 1
+    REWARD = 2
+    DISTANCE_TO_TARGET = 3
+    PERCENTAGE_IN_TARGET = 4
+    ANGLE_TO_TARGET = 5
+    SUCCESS = 6
+    COLLISION = 7
+    IS_DONE = 8

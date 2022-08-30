@@ -155,11 +155,12 @@ class CriticNetwork(nn.Module):
 
 class Agent:
     def __init__(self, n_actions, input_dims, gamma=0.99, alpha=0.0003, gae_lambda=0.95,
-                 policy_clip=0.2, batch_size=64, n_epochs=10, save_folder=os.path.join("tmp", "ppo")):
+                 policy_clip=0.2, batch_size=64, n_epochs=10, save_folder=os.path.join("tmp", "ppo"), is_eval=False):
         self.gamma = gamma
         self.policy_clip = policy_clip
         self.n_epochs = n_epochs
         self.gae_lambda = gae_lambda
+        self.is_eval = is_eval
 
         self.actor = ActorNetwork(n_actions, input_dims, alpha, chkpt_dir=save_folder)
         self.critic = CriticNetwork(input_dims, alpha, chkpt_dir=save_folder)
@@ -181,15 +182,28 @@ class Agent:
         self.critic.change_checkpoint_dir(new_dir)
 
     def choose_action(self, observation):
-        state = T.tensor([observation], dtype=T.float).to(self.actor.device)
+        action, probs, value = None, None, None
+        if self.is_eval:
+            with T.no_grad():
+                state = T.tensor([observation], dtype=T.float).to(self.actor.device)
 
-        dist = self.actor(state)
-        value = self.critic(state)
-        action = dist.sample()
+                dist = self.actor(state)
+                value = self.critic(state)
+                action = dist.sample()
 
-        probs = T.squeeze(dist.log_prob(action)).item()
-        action = T.squeeze(action).item()
-        value = T.squeeze(value).item()
+                probs = T.squeeze(dist.log_prob(action)).item()
+                action = T.squeeze(action).item()
+                value = T.squeeze(value).item()
+        else:
+            state = T.tensor([observation], dtype=T.float).to(self.actor.device)
+
+            dist = self.actor(state)
+            value = self.critic(state)
+            action = dist.sample()
+
+            probs = T.squeeze(dist.log_prob(action)).item()
+            action = T.squeeze(action).item()
+            value = T.squeeze(value).item()
 
         return action, probs, value
 
