@@ -17,6 +17,9 @@ class Results(Enum):
 
 
 class SensorDirection(Enum):
+    """
+    Directions of the sensors
+    """
     LEFT = 0
     FRONT = 1
     RIGHT = 2
@@ -47,6 +50,9 @@ class Steering(Enum):
 
 
 class StatsType(Enum):
+    """
+    Types of statistics which are logged
+    """
     LAST_REWARD = 0
     TOTAL_REWARD = 1
     DISTANCE_TO_TARGET = 2

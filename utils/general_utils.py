@@ -48,6 +48,9 @@ def get_time():
 
 
 def get_agent_output_folder(agent_type: str) -> str:
+    """
+    Creates a folder based on the agent type and the current time and returns  the created folder
+    """
     folder = os.path.join("model", f'{agent_type}_{get_time()}')
     if not os.path.exists(folder):
         os.makedirs(folder)
@@ -55,11 +58,21 @@ def get_agent_output_folder(agent_type: str) -> str:
 
 
 def dump_to_json(info_dict: Dict[str, Any], folder: str, filename: str):
+    """
+    Dumps a dictionary to a json file
+    :param info_dict: the dictionary to dump
+    :param folder: the folder to dump the json to
+    :param filename: the name of the json file
+    """
     with open(os.path.join(folder, filename), "w") as file:
         json.dump(info_dict, file, indent=4)
 
 
 def dump_arguments(agent_type: str):
+    """
+    A decorator used to automatically create a unique folder for the running function and dump all the
+    running function's arguments to a json file in that folder.
+    """
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -77,6 +90,9 @@ def dump_arguments(agent_type: str):
 def write_stats(result_writer: csv_handler, i_episode, i_step, reward, total_reward, distance, percentage,
                 angle, success,
                 collision, done):
+    """
+    Writes a single statistics file into the results writer
+    """
     result_writer.write_row({
         StatsType.I_EPISODE: i_episode,
         StatsType.I_STEP: i_step,
