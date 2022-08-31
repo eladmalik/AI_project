@@ -80,6 +80,7 @@ def main(
 
         while not done:
             for t in range(learn_interval):
+                i_step += 1
                 h_in = h_out
                 prob, h_out = agent.pi(torch.Tensor(state).float(), h_in)
                 prob = prob.view(-1)
@@ -101,7 +102,7 @@ def main(
                     env.update_screen(text)
 
                 state = s_prime
-                i_step += 1
+
                 if i_step % log_rate == 0 or done:
                     write_stats(result_writer, n_epi,
                                 i_step,
