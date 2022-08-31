@@ -26,9 +26,9 @@ AGENT_TYPE = "DQN2"
 EXTRA_RANDOM = False
 
 @dump_arguments(agent_type=AGENT_TYPE)
-def main(lot_generator=generate_lot,
-         reward_analyzer=AnalyzerNew,
-         feature_extractor=ExtractorNew,
+def main(lot_generator=example_easy,
+         reward_analyzer=AnalyzerAccumulating4FrontBack,
+         feature_extractor=Extractor9,
          load_model=False,
          load_folder=None,
          load_iter=None,

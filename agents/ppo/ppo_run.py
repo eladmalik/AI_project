@@ -17,9 +17,9 @@ AGENT_TYPE = "RUN_PPO"
 
 
 @dump_arguments(AGENT_TYPE)
-def main(lot_generator=generate_lot,
+def main(lot_generator=example_easy,
          reward_analyzer=AnalyzerAccumulating4FrontBack,
-         feature_extractor=Extractor8,
+         feature_extractor=Extractor9,
          load_model=False,
          load_folder=None,
          load_iter=None,

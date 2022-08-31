@@ -1,7 +1,7 @@
 import os
 
 if __name__ == '__main__':
-    os.chdir(os.path.join("..", ".."))
+    os.chdir(os.path.join("../../agents", ".."))
 import pygame.event
 
 from utils.csv_handler import csv_handler
@@ -9,7 +9,7 @@ from utils.enums import StatsType
 from utils.lot_generator import *
 import utils.general_utils
 from utils.general_utils import action_mapping, dump_arguments
-from agents.dqn.dqn_model import Agent, DQN_Model
+from archived_files.dqn.dqn_model import Agent, DQN_Model
 from utils.feature_extractor import *
 from utils.plots.make_plots import plot_all_from_lines
 from utils.reward_analyzer import *

@@ -20,7 +20,7 @@ AGENT_TYPE = "RUN_GENETIC"
 
 
 @dump_arguments(agent_type=AGENT_TYPE)
-def main(lot_generator=generate_lot,
+def main(lot_generator=example_easy,
          reward_analyzer=AnalyzerAccumulating4FrontBack,
          feature_extractor=Extractor9,
          load_model=False,
@@ -60,6 +60,7 @@ def main(lot_generator=generate_lot,
     result_writer = csv_handler(save_folder, csv_handler.DEFAULT_STATS)
 
     while True:
+        i_step += 1
         # get old state
         state_old = sim.get_state()
 
@@ -86,7 +87,6 @@ def main(lot_generator=generate_lot,
                         results[Results.SUCCESS],
                         results[Results.COLLISION],
                         done)
-        i_step += 1
 
         if done:
             # train long memory, plot result

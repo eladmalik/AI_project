@@ -1,0 +1,16 @@
+{
+    "feature_extractor": "<class 'utils.feature_extractor.Extractor9'>",
+    "time_difference_secs": "0.1",
+    "resize_screen": "False",
+    "num_parents_to_keep": "-1",
+    "plot_in_training": "False",
+    "num_parents_mating": "5",
+    "genes_mutation_percent": "10",
+    "load_folder": "None",
+    "reward_analyzer": "<class 'utils.reward_analyzer.AnalyzerAccumulating4FrontBack'>",
+    "num_generations": "50",
+    "lot_generator": "<function example_easy at 0x00000159ACD8B430>",
+    "max_iteration_time": "150",
+    "draw_screen": "False",
+    "load_model": "False"
+}
