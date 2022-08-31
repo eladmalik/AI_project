@@ -27,8 +27,8 @@ EXTRA_RANDOM = False
 
 @dump_arguments(agent_type=AGENT_TYPE)
 def main(lot_generator=generate_lot,
-         reward_analyzer=AnalyzerAccumulating4FrontBack,
-         feature_extractor=Extractor9,
+         reward_analyzer=AnalyzerNew,
+         feature_extractor=ExtractorNew,
          load_model=False,
          load_folder=None,
          load_iter=None,
@@ -64,6 +64,7 @@ def main(lot_generator=generate_lot,
     num_steps = int(ceil(sim.max_simulator_time / time_difference_secs))
     progress_bar = tqdm(range(num_steps))
     progress_bar_iter = progress_bar.__iter__()
+    iter_num = 0
     i_episode = 0
     if save_folder is None:
         save_folder = get_agent_output_folder(AGENT_TYPE)

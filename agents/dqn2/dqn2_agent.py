@@ -140,5 +140,7 @@ class DQNReinforcmentAgent:
         name = PTH_NAME
         if iteration is not None:
             name += f"_iter_{iteration}.pth"
-        self.policy_net.load_state_dict(torch.load(os.path.join(self.save_folder, name)))
+        print(f"loading {os.path.join(self.save_folder, name)}")
+        m = torch.load(os.path.join(self.save_folder, name))
+        self.policy_net.load_state_dict(m.state_dict())
         self.target_net.load_state_dict(self.policy_net.state_dict())
