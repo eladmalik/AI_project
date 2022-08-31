@@ -1,0 +1,23 @@
+{
+    "load_iter": "None",
+    "plot_in_training": "False",
+    "lmbda": "0.95",
+    "reward_analyzer": "<class 'utils.reward_analyzer.AnalyzerAccumulating4FrontBack'>",
+    "lot_generator": "<function example_easy at 0x00000217E8E661F0>",
+    "load_model": "False",
+    "checkpoint_interval": "250",
+    "feature_extractor": "<class 'utils.feature_extractor.Extractor9'>",
+    "time_difference_secs": "0.1",
+    "learn_interval": "20",
+    "resize_screen": "False",
+    "draw_screen": "False",
+    "plot_interval": "100",
+    "n_epochs": "2",
+    "n_simulations": "10000",
+    "draw_rate": "1",
+    "load_folder": "None",
+    "learning_rate": "0.0005",
+    "max_iteration_time": "800",
+    "gamma": "0.98",
+    "policy_clip": "0.1"
+}

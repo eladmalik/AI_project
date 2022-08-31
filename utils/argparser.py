@@ -11,8 +11,6 @@ import utils.lot_generator
 import utils.reward_analyzer
 import utils.feature_extractor
 import utils.general_utils
-import agents.dqn.dqn_train
-import agents.dqn.dqn_run
 import agents.ppo.ppo_train
 import agents.ppo.ppo_run
 import agents.dqn2.dqn2_train
@@ -29,7 +27,6 @@ from utils.general_utils import isfloat, isint
 
 train_functions = {
     "qlearn": agents.qlearner.qlearn_train.main,
-    "dqn": agents.dqn.dqn_train.main,
     "dqn2": agents.dqn2.dqn2_train.main,
     "ppo": agents.ppo.ppo_train.main,
     "ppo_lstm": agents.ppo_lstm.ppo_lstm_train.main,
@@ -38,7 +35,6 @@ train_functions = {
 
 run_functions = {
     "qlearn": agents.qlearner.qlearn_run.main,
-    "dqn": agents.dqn.dqn_run.main,
     "dqn2": agents.dqn2.dqn2_run.main,
     "ppo": agents.ppo.ppo_run.main,
     "ppo_lstm": agents.ppo_lstm.ppo_lstm_run.main,
@@ -63,7 +59,7 @@ def parse_train_arguments():
     returns the function to run and its argument dictionary
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("agent", help="The type of agent to train", choices=["dqn", "dqn2", "ppo", "ppo_lstm",
+    parser.add_argument("agent", help="The type of agent to train", choices=["dqn2", "ppo", "ppo_lstm",
                                                                              "genetic", "qlearn"])
     parser.add_argument("--lot", help="lot generator function", type=str,
                         metavar="{parking lot generator}")
@@ -176,7 +172,7 @@ def parse_run_arguments():
     returns the function to run and its argument dictionary
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("agent", help="The type of agent to train", choices=["dqn", "dqn2", "ppo",
+    parser.add_argument("agent", help="The type of agent to train", choices=["dqn2", "ppo",
                                                                              "ppo_lstm", "qlearn", "genetic"])
     parser.add_argument("load", help="the folder to load the model from", type=str,
                         metavar="{model folder}")

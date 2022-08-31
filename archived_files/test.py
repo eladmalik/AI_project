@@ -4,7 +4,7 @@ import json
 
 import utils.general_utils
 from utils.general_utils import dump_arguments
-from agents.dqn.dqn_model import Agent as DQN_Agent
+from archived_files.dqn.dqn_model import Agent as DQN_Agent
 from agents.ppo.ppo_agent import Agent as PPO_Agent
 from utils import calculations
 from utils.csv_handler import csv_handler
@@ -15,7 +15,7 @@ from utils.plots.make_plots import plot_all_from_lines
 from utils.reward_analyzer import *
 from simulation.simulator import Simulator, DrawingMethod
 from agents.ppo_lstm.ppo_lstm_model import PPO_LSTM_Agent
-from agents.dqn.dqn_train import DQN_Model
+from archived_files.dqn.dqn_train import DQN_Model
 
 from utils.general_utils import action_mapping
 
