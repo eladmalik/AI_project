@@ -1,1 +1,2 @@
-python3 train ppo -d --lot example_easy --max_time 300
+#!/bin/bash
+python3 train.py ppo -d --lot example_easy --max_time 300
