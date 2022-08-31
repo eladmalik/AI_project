@@ -18,7 +18,7 @@ AGENT_TYPE = "RUN_Q_LEARN"
 
 
 @dump_arguments(agent_type=AGENT_TYPE)
-def main(lot_generator=generate_lot,
+def main(lot_generator=example_easy,
          reward_analyzer=AnalyzerAccumulating4FrontBack,
          feature_extractor=Extractor9,
          load_model=False,

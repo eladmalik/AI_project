@@ -24,7 +24,7 @@ AGENT_TYPE = "PPO_LSTM"
 
 @dump_arguments(agent_type=AGENT_TYPE)
 def main(
-        lot_generator: LotGenerator = generate_lot,
+        lot_generator: LotGenerator = example_easy,
         reward_analyzer: Type[RewardAnalyzer] = AnalyzerAccumulating4FrontBack,
         feature_extractor: Type[FeatureExtractor] = Extractor9,
         load_model: bool = False,
