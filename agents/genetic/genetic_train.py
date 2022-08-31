@@ -11,13 +11,12 @@ import pygad
 
 import utils.general_utils
 from utils.general_utils import action_mapping, dump_arguments
-from assets.assets_images import FLOOR_IMG
 from utils.lot_generator import *
 from utils.reward_analyzer import *
 from utils.feature_extractor import *
 from simulation.simulator import Simulator, DrawingMethod
 from agents.genetic.genetic_model import GeneticModel
-from utils.plot_maker import plot_all_generation_from_lines
+from utils.plots.make_plots import plot_all_generation_from_lines
 
 AGENT_TYPE = "Genetic"
 

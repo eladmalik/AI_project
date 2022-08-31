@@ -57,6 +57,16 @@ def get_agent_output_folder(agent_type: str) -> str:
     return folder
 
 
+def get_plot_output_folder(plot_type: str) -> str:
+    """
+    Creates a folder based on the plot type and the current time and returns  the created folder
+    """
+    folder = os.path.join("plot", f'{plot_type}_{get_time()}')
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    return folder
+
+
 def dump_to_json(info_dict: Dict[str, Any], folder: str, filename: str):
     """
     Dumps a dictionary to a json file
@@ -73,6 +83,7 @@ def dump_arguments(agent_type: str):
     A decorator used to automatically create a unique folder for the running function and dump all the
     running function's arguments to a json file in that folder.
     """
+
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):

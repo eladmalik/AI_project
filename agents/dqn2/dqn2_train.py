@@ -13,7 +13,7 @@ from utils.csv_handler import csv_handler
 from utils.enums import StatsType
 from utils.general_utils import dump_arguments, get_agent_output_folder, action_mapping
 from utils.lot_generator import *
-from utils.plot_maker import plot_all_from_lines
+from utils.plots.make_plots import plot_all_from_lines
 from utils.reward_analyzer import *
 from agents.dqn2.dqn2_agent import DQNReinforcmentAgent
 from agents.dqn2.dqn2_model import DQN_Model

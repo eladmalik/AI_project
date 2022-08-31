@@ -8,10 +8,9 @@ from utils.csv_handler import csv_handler
 from utils.lot_generator import *
 import utils.general_utils
 from utils.general_utils import action_mapping, dump_arguments, write_stats
-from assets.assets_images import FLOOR_IMG
 from agents.dqn.dqn_model import Agent, DQN_Model
 from utils.feature_extractor import *
-from utils.plot_maker import plot_all_from_lines
+from utils.plots.make_plots import plot_all_from_lines
 from utils.reward_analyzer import *
 from simulation.simulator import Simulator, DrawingMethod
 

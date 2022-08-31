@@ -55,3 +55,13 @@ class csv_handler:
             reader = csv.reader(read_file, delimiter=",", quoting=csv.QUOTE_NONE)
             lines = list(reader)
         return lines
+
+    @staticmethod
+    def data_iterator(file_path: str):
+        """
+        acts as an iterator of the data lines
+        """
+        with open(file_path, 'r') as read_file:
+            reader = csv.reader(read_file, delimiter=",", quoting=csv.QUOTE_NONE)
+            for line in reader:
+                yield line

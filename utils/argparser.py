@@ -24,6 +24,7 @@ import agents.genetic.genetic_run
 import agents.qlearner.qlearn_train
 import agents.qlearner.qlearn_run
 import agents.manual.manual_run
+import utils.plots.make_plots
 from utils.general_utils import isfloat, isint
 
 train_functions = {
@@ -258,7 +259,7 @@ def parse_player_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("--lot", help="lot generator function", type=str,
                         metavar="{parking lot generator}")
-    parser.add_argument("--fps", help="the framerate to run. set to 60 by default", type=float,
+    parser.add_argument("--fps", help="the framerate to run. set to 60 by default", type=int,
                         metavar="{fps}")
     parser.add_argument("--max_time", help="maximum virtual time for a single simulation",
                         type=int, metavar="{max virtual simulation time}")
@@ -280,3 +281,51 @@ def parse_player_arguments():
 
     kwargs = {key: kwargs[key] for key in relevant_args if key in kwargs.keys()}
     return kwargs
+
+
+def parse_plot_arguments():
+    """
+    Parses the arguments needed to plot the desired plots.
+    returns the function to run and the argument dictionary
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("type", help="the type of plots to run:\n"
+                                     "normal: the normal reinforcement graphs\n"
+                                     "genetic: plot the genetic graphs\n"
+                                     "compare: compare between reinforcement runs", type=str,
+                        metavar="{type}", choices=["normal", "genetic", "compare"])
+    parser.add_argument("--start", help="the iteration to start from. default is 0", type=int,
+                        metavar="{start}", default=0)
+    parser.add_argument("--end", help="the iteration to end the graph in. default is -1, which means graph "
+                                      "everything", type=int, metavar="{start}", default=-1)
+    parser.add_argument("--folders", help="the list of folders to take the data from", nargs="+",
+                        default=[], metavar="{folder1 folder2 folder3 ...}")
+    parser.add_argument("--epoch", help="the epoch interval desired to plot. relevant for reinforcement",
+                        type=int, metavar="{epoch}", default=100)
+    args = parser.parse_args()
+
+    kwargs = {
+        "start": args.start,
+        "end": args.end,
+        "last_epochs": args.epoch
+    }
+    if not args.folders:
+        raise TypeError("must specify at least one folder. specify them with '--folders'")
+    run_function = None
+    if args.type == "normal":
+        run_function = utils.plots.make_plots.plot_all_from_folder
+        if len(args.folders) > 1:
+            warn("More than one folder was specified. ignoring all folders after the first one", UserWarning)
+        kwargs["folder_path"] = args.folders[0]
+    elif args.type == "genetic":
+        run_function = utils.plots.make_plots.plot_all_generation_from_folder
+        if len(args.folders) > 1:
+            warn("More than one folder was specified. ignoring all folders after the first one", UserWarning)
+        kwargs["folder_path"] = args.folders[0]
+    elif args.type == "compare":
+        run_function = utils.plots.make_plots.plot_all_compare_from_folders
+        kwargs["folders"] = args.folders
+
+    relevant_args = set(inspect.signature(run_function).parameters.keys())
+    kwargs = {key: kwargs[key] for key in relevant_args if key in kwargs.keys()}
+    return args.type, run_function, kwargs

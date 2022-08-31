@@ -8,7 +8,7 @@ from utils.general_utils import action_mapping, dump_arguments, write_stats
 from utils.lot_generator import *
 from utils.reward_analyzer import *
 from utils.feature_extractor import *
-from utils.plot_maker import plot_all_from_lines
+from utils.plots.make_plots import plot_all_from_lines
 from utils.calculations import get_angle_to_target
 from agents.ppo.ppo_agent import Agent
 from simulation.simulator import Simulator, DrawingMethod

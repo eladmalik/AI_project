@@ -1,6 +1,5 @@
 import os
 import sys
-from typing import Type
 import json
 
 import utils.general_utils
@@ -11,9 +10,8 @@ from utils import calculations
 from utils.csv_handler import csv_handler
 from utils.enums import StatsType
 from utils.lot_generator import *
-from utils.feature_extractor import *
 import utils.feature_extractor
-from utils.plot_maker import plot_all_from_lines
+from utils.plots.make_plots import plot_all_from_lines
 from utils.reward_analyzer import *
 from simulation.simulator import Simulator, DrawingMethod
 from agents.ppo_lstm.ppo_lstm_model import PPO_LSTM_Agent

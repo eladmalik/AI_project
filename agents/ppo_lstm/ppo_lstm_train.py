@@ -17,7 +17,7 @@ from utils.reward_analyzer import *
 from utils.feature_extractor import *
 from utils.general_utils import action_mapping
 from simulation.simulator import Simulator, DrawingMethod
-from utils.plot_maker import plot_all_from_lines
+from utils.plots.make_plots import plot_all_from_lines
 
 AGENT_TYPE = "PPO_LSTM"
 
