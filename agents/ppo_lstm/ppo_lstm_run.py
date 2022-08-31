@@ -101,6 +101,7 @@ def main(
                     env.update_screen(text)
 
                 state = s_prime
+                i_step += 1
                 if i_step % log_rate == 0 or done:
                     write_stats(result_writer, n_epi,
                                 i_step,
@@ -112,7 +113,6 @@ def main(
                                 results[Results.SUCCESS],
                                 results[Results.COLLISION],
                                 done)
-                i_step += 1
 
                 if done:
                     break
