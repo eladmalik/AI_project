@@ -1,0 +1,19 @@
+{
+    "plot_in_training": "False",
+    "max_iteration_time": "800",
+    "n_simulations": "2000",
+    "checkpoint_interval": "250",
+    "draw_rate": "1",
+    "lot_generator": "<function example_medium at 0x0000022F49303EE0>",
+    "plot_interval": "100",
+    "gamma": "0.999",
+    "draw_screen": "True",
+    "reward_analyzer": "<class 'utils.reward_analyzer.AnalyzerNew'>",
+    "load_iter": "./model/DQN2_27-08-2022__21-43-37/policy_net.pth",
+    "load_model": "False",
+    "time_difference_secs": "0.1",
+    "resize_screen": "False",
+    "batch_size": "128",
+    "load_folder": "None",
+    "feature_extractor": "<class 'utils.feature_extractor.ExtractorNew'>"
+}

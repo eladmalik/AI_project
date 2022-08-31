@@ -427,11 +427,11 @@ class ExtractorNew(FeatureExtractor):
         "Angle to Target (normalized with Cos)",
         "Velocity X (normalized with 1/1200)",
         "Velocity Y (normalized with 1/1200)",
-        "Acceleration (normalized with 1/1200)",
+        # "Acceleration (normalized with 1/1200)",
         "Steering (normalized with 1/100)",
         "All sensors"
     ]
-    input_num = 8 + 8*2
+    input_num = 7 + 8*2
 
     def get_state(self, parking_lot: ParkingLot) -> List[float]:
         factor = parking_lot.car_agent.height
@@ -481,7 +481,7 @@ class ExtractorNew(FeatureExtractor):
                 angle_left,
                 angle_right,
                 velocity, 
-                acceleration, #aa
+                # acceleration, #aa
                 str_left,
                 str_right,
                 *sensors, *proximity_sensors]

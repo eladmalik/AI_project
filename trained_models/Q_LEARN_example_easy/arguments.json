@@ -1,0 +1,20 @@
+{
+    "load_folder": "None",
+    "draw_rate": "1",
+    "max_iteration_time": "800",
+    "lot_generator": "<function example_easy at 0x0000028D2069B9D8>",
+    "checkpoint_interval": "250",
+    "plot_interval": "100",
+    "gamma": "0.9",
+    "reward_analyzer": "<class 'utils.reward_analyzer.AnalyzerAccumulating4FrontBack'>",
+    "resize_screen": "False",
+    "plot_in_training": "False",
+    "time_difference_secs": "0.1",
+    "n_simulations": "10000",
+    "feature_extractor": "<class 'utils.feature_extractor.Extractor9'>",
+    "draw_screen": "False",
+    "epsilon": "0.3",
+    "load_model": "False",
+    "load_iter": "None",
+    "learning_rate": "0.01"
+}

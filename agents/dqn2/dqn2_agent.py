@@ -142,5 +142,6 @@ class DQNReinforcmentAgent:
             name += f"_iter_{iteration}.pth"
         print(f"loading {os.path.join(self.save_folder, name)}")
         m = torch.load(os.path.join(self.save_folder, name))
-        self.policy_net.load_state_dict(m.state_dict())
+        self.policy_net.load_state_dict(m)
+        # self.policy_net.load_state_dict(m.state_dict())
         self.target_net.load_state_dict(self.policy_net.state_dict())
